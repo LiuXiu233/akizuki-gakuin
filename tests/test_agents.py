@@ -378,12 +378,26 @@ class TestPipelineRunner(unittest.IsolatedAsyncioTestCase):
         npc_tools = {t.name for t in runner._tools_for(stages["npc_react"])}
         self.assertEqual(npc_tools, set(), "NPC 扮演阶段不应有任何工具")
         intent_tools = {t.name for t in runner._tools_for(stages["intent"])}
-        self.assertIn("get_world_state", intent_tools)
+        self.assertIn("get_relevant_memories", intent_tools)
         self.assertNotIn("perform_action", intent_tools, "解析阶段不应能改变世界")
+        self.assertFalse(
+            intent_tools & {"end_turn", "save_game", "advance_time"},
+            "解析阶段不应拿到任何写工具",
+        )
         resolve_tools = {t.name for t in runner._tools_for(stages["resolve"])}
         self.assertIn("perform_action", resolve_tools)
         self.assertNotIn("new_game", resolve_tools)
         self.assertNotIn("load_game", resolve_tools)
+
+    async def test_tool_results_are_truncated(self) -> None:
+        """工具结果会在每轮迭代里重复发送，必须先截断再回灌。"""
+        from server.agents.runner import truncate_tool_result
+
+        short = truncate_tool_result({"ok": True})
+        self.assertNotIn("已截断", short)
+        long_text = truncate_tool_result({"ok": True, "blob": "字" * 5000})
+        self.assertLess(len(long_text), 3000)
+        self.assertIn("已截断", long_text)
 
     async def test_forbidden_tools_never_exposed(self) -> None:
         runner = self._runner("single")

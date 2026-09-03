@@ -98,6 +98,23 @@ class TurnContext:
         return None
 
 
+#: 回灌给模型的工具结果上限（字符）。工具返回值会在每一轮迭代里被重复发送，
+#: 不设限的话 get_action_context 这类大对象会把一个阶段的开销放大好几倍。
+TOOL_RESULT_CHAR_LIMIT = 2600
+
+
+def truncate_tool_result(result: Any, limit: int = TOOL_RESULT_CHAR_LIMIT) -> str:
+    """把工具结果压成给模型看的字符串，过长时截断并说明。"""
+    text = result if isinstance(result, str) else json.dumps(result, ensure_ascii=False)
+    if len(text) <= limit:
+        return text
+    return (
+        text[:limit]
+        + f"\n…（结果过长，已截断 {len(text) - limit} 字符。"
+        "需要完整内容时请用更具体的参数重新调用，不要凭空补全被截断的部分。）"
+    )
+
+
 def _summarize_tool_result(name: str, result: Any) -> str:
     """给事件流用的一句话摘要（避免把整个 JSON 塞进前端日志）。"""
     if not isinstance(result, dict):
@@ -273,7 +290,9 @@ class PipelineRunner:
                     "summary": _summarize_tool_result(call.name, tool_result),
                     "result": tool_result if self.debug else None,
                 }
-                messages.append(Message.tool_result(call.id, call.name, tool_result))
+                messages.append(
+                    Message.tool_result(call.id, call.name, truncate_tool_result(tool_result))
+                )
             final_text = result.text
         else:
             log.warning("stage %s 到达工具调用上限", stage["id"])
@@ -365,7 +384,7 @@ class PipelineRunner:
             return
 
         facts = ctx.produced("facts")
-        facts_text = json.dumps(facts, ensure_ascii=False) if isinstance(facts, (dict, list)) else str(facts or "")
+        facts_text = truncate_tool_result(facts if facts else "", 1200)
 
         async def one(npc_id: str) -> dict[str, Any]:
             character = await self.call_tool("get_character_state", {"character_id": npc_id, "include_hidden": True})

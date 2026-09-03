@@ -14,12 +14,19 @@ stages:
     role: main
     temperature: 0.4
     max_tokens: 1600
-    tools: ["get_*", "should_check", "find_duplicate"]
+    # 世界快照已经在 system 里给了时间/地点/在场角色/关系标签/推荐上下文，
+    # 这里只保留"快照里没有的"几样，避免把已知信息再查一遍
+    tools: [get_relevant_memories, get_character_state, get_schedule, should_check]
+    max_tool_iterations: 3
     output: json
     output_hint: plan
     produces: [plan]
     prompt: |
       只读世界，不要改变任何东西。把玩家的自然语言拆成有序的、可执行的步骤。
+
+      **上面的世界快照已经给了你时间、地点、在场角色、关系标签、玩家状态和推荐上下文，
+      不要再用工具去查这些。** 只有需要"某个角色的记忆/详细设定/日程"时才调用工具，
+      而且最多查两次。
       玩家可能一次说多个意图，按顺序列出；如果某一步依赖前一步的结果，在 description 里写清楚。
       判断每一步是否需要检定（可以调用 should_check 确认）。
 
