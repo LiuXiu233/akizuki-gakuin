@@ -59,16 +59,22 @@ export function NarrativeStream({
 }: { dark?: boolean; only?: "history" | "latest" }) {
   const { log, liveText, liveDialogue, busy, stageProgress, error } = useGame();
   const endRef = useRef<HTMLDivElement>(null);
+  const topRef = useRef<HTMLDivElement>(null);
+  const latest = only === "latest";
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [log.length, liveText, liveDialogue.length, busy]);
+    // 生成过程中跟着最新的字走；写完之后回到正文开头，
+    // 否则沉浸模式那个矮框里只看得见最后一行。
+    if (busy || !latest) endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    else topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [log.length, liveText, liveDialogue.length, busy, latest]);
 
   // 沉浸模式只看当前这一回合，历史去「日志」面板翻
   const recent = only === "latest" ? log.slice(-1) : log.slice(-12);
 
   return (
     <div className={`space-y-6 ${dark ? "text-paper" : ""}`}>
+      <div ref={topRef} />
       {!recent.length && !busy ? (
         <p className={`text-sm leading-relaxed ${dark ? "text-paper/70" : "text-ink-mute"}`}>
           输入你想做的事。可以很具体（「去天台吃午饭」），也可以是一串连续的打算
@@ -228,8 +234,8 @@ export function Recommendations({
               : "border-paper-edge bg-white/70 hover:border-dusk/30 hover:bg-white"
           }`}
         >
-          <span className={`mt-0.5 flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-md text-[10px] tabular-nums ${
-            dark ? "bg-white/15 text-paper/80" : "bg-dusk/10 text-dusk"}`}>
+          <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[11px] font-medium tabular-nums ${
+            dark ? "bg-paper/25 text-paper" : "bg-dusk text-paper"}`}>
             {index + 1}
           </span>
           <span className="min-w-0 flex-1">

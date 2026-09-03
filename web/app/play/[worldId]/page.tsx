@@ -158,9 +158,15 @@ export default function PlayPage({ params }: { params: Promise<{ worldId: string
 
           {/* 对话框压在下三分之一，别挡住场景与立绘 */}
           <div className="glass-dark mx-3 mb-3 flex max-h-[38dvh] flex-col rounded-3xl p-3.5 sm:mx-6 sm:mb-5 sm:p-4">
-            <div className="scroll-thin mb-2.5 min-h-[3rem] flex-1 overflow-y-auto pr-1">
-              <NarrativeStream dark only="latest" />
+            <div className="relative min-h-[3rem] flex-1">
+              <div className="scroll-thin h-full overflow-y-auto pr-1">
+                <NarrativeStream dark only="latest" />
+              </div>
+              {/* 上下渐隐，提示这一段还没读完 */}
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-black/45 to-transparent" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-black/45 to-transparent" />
             </div>
+            <div className="h-2.5" />
             <Recommendations dark onPick={(text) => void run(text)} />
             <InputBar dark onSubmit={(text) => void run(text)} onCancel={cancel} />
           </div>
