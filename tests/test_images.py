@@ -124,6 +124,29 @@ class ImageTestCase(unittest.IsolatedAsyncioTestCase):
             prompt = self.service.build_prompt(kind, "npc_hoshino_makoto", "", config)
             self.assertIn("18+", prompt)
 
+    async def test_uniform_tie_matches_grade(self) -> None:
+        """领带颜色按年级区分是世界设定，不能让模型随便挑。"""
+        from server.images import uniform_for
+
+        self.assertIn("green", uniform_for("class_1a"))
+        self.assertIn("red", uniform_for("class_2a"))
+        self.assertIn("blue", uniform_for("class_3b"))
+        self.assertNotIn("necktie", uniform_for(None))
+
+        config = self.service.resolve(self.creds())
+        # 天野凛是二年级 → 红领带
+        rin = self.service.build_prompt("avatar", "npc_amano_rin", "", config)
+        self.assertIn("red necktie", rin)
+        # 桐岛沙绘是三年级 → 蓝领带
+        sae = self.service.build_prompt("avatar", "npc_kirishima_sae", "", config)
+        self.assertIn("blue necktie", sae)
+
+    async def test_teacher_not_in_school_uniform(self) -> None:
+        config = self.service.resolve(self.creds())
+        prompt = self.service.build_prompt("portrait", "npc_tsukishima_kaoru", "", config)
+        self.assertIn("teacher", prompt.lower())
+        self.assertNotIn("necktie", prompt)
+
     async def test_scene_prompt_has_no_people(self) -> None:
         config = self.service.resolve(self.creds())
         prompt = self.service.build_prompt("scene", "loc_rooftop", "", config)

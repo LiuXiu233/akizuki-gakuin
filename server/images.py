@@ -74,10 +74,23 @@ KIND_TEMPLATES = {
     ),
 }
 
-UNIFORM = (
-    "wearing the school's navy blazer uniform with a white shirt "
-    "(green tie for first year, red for second, blue for third)"
-)
+#: 制服领带颜色按年级区分，是世界设定里写死的（world/school.md）。
+#: 不告诉模型具体年级的话，它会随便挑一个颜色，跨图不一致。
+TIE_BY_GRADE = {1: "green", 2: "red", 3: "blue"}
+
+UNIFORM_BASE = "wearing the school's navy blazer uniform with a white shirt"
+
+
+def uniform_for(class_id: str | None) -> str:
+    """按班级推出年级，给出正确的领带颜色。"""
+    grade = None
+    if isinstance(class_id, str):
+        match = re.search(r"class_(\d)", class_id)
+        if match:
+            grade = int(match.group(1))
+    if grade in TIE_BY_GRADE:
+        return f"{UNIFORM_BASE}, with a {TIE_BY_GRADE[grade]} necktie (year {grade} student)"
+    return UNIFORM_BASE
 
 
 class ImageError(Exception):
@@ -178,7 +191,8 @@ class ImageService:
                     character = {
                         "name": player.get("name"), "age": player.get("age"),
                         "appearance": (self.session.state.player.get("appearance") or ""),
-                        "gender": player.get("gender"),
+                        "gender": player.get("gender"), "class": player.get("class"),
+                        "role": "student",
                     }
                 else:
                     state = T.get_character_state(subject_id)
@@ -186,13 +200,17 @@ class ImageService:
                         character = {
                             "name": state.get("name"), "age": state.get("age"),
                             "appearance": state.get("appearance") or "",
-                            "gender": state.get("gender"),
+                            "gender": state.get("gender"), "class": state.get("class"),
+                            "role": state.get("role"),
                         }
                 if character:
                     parts.append(f"Character: {character['name']}, {character['age']} years old (adult), {character.get('gender') or ''}.")
                     if character["appearance"]:
                         parts.append(f"Appearance (follow exactly): {character['appearance']}")
-                    parts.append(UNIFORM)
+                    if character.get("role") == "teacher":
+                        parts.append("Adult teacher in ordinary office wear, not a school uniform")
+                    else:
+                        parts.append(uniform_for(character.get("class")))
             elif kind == "scene":
                 location = self.session.registry.get("location", subject_id) or {}
                 world = T.get_world_state()
