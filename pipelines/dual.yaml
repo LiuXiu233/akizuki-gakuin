@@ -1,0 +1,48 @@
+# ============================================================
+# 双 Agent 模式 —— 主控负责规则与叙事，NPC 各自扮演自己。
+# 信息隔离比单 Agent 严格得多，成本只比单 Agent 高一点。
+# ============================================================
+
+id: dual
+name: 双 Agent
+description: "主控 Agent 负责工具调用、结算、旁白与推荐；每个在场 NPC 由独立 Agent 扮演。"
+max_tool_iterations: 8
+
+stages:
+  - id: act
+    name: 主控
+    role: main
+    temperature: 0.7
+    max_tokens: 2500
+    tools: ["*"]
+    produces: [facts]
+    output: text
+    prompt: |
+      解析玩家输入并用工具完成全部结算（判定、时间、精力、金钱、关系、记忆）。
+      NPC 是否答应邀请或告白，必须调用 npc_decide_* 。
+
+      **你这一阶段不要写 NPC 的台词**——在场角色会由他们各自的扮演者开口。
+      你的输出是一段简短的"发生了什么"，供后续阶段使用（100 字以内）。
+
+  - id: npc_react
+    name: NPC 反应
+    role: npc
+    for_each: nearby_npcs
+    max_subjects: 3
+    parallel: true
+    temperature: 0.9
+    max_tokens: 500
+    tools: []
+    produces: [dialogue]
+
+  - id: wrap
+    name: 旁白与推荐
+    role: narrator
+    temperature: 0.85
+    max_tokens: 2000
+    tools: [end_turn, get_action_context, record_recommendations, add_memory]
+    produces: [narration, recommendations]
+    prompt: |
+      把这一回合写成连贯的场景，把 NPC 的台词自然地编织进去（不要改写台词内容）。
+      写完后调用 end_turn 收尾，再另起一段以「【你可以……】」开头给出 3~5 条推荐行动，
+      每条注明大概耗时。不要泄露隐藏数值，不要暗示成功率。

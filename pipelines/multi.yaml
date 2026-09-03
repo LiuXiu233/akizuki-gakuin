@@ -1,0 +1,99 @@
+# ============================================================
+# 多 Agent 模式 —— 完整流水线。分工最清晰、信息隔离最严格。
+# 每回合约 5~8 次模型调用，成本与延迟最高，效果最好。
+# ============================================================
+
+id: multi
+name: 多 Agent 流水线
+description: "主控解析 → 裁判结算 → NPC 并行反应 → 旁白合成 → 导演收尾 →（可选）画师出图。"
+max_tool_iterations: 6
+
+stages:
+  - id: intent
+    name: 主控解析
+    role: main
+    temperature: 0.4
+    max_tokens: 1200
+    tools: ["get_*", "should_check", "find_duplicate"]
+    output: json
+    output_hint: plan
+    produces: [plan]
+    prompt: |
+      只读世界，不要改变任何东西。把玩家的自然语言拆成有序的、可执行的步骤。
+      玩家可能一次说多个意图，按顺序列出；如果某一步依赖前一步的结果，在 description 里写清楚。
+      判断每一步是否需要检定（可以调用 should_check 确认）。
+
+  - id: resolve
+    name: 裁判结算
+    role: judge
+    temperature: 0.2
+    max_tokens: 1500
+    tools: [perform_action, resolve_check, move_character, buy_item, advance_time, sleep,
+            apply_relationship_event, npc_decide_invitation, npc_decide_confession,
+            add_memory, join_club, leave_club, create_npc, promote_npc,
+            register_skill, register_knowledge, register_location, register_group,
+            add_dynamic_interest, get_character_state, get_relationship, get_nearby_characters]
+    output: json
+    output_hint: facts
+    produces: [facts]
+    inputs: [plan]
+    prompt: |
+      按主控给出的步骤依次结算。每一步都必须真的调用工具。
+      如果某一步已经不可能（对方不在、店关门了、钱不够、太晚了），跳过它并记在 blocked 里，
+      **不要强行让它发生**。
+      需要新 NPC / 新地点 / 新技能时，先查重再注册。
+
+  - id: npc_react
+    name: NPC 反应
+    role: npc
+    for_each: nearby_npcs
+    max_subjects: 4
+    parallel: true
+    temperature: 0.9
+    max_tokens: 500
+    tools: []
+    produces: [dialogue]
+    inputs: [facts]
+
+  - id: narrate
+    name: 旁白合成
+    role: narrator
+    temperature: 0.85
+    max_tokens: 2000
+    tools: []
+    produces: [narration]
+    inputs: [plan, facts, dialogue]
+    prompt: |
+      把这一回合写成一段连贯的场景。NPC 的台词已经给出，原样使用、不要改写内容，
+      但可以调整它们出现的顺序和穿插的动作。
+      不要复述数值，不要写检定过程，不要替玩家做决定。
+
+  - id: direct
+    name: 导演收尾
+    role: director
+    temperature: 0.7
+    max_tokens: 1200
+    tools: [end_turn, get_action_context, record_recommendations]
+    output: json
+    output_hint: recommendations
+    produces: [recommendations]
+    inputs: [facts, narration]
+    prompt: |
+      先调用 end_turn 收尾这一回合（后台世界模拟、随机事件、NPC 晋升、自动存档），
+      再根据它返回的 action_context 给出 3~5 条推荐行动，最后调用 record_recommendations 记录。
+
+  - id: illustrate
+    name: 画师
+    role: illustrator
+    optional: true                  # 未配置文生图时自动跳过
+    requires: images_enabled
+    temperature: 0.7
+    max_tokens: 800
+    tools: []
+    output: json
+    output_hint: images
+    produces: [images]
+    inputs: [narration]
+    prompt: |
+      判断这一回合是否值得出图。大多数回合不需要——只在场景切换、
+      第一次见到某个角色、或情绪高点时出图。

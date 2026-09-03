@@ -122,6 +122,10 @@ data/                                    ← AKIZUKI_DATA_DIR，已 gitignore
 | GET | `/api/worlds/{id}/tools` | 工具清单 |
 | POST | `/api/worlds/{id}/tools/{name}` | **调用工具（唯一写入通道）** |
 | POST | `/api/worlds/{id}/tools` | 批量调用（组合行动） |
+| POST | `/api/worlds/{id}/turn` | 跑一个完整回合（多 Agent 流水线，一次性返回） |
+| POST | `/api/worlds/{id}/turn/stream` | 同上，SSE 流式 |
+| POST | `/api/llm/chat` | LLM 代理（OpenAI / Anthropic 双格式，可流式） |
+| POST | `/api/llm/verify` | 连通性自检（验 key / base_url / model） |
 
 鉴权：`X-Access-Password`（配置了口令时必须）+ `X-User-Token`（世界相关接口必须）。
 
@@ -130,9 +134,59 @@ data/                                    ← AKIZUKI_DATA_DIR，已 gitignore
 
 ---
 
-## 5. 里程碑
+## 5. 多 Agent 流水线
+
+流水线是 YAML，不是代码。`pipelines/` 下每个文件就是一种玩法：
+
+| 预设 | 阶段 | 每回合模型调用 | 特点 |
+|---|---|---|---|
+| `single` | turn | 1~N | 带完整 AGENT.md，一个 Agent 干完所有事。最省 token |
+| `dual` | act → npc_react(并行) → wrap | 3~6 | 主控管规则与旁白，NPC 各自扮演自己 |
+| `multi` | intent → resolve → npc_react(并行) → narrate → direct →（可选）illustrate | 5~10 | 分工最细、信息隔离最严 |
+
+阶段字段：
+
+```yaml
+- id: resolve            # 阶段 ID
+  name: 裁判结算          # 显示名（前端进度条用）
+  role: judge            # main / judge / npc / narrator / director / illustrator
+  temperature: 0.2
+  max_tokens: 1500
+  tools: [perform_action, resolve_check, ...]   # 支持 "get_*" 通配与 "*"
+  output: json           # json 时会做容错解析
+  output_hint: facts     # 预置的输出格式说明
+  produces: [facts]      # 写进黑板的产出类型
+  inputs: [plan]         # 从黑板取哪些前序产出
+  for_each: nearby_npcs  # 对每个在场 NPC 各跑一次
+  parallel: true
+  max_subjects: 4
+  optional: true
+  requires: images_enabled
+  include_agent_md: true # 带完整 AGENT.md（单 Agent 模式用）
+```
+
+### 三条硬约束写死在执行器里
+
+1. **NPC 扮演阶段永远拿不到任何写工具** —— 即使 YAML 里写了也会被过滤掉。
+2. **`new_game` / `load_game` 对所有阶段不可见** —— 它们会替换整个存档。
+3. **收尾时面板、世界状态、判定文本、成长文本全部从引擎重新取**，
+   不采信模型的复述。模型只能决定"说什么"，不能决定"数值是多少"。
+
+单个阶段失败（上游超时、格式错误）不会终止整个回合：
+执行器发出 `stage_error` 事件后继续跑下一阶段，最终仍然返回权威面板。
+
+### SSE 事件
+
+```
+turn_start → stage_start → [delta | tool_call | tool_result | dialogue | subject_start]* 
+           → stage_end → … → turn_end
+```
+
+---
+
+## 6. 里程碑
 
 - [x] **M1 后端 API + 多用户多存档** — FastAPI、会话隔离、存档 CRUD、工具通道、26 个 API 测试
-- [ ] **M2 LLM 双格式适配 + 可配置流水线** — OpenAI/Anthropic 适配器、pipelines/*.yaml、SSE
+- [x] **M2 LLM 双格式适配 + 可配置流水线** — OpenAI/Anthropic 适配器、三份流水线预设、SSE、29 个测试
 - [ ] **M3 Next.js 前端** — 双模式界面、四类页面、设置、流式渲染
 - [ ] **M4 文生图** — 四类图像、按需生成、缓存、自定义模板、SFW 约束

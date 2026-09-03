@@ -1,0 +1,31 @@
+# ============================================================
+# 单 Agent 模式 —— 原 AGENT.md 的行为，一个模型干完所有事。
+# 最省 token、最连贯，但 NPC 之间的信息隔离靠模型自觉。
+# ============================================================
+
+id: single
+name: 单 Agent
+description: "一个 Agent 承担世界模拟、NPC 对话、旁白、推荐行动。带完整 AGENT.md。"
+max_tool_iterations: 8
+
+stages:
+  - id: turn
+    name: 全能主控
+    role: main
+    include_agent_md: true          # 带完整 AGENT.md
+    temperature: 0.8
+    max_tokens: 4000
+    tools: ["*"]
+    produces: [narration, recommendations]
+    prompt: |
+      你要独自完成这一回合的全部工作：
+
+      1. 读取世界状态、在场角色、关系、相关记忆。
+      2. 解析玩家的自然语言（可能包含多个连续意图）。
+      3. 判断是否需要检定；需要就调用 resolve_check 或 perform_action。
+      4. NPC 是否答应，必须调用 npc_decide_invitation / npc_decide_confession。
+      5. 用工具完成全部结算，写入必要的记忆（add_memory）。
+      6. 调用 end_turn 收尾（它会跑后台世界模拟、随机事件、NPC 晋升并自动存档）。
+      7. 输出剧情正文。**不要写「【剧情】」这个标题。**
+         判定与状态面板由引擎单独渲染，你不要重复它们。
+      8. 最后另起一段，以「【你可以……】」开头，给出 3~5 条推荐行动，每条注明大概耗时。
