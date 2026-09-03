@@ -8,12 +8,21 @@
 
 | 组件 | 地址 | 说明 |
 |---|---|---|
-| 前端 | https://akizuki-gakuin.vercel.app | Vercel，已连 GitHub，推 main 自动部署 |
+| 前端 | https://ga.xiu.moe | Vercel，已连 GitHub，推 main 自动部署 |
+| 前端（备用域名） | https://akizuki-gakuin.vercel.app | 同一个部署 |
 | 后端 | https://mo.xiu.moe | 腾讯云 43.165.178.110，Caddy + Let's Encrypt |
 | 仓库 | https://github.com/LiuXiu233/akizuki-gakuin | 私有 |
 | 服务器登录 | `ssh -i ~/Downloads/xiusg.pem ubuntu@43.165.178.110` | 免密 sudo |
 | 代码目录 | `/opt/akizuki` | git 克隆，可 `git pull` 更新 |
 | 数据目录 | `/opt/akizuki/data` | 所有用户的存档与图片 |
+
+### 已配置的上游（2026-09-03 实测可用）
+
+| | 配置 | 备注 |
+|---|---|---|
+| LLM | DeepSeek `deepseek-v4-pro` @ `https://api.deepseek.com` | 可选 `deepseek-v4-flash`（更便宜更快） |
+| 文生图 | `gpt-image-2` @ `http://api.xiu.moe/v1` | **注意是 http**：该网关只开了 80 端口，443 拒绝连接；一张图约 57 秒 |
+| 推理开关 | `AKIZUKI_LLM_EXTRA_PARAMS={"reasoning_effort":"none"}` | 见下文 |
 
 ### 访问口令
 
@@ -82,10 +91,9 @@ key 只随请求发一次，**服务器不落盘、不写日志**。
 
 | 用途 | 推荐 | 理由 |
 |---|---|---|
-| 全局默认 | `claude-sonnet-5` | 中文叙事质量与成本的平衡点 |
-| 追求叙事质量 | `claude-opus-5` | 人物语气与分寸感最好，贵 |
-| 省钱 | `claude-haiku-4-5-20251001` | NPC 短台词完全够用 |
-| OpenAI 兼容 | `gpt-4o` 一类 | 按你的中转站支持的填 |
+| 当前配置 | `deepseek-v4-pro` | 已实测：中文叙事细腻，工具调用稳定 |
+| 想更快更省 | `deepseek-v4-flash` | 同一个 key 就能用，NPC 台词这类短输出完全够 |
+| 换 Anthropic | `claude-sonnet-5` / `claude-opus-5` | 记得把 provider 改成 anthropic，并删掉 reasoning_effort |
 
 **分阶段用不同模型**（`multi` 流水线最划算的用法）：编辑
 `/opt/akizuki/pipelines/multi.yaml`，给某个阶段加一行 `model:` ——
@@ -103,15 +111,42 @@ key 只随请求发一次，**服务器不落盘、不写日志**。
 
 改完 `sudo systemctl restart akizuki`。
 
-### 每回合大概花多少
+### 每回合大概花多少（真机实测，DeepSeek v4-pro，关闭推理）
 
-| 流水线 | 模型调用次数 | 相对成本 |
-|---|---|---|
-| `single` | 1～3 | 1× |
-| `dual` | 3～6 | 2× |
-| `multi` | 5～10 | 3～4× |
+| 流水线 | 耗时 | token | 叙事 | NPC 台词分离 |
+|---|---|---|---|---|
+| `single` | ~24 秒 | ~85,000 | 短 | 否 |
+| `dual` | ~23 秒 | ~46,000 | 中 | 是 |
+| `multi` | ~45 秒 | ~60,000 | 长 | 是 |
 
-`multi` 的 NPC 阶段是**并行**的，在场几个人就并发几次，延迟不会线性增长。
+**和直觉相反，`single` 最贵**——它带完整 AGENT.md 且拿到全部 51 个工具，
+而 system prompt 会在每一轮工具迭代里重发。
+
+**日常用 `dual`，重要场景（告白 / 文化祭 / 修学旅行）再切 `multi`。**
+网页「设置 → Agent」一键切换，不用重启任何东西。
+
+### 推理模型（重要）
+
+`deepseek-v4-pro` 是推理模型：一句话回答要先烧 182 个思考 token（5.7 秒），
+关掉后只要 52 token（2.3 秒），而且**工具调用完全不受影响**。
+一个 multi 回合有 5~10 次调用，这是 3 倍的时间和费用差。
+
+服务器已经配置为关闭推理：
+
+```bash
+AKIZUKI_LLM_EXTRA_PARAMS={"reasoning_effort":"none"}
+```
+
+想让某个阶段重新开启推理（比如让旁白更讲究），编辑
+`/opt/akizuki/pipelines/multi.yaml` 的对应阶段：
+
+```yaml
+  - id: narrate
+    extra_params: {reasoning_effort: "medium"}
+```
+
+> 这个参数是 DeepSeek / o 系列 / gpt-5 这类推理模型专有的。
+> 换成 gpt-4o 一类的非推理模型时**必须删掉**，否则上游会直接报错。
 
 ---
 
@@ -128,9 +163,9 @@ sudo -u ubuntu nano /opt/akizuki/.env
 ```bash
 AKIZUKI_IMAGE_ENABLED=true
 AKIZUKI_IMAGE_PROVIDER=openai
-AKIZUKI_IMAGE_BASE_URL=https://api.openai.com/v1
+AKIZUKI_IMAGE_BASE_URL=http://api.xiu.moe/v1   # 当前配置。注意是 http 且带 /v1
 AKIZUKI_IMAGE_API_KEY=sk-xxxxxxxx
-AKIZUKI_IMAGE_MODEL=gpt-image-1          # 或 dall-e-3
+AKIZUKI_IMAGE_MODEL=gpt-image-2
 AKIZUKI_IMAGE_SIZE=1024x1024
 AKIZUKI_IMAGE_SFW=true                   # 强烈建议保持 true
 AKIZUKI_IMAGE_STYLE=                     # 留空用内置日系动画风
@@ -219,7 +254,7 @@ git push          # Vercel 自动构建 web/ 并上线
 |---|---|---|
 | `AKIZUKI_DATA_DIR` | `/opt/akizuki/data` | 存档与图片 |
 | `AKIZUKI_ACCESS_PASSWORD` | 见上文 | 留空 = 任何人可访问 |
-| `AKIZUKI_ALLOW_ORIGINS` | `https://akizuki-gakuin.vercel.app,http://localhost:3000` | CORS 白名单 |
+| `AKIZUKI_ALLOW_ORIGINS` | `https://ga.xiu.moe,https://akizuki-gakuin.vercel.app,http://localhost:3000` | CORS 白名单 |
 | `AKIZUKI_MAX_CACHED_SESSIONS` | `16` | 2G 内存下的保守值 |
 | `AKIZUKI_MAX_WORLDS_PER_USER` | `20` | 每人最多几个存档 |
 | `AKIZUKI_MAX_USERS` | `0` | 0 = 不限 |
@@ -251,6 +286,8 @@ git push          # Vercel 自动构建 web/ 并上线
 | 回合转很久没反应 | 上游超时 | `journalctl -u akizuki -f` 看有没有 502/504 |
 | 流式没有逐字效果 | 反代缓冲了 SSE | Caddyfile 里必须有 `flush_interval -1` |
 | 立绘一直是色块 | 没配图像 API | 设置 → 立绘，或服务器 `.env` |
+| 出图很慢 | `gpt-image-2` 一张约 57 秒 | 正常现象；关掉「自动出图」改成手动点 |
+| 图像 API 连不上 | 网关的 443 端口没开 | base_url 用 `http://`（后端是服务端调用，不受混合内容限制） |
 | 图片 403/404 | 用户令牌换过 | 图片按用户隔离，换令牌等于换人 |
 | 证书过期 | Caddy 自动续期失败 | `sudo journalctl -u caddy | grep -i renew` |
 | 内存吃紧（2G 机器） | 缓存世界太多 | 调小 `AKIZUKI_MAX_CACHED_SESSIONS` |

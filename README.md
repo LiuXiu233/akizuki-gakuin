@@ -78,7 +78,7 @@ npm --prefix web run build                        # 前端构建
 
 | 能力 | 说明 |
 |---|---|
-| 多 Agent 流水线 | `single` / `dual` / `multi` 三种预设，YAML 定义，界面一键切换 |
+| 多 Agent 流水线 | `single` / `dual` / `multi` 三种预设，YAML 定义，界面一键切换（实测 `dual` 性价比最高，见 docs/ARCHITECTURE.md） |
 | 双格式 LLM | OpenAI 兼容与 Anthropic，均支持工具调用与流式 |
 | 三种调用位置 | 自建后端 / Vercel 边缘 / 浏览器直连，对应三种信任模型 |
 | 双模式界面 | 沉浸模式（立绘 + 对话框）与面板模式（三栏数据） |
