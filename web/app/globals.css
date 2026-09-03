@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  @apply bg-paper text-ink font-sans antialiased;
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(232, 160, 170, 0.10), transparent 42%),
+    radial-gradient(circle at 88% 0%, rgba(47, 59, 82, 0.10), transparent 38%);
+  background-attachment: fixed;
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-paper-edge bg-white/70 shadow-[0_1px_0_rgba(255,255,255,0.8)_inset,0_8px_24px_-16px_rgba(28,26,25,0.35)] backdrop-blur;
+  }
+  .card-tight { @apply card p-4; }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium
+           transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-45;
+  }
+  .btn-primary { @apply btn bg-dusk text-paper hover:bg-dusk-soft active:scale-[0.98]; }
+  .btn-ghost   { @apply btn border border-paper-edge bg-white/60 text-ink hover:bg-white; }
+  .btn-sakura  { @apply btn bg-sakura-deep text-white hover:bg-sakura active:scale-[0.98]; }
+  .btn-quiet   { @apply btn text-ink-mute hover:bg-black/5; }
+  .btn-sm      { @apply px-2.5 py-1 text-xs; }
+
+  .field {
+    @apply w-full rounded-xl border border-paper-edge bg-white/80 px-3 py-2 text-sm
+           outline-none transition focus:border-dusk-soft focus:ring-2 focus:ring-dusk/15;
+  }
+  .label { @apply mb-1 block text-xs font-medium text-ink-mute; }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full border border-paper-edge
+           bg-white/70 px-2.5 py-0.5 text-xs text-ink-mute;
+  }
+  .chip-on { @apply border-dusk/30 bg-dusk/10 text-dusk; }
+
+  .panel-title {
+    @apply mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-mute;
+  }
+
+  .scroll-thin { scrollbar-width: thin; scrollbar-color: rgba(28,26,25,0.2) transparent; }
+  .scroll-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scroll-thin::-webkit-scrollbar-thumb { background: rgba(28,26,25,0.18); border-radius: 999px; }
+  .scroll-thin::-webkit-scrollbar-track { background: transparent; }
+
+  /* 沉浸模式：深色玻璃 */
+  .glass-dark {
+    @apply rounded-2xl border border-white/10 bg-black/55 text-paper backdrop-blur-md;
+  }
+}
+
+.prose-narrative {
+  @apply text-[15px] leading-[1.95] tracking-[0.01em];
+}
+.prose-narrative p { @apply mb-3.5; }
+.prose-narrative p:last-child { @apply mb-0; }
+
+.caret::after {
+  content: "▍";
+  @apply ml-0.5 animate-pulse-soft opacity-70;
+}

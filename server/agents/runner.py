@@ -105,6 +105,8 @@ def _summarize_tool_result(name: str, result: Any) -> str:
     if not result.get("ok", True):
         return f"失败：{result.get('error', '')}"[:200]
     if name == "perform_action":
+        if result.get("feasible") is False:
+            return f"{result.get('action_type')} 没能进行：{'；'.join(result.get('problems') or []) or '条件不满足'}"
         check = (result.get("check") or {}).get("result")
         return f"已结算 {result.get('action_type')}" + (f"（{check}）" if check else "")
     if name in ("npc_decide_invitation", "npc_decide_confession"):
