@@ -22,6 +22,8 @@ Agent 不能直接读写 JSON、不能自己骰骰子、不能自己改数值—
 
 from __future__ import annotations
 
+import contextlib
+import contextvars
 import inspect
 import json
 import logging
@@ -63,8 +65,15 @@ log = logging.getLogger("engine.tools")
 class GameSession:
     """把所有管理器绑在一个 :class:`GameState` 上。"""
 
-    def __init__(self, root: str | Path | None = None, *, seed: int | None = None, autoload: bool = True) -> None:
-        self.manager = StateManager(root)
+    def __init__(
+        self,
+        root: str | Path | None = None,
+        *,
+        data_root: str | Path | None = None,
+        seed: int | None = None,
+        autoload: bool = True,
+    ) -> None:
+        self.manager = StateManager(root, data_root)
         setup_logging(self.manager.root, self.manager.config)
         self.state: GameState = self.manager.load() if autoload else self.manager.new_game(seed=seed)
         self.rng = make_rng(self.state.config, seed)
@@ -110,10 +119,21 @@ class GameSession:
 
 
 _SESSION: GameSession | None = None
+#: 当前上下文的会话。Web 服务按请求绑定，使多用户 / 多存档可以共用同一套工具函数。
+_CURRENT_SESSION: contextvars.ContextVar["GameSession | None"] = contextvars.ContextVar(
+    "akizuki_current_session", default=None
+)
 
 
 def get_session(*, root: str | Path | None = None) -> GameSession:
-    """获取（必要时创建）全局会话。"""
+    """获取当前会话。
+
+    优先返回**当前上下文**绑定的会话（见 :func:`use_session`）；
+    没有绑定时回落到进程级全局会话（CLI / MCP / 测试用的单人模式）。
+    """
+    scoped = _CURRENT_SESSION.get()
+    if scoped is not None:
+        return scoped
     global _SESSION
     if _SESSION is None:
         _SESSION = GameSession(root)
@@ -121,10 +141,32 @@ def get_session(*, root: str | Path | None = None) -> GameSession:
 
 
 def reset_session(session: GameSession | None = None) -> GameSession:
-    """替换全局会话（测试与 new_game 使用）。"""
+    """替换进程级全局会话（测试与 new_game 使用）。"""
     global _SESSION
     _SESSION = session if session is not None else GameSession()
     return _SESSION
+
+
+@contextlib.contextmanager
+def use_session(session: GameSession):
+    """在一个作用域内把工具函数绑定到指定会话。
+
+        with use_session(session):
+            perform_action("talk", target="npc_amano_rin")
+
+    Web 服务为每个请求绑定对应用户 / 存档的会话，
+    从而让 51 个工具函数在多用户环境下原样可用。
+    """
+    token = _CURRENT_SESSION.set(session)
+    try:
+        yield session
+    finally:
+        _CURRENT_SESSION.reset(token)
+
+
+def current_session() -> "GameSession | None":
+    """返回当前上下文绑定的会话（没有则 None）。"""
+    return _CURRENT_SESSION.get()
 
 
 # ---------------------------------------------------------------------------
@@ -1139,12 +1181,25 @@ def list_saves() -> dict[str, Any]:
 
 def new_game(seed: int | None = None, player: dict[str, Any] | None = None) -> dict[str, Any]:
     """开始新游戏（会覆盖 state/ 下的当前状态）。"""
-    session = GameSession(seed=seed, autoload=False)
+    current = get_session()
+    fresh = GameSession(
+        root=current.manager.root,
+        data_root=current.manager.data_root,
+        seed=seed,
+        autoload=False,
+    )
     if player:
-        session.state.characters["player"].update(player)
-    reset_session(session)
-    session.save()
-    return {"ok": True, "world": session.time.now_dict(), "seed": session.rng.seed}
+        fresh.state.characters["player"].update(player)
+    if current_session() is not None:
+        # Web 场景：原地替换当前会话的世界，不动进程级全局会话
+        current.reload_from(fresh.state)
+        current.rng = fresh.rng
+        current._build()
+        current.save()
+        return {"ok": True, "world": current.time.now_dict(), "seed": current.rng.seed}
+    reset_session(fresh)
+    fresh.save()
+    return {"ok": True, "world": fresh.time.now_dict(), "seed": fresh.rng.seed}
 
 
 def create_player(

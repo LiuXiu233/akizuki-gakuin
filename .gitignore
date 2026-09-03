@@ -5,3 +5,16 @@ state/engine.log
 __pycache__/
 *.pyc
 .DS_Store
+
+# 后端
+.venv/
+.env
+data/
+
+# 前端
+web/node_modules/
+web/.next/
+web/out/
+web/.vercel/
+web/.env*.local
+node_modules/

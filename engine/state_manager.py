@@ -120,9 +120,21 @@ def setup_logging(root: Path, config: dict[str, Any]) -> None:
 class StateManager:
     """负责把磁盘上的东西变成 :class:`GameState`，以及反过来。"""
 
-    def __init__(self, root: str | Path | None = None) -> None:
+    def __init__(self, root: str | Path | None = None, data_root: str | Path | None = None) -> None:
+        #: 静态世界资料（config/ world/ characters/ rules/ events/）的根目录
         self.root = Path(root) if root else ROOT
+        #: 可变数据（state/ saves/）的根目录。多用户部署时每个世界一个独立目录。
+        self.data_root = Path(data_root) if data_root else self.root
         self._static: dict[str, Any] | None = None
+
+    def _display_path(self, path: Path) -> str:
+        """尽量给出相对路径，跨根目录时退回绝对路径。"""
+        for base in (self.data_root, self.root):
+            try:
+                return str(path.relative_to(base))
+            except ValueError:
+                continue
+        return str(path)
 
     # ------------------------------------------------------------------
     # 静态数据
@@ -258,7 +270,7 @@ class StateManager:
     # 读写
     # ------------------------------------------------------------------
     def state_path(self, key: str) -> Path:
-        return self.root / STATE_FILES[key]
+        return self.data_root / STATE_FILES[key]
 
     def exists(self) -> bool:
         path = self.state_path("world")
@@ -298,14 +310,14 @@ class StateManager:
         for key in STATE_FILES:
             path = self.state_path(key)
             atomic_write_json(path, getattr(state, key), backups=backups)
-            written[key] = str(path.relative_to(self.root))
+            written[key] = self._display_path(path)
         return written
 
     # ------------------------------------------------------------------
     # 存档槽
     # ------------------------------------------------------------------
     def save_dir(self) -> Path:
-        path = self.root / "saves"
+        path = self.data_root / "saves"
         path.mkdir(parents=True, exist_ok=True)
         return path
 
@@ -330,7 +342,7 @@ class StateManager:
         path = self.save_dir() / f"{slot}.json"
         atomic_write_json(path, snapshot, backups=int((state.config.get("save") or {}).get("keep_backups", 5)))
         self.save(state)
-        return str(path.relative_to(self.root))
+        return self._display_path(path)
 
     def load_game(self, slot: str = "save_001") -> GameState:
         path = self.save_dir() / f"{slot}.json"
@@ -355,7 +367,7 @@ class StateManager:
                 meta = json.loads(path.read_text(encoding="utf-8")).get("meta", {})
             except (json.JSONDecodeError, OSError):
                 meta = {"error": "损坏"}
-            out.append({"slot": path.stem, "path": str(path.relative_to(self.root)), **meta})
+            out.append({"slot": path.stem, "path": self._display_path(path), **meta})
         return out
 
 
