@@ -28,37 +28,66 @@ LLM 负责内容 —— Python 负责规则 —— 存档负责历史
 
 ---
 
-## 快速开始
+## 快速开始（网页版）
 
 ```bash
-cd highschool-life
-python3 -m pip install pyyaml          # 唯一的第三方依赖
+# 1. 后端（规则引擎 + 多 Agent 编排 + 文生图）
+python3 -m venv .venv && .venv/bin/pip install -r server/requirements.txt
+cp .env.example .env                   # 按需填口令 / API key，全留空也能跑
+.venv/bin/python -m server             # http://localhost:8000
 
-# 1. 确认世界可用
+# 2. 前端
+cd web && npm install && npm run dev   # http://localhost:3000
+```
+
+打开 http://localhost:3000 →「开始新的一年」→ 创建角色 →
+到「设置 → 模型」填入你的 API key（OpenAI 兼容或 Anthropic 都行）→ 开始输入你想做的事。
+
+部署：前端丢给 Vercel（Root Directory 设为 `web`），后端放你自己的服务器。
+详见 [`web/README.md`](web/README.md) 与 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)。
+
+## 快速开始（纯引擎 / CLI）
+
+```bash
+python3 -m pip install pyyaml          # 引擎唯一的第三方依赖
+
 python3 -m engine.tools call get_world_state '{}'
-
-# 2. 看看有哪些工具
 python3 -m engine.tools list
-
-# 3. 开新游戏 + 建角色
 python3 -m engine.tools call new_game '{"seed": 20250416}'
 python3 -m engine.tools call create_player '{"name":"佐藤悠","age":19,"preset":"preset_artist"}'
 python3 -m engine.tools call get_turn_panel '{}'
 ```
 
 然后把 **`AGENT.md`** 交给你的 LLM Agent 当系统提示词，把
-**`PROMPT.md` 的 A 段**发给它，游戏就开始了。
+**`PROMPT.md` 的 A 段**发给它，游戏就开始了。CLI、MCP、单元测试这条路径
+在网页版加入后**完全没有改变**。
 
 ### 验证
 
 ```bash
-python3 -m unittest discover -s tests -t .    # 128 个单元测试
-python3 scripts/verify_consistency.py         # 23 项世界一致性检查
-python3 scripts/smoke_test.py                 # 50 回合 smoke test（27 项覆盖）
-python3 scripts/export_tools.py               # 重新导出 agent_tools.json
+python3 -m unittest discover -s tests -t .        # 引擎 128 个测试（无 fastapi 时自动跳过后端测试）
+.venv/bin/python -m unittest discover -s tests -t .  # 全部 203 个（含后端 / Agent / 图像）
+python3 scripts/verify_consistency.py             # 23 项世界一致性检查
+python3 scripts/smoke_test.py                     # 50 回合 smoke test（27 项覆盖）
+npm --prefix web run build                        # 前端构建
 ```
 
 ---
+
+## 网页版做了什么
+
+| 能力 | 说明 |
+|---|---|
+| 多 Agent 流水线 | `single` / `dual` / `multi` 三种预设，YAML 定义，界面一键切换 |
+| 双格式 LLM | OpenAI 兼容与 Anthropic，均支持工具调用与流式 |
+| 三种调用位置 | 自建后端 / Vercel 边缘 / 浏览器直连，对应三种信任模型 |
+| 双模式界面 | 沉浸模式（立绘 + 对话框）与面板模式（三栏数据） |
+| 多用户多存档 | 用户令牌即存档钥匙，可导出导入，跨设备继续 |
+| 文生图 | 头像 / 立绘 / 场景 / 事件 CG，按需生成 + 缓存，不配置就自动关闭 |
+| 流式与非流式 | SSE 实时显示阶段进度与逐字叙事，也可以等整回合一次性返回 |
+
+**引擎没有为网页版做任何妥协**：规则、判定、关系、存档全部仍在 `engine/` 里，
+Web 层只做传输、隔离与编排。隐藏的关系数值从来不会离开服务器。
 
 ## 给 AI Agent 的接入方式
 
@@ -128,7 +157,10 @@ highschool-life/
 ├─ events/event_pool.yaml    141 条事件模板
 ├─ state/*.json              运行时状态（世界/角色/关系/记忆/事件/注册表）
 ├─ saves/save_001.json       存档槽
-├─ tests/                    128 个单元测试
+├─ server/                   FastAPI 后端（LLM 适配 / 多 Agent 编排 / 文生图）
+├─ pipelines/                Agent 流水线定义（single / dual / multi）
+├─ web/                      Next.js 前端（部署 Vercel）
+├─ tests/                    203 个单元测试
 ├─ docs/example_turn.md      一个真实回合的完整示例（含反面教材）
 └─ scripts/
    ├─ verify_consistency.py  23 项一致性检查
