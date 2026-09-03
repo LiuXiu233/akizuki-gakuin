@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { api } from "@/lib/api";
+import { useAsset } from "@/lib/assets";
 import { apiConfig, useGame, useSettings } from "@/lib/store";
 import type { LogEntry } from "@/lib/store";
 
@@ -257,7 +258,7 @@ export function ImmersiveStage({ worldId }: { worldId: string }) {
   const [selected, setSelected] = useState<string | null>(null);
 
   const sceneKey = `scene:${world?.location.id ?? ""}`;
-  const sceneUrl = images[sceneKey];
+  const sceneUrl = useAsset(images[sceneKey]);
   const people = (context?.nearby_characters ?? []).slice(0, 3);
 
   return (
@@ -289,12 +290,15 @@ export function ImmersiveStage({ worldId }: { worldId: string }) {
 
       <div className="pointer-events-auto absolute inset-x-0 bottom-[42%] flex items-end justify-center gap-4 px-6">
         {people.map((person) => (
-          <button key={person.id} onClick={() => setSelected(person.id)} className="group text-center">
+          <div key={person.id} role="button" tabIndex={0}
+               onClick={() => setSelected(person.id)}
+               onKeyDown={(event) => { if (event.key === "Enter") setSelected(person.id); }}
+               className="group cursor-pointer text-center">
             <Portrait kind="portrait" subjectId={person.id} name={person.name} worldId={worldId}
                       className="h-32 w-24 opacity-95 transition group-hover:opacity-100 sm:h-48 sm:w-36"
                       showGenerate={settings.image.enabled} />
             <div className="mt-1.5 text-[11px] text-paper/80">{person.name}</div>
-          </button>
+          </div>
         ))}
       </div>
 

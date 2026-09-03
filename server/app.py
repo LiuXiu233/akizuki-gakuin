@@ -20,7 +20,7 @@ from fastapi.responses import JSONResponse
 from . import __version__
 from .config import get_settings
 from .deps import get_registry
-from .routes import llm, meta, tools, turn, worlds
+from .routes import images, llm, meta, tools, turn, worlds
 
 log = logging.getLogger("server")
 
@@ -67,6 +67,7 @@ def create_app() -> FastAPI:
     app.include_router(tools.router, prefix="/api")
     app.include_router(turn.router, prefix="/api")
     app.include_router(llm.router, prefix="/api")
+    app.include_router(images.router, prefix="/api")
 
     @app.get("/", include_in_schema=False)
     async def root() -> dict[str, Any]:

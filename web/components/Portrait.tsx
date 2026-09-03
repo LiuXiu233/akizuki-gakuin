@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { api } from "@/lib/api";
+import { useAsset } from "@/lib/assets";
 import { apiConfig, imageCredentials, useGame, useSettings } from "@/lib/store";
 
 /** 从名字取一个稳定的柔和配色，用作没有立绘时的占位。 */
@@ -32,7 +33,7 @@ export function Portrait({
   const [error, setError] = useState("");
 
   const key = `${kind}:${subjectId}`;
-  const url = images[key];
+  const url = useAsset(images[key]);
   const colors = tint(subjectId || name);
   const initial = (name || "?").trim().slice(0, 1);
 
@@ -67,7 +68,7 @@ export function Portrait({
       <span className="select-none font-serif text-[min(42%,2.5rem)] text-white/85 drop-shadow">{initial}</span>
       {settings.image.enabled && showGenerate ? (
         <button
-          onClick={generate}
+          onClick={(event) => { event.stopPropagation(); void generate(); }}
           disabled={busy}
           className="absolute bottom-1 right-1 rounded-lg bg-black/45 px-1.5 py-0.5 text-[10px] text-white/90 backdrop-blur transition hover:bg-black/65 disabled:opacity-50"
         >

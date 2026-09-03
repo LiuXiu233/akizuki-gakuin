@@ -60,6 +60,13 @@ async function request<T>(cfg: ApiConfig, path: string, init: RequestInit = {}):
   return data as T;
 }
 
+/** 带鉴权头拉取二进制资源（图片）。`<img src>` 发不了自定义头，只能这样。 */
+export async function fetchAsset(cfg: ApiConfig, path: string): Promise<Blob> {
+  const response = await fetch(url(cfg, path), { headers: headers(cfg) });
+  if (!response.ok) throw new ApiError(`图片加载失败（${response.status}）`, response.status);
+  return response.blob();
+}
+
 export const api = {
   health: (cfg: ApiConfig) => request<Health>(cfg, "/api/health"),
   meta: (cfg: ApiConfig) => request<MetaBundle>(cfg, "/api/meta"),
@@ -120,11 +127,6 @@ export const api = {
       cfg, "/api/llm/verify",
       { method: "POST", body: JSON.stringify({ messages: [{ role: "user", content: "ping" }], credentials }) },
     ),
-
-  imageUrl: (cfg: ApiConfig, worldId: string, assetPath: string) =>
-    cfg.transport === "proxy"
-      ? `/api/proxy/api/worlds/${worldId}/images/file/${assetPath}?backend=${encodeURIComponent(cfg.backendUrl)}`
-      : `${cfg.backendUrl.replace(/\/$/, "")}/api/worlds/${worldId}/images/file/${assetPath}`,
 
   generateImage: (cfg: ApiConfig, worldId: string, body: Record<string, unknown>) =>
     request<{ ok: boolean; image?: { url: string; kind: string; subject_id: string }; error?: string; skipped?: string }>(

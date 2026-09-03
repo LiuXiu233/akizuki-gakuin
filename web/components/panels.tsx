@@ -144,8 +144,10 @@ export function NearbyPanel({ worldId }: { worldId: string }) {
         {people.length ? (
           <div className="space-y-2">
             {people.map((person) => (
-              <button key={person.id} onClick={() => setSelected(person.id)}
-                      className="flex w-full items-center gap-2.5 rounded-xl border border-transparent p-1.5 text-left transition hover:border-paper-edge hover:bg-white/70">
+              <div key={person.id} role="button" tabIndex={0}
+                   onClick={() => setSelected(person.id)}
+                   onKeyDown={(event) => { if (event.key === "Enter") setSelected(person.id); }}
+                   className="flex w-full cursor-pointer items-center gap-2.5 rounded-xl border border-transparent p-1.5 text-left transition hover:border-paper-edge hover:bg-white/70">
                 <Portrait kind="avatar" subjectId={person.id} name={person.name} worldId={worldId}
                           className="h-9 w-9 shrink-0" rounded="rounded-lg" showGenerate={false} />
                 <span className="min-w-0 flex-1">
@@ -154,7 +156,7 @@ export function NearbyPanel({ worldId }: { worldId: string }) {
                     {person.relationship} · {person.activity ?? "在这里"}
                   </span>
                 </span>
-              </button>
+              </div>
             ))}
           </div>
         ) : <Empty>这里现在没有别人</Empty>}
@@ -265,15 +267,17 @@ export function GalleryPanel({ worldId }: { worldId: string }) {
     <>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {people.map((person) => (
-          <button key={person.id} onClick={() => setSelected(person.id)}
-                  className="card overflow-hidden text-left transition hover:-translate-y-0.5 hover:shadow-lg">
+          <div key={person.id} role="button" tabIndex={0}
+               onClick={() => setSelected(person.id)}
+               onKeyDown={(event) => { if (event.key === "Enter") setSelected(person.id); }}
+               className="card cursor-pointer overflow-hidden text-left transition hover:-translate-y-0.5 hover:shadow-lg">
             <Portrait kind="avatar" subjectId={person.id} name={person.name} worldId={worldId}
                       className="aspect-square w-full" rounded="rounded-none" />
             <div className="p-2.5">
               <div className="truncate text-sm">{person.name}</div>
               <div className="truncate text-[11px] text-ink-mute">{person.label}</div>
             </div>
-          </button>
+          </div>
         ))}
       </div>
       {!people.length ? <Empty>还没有认识的人。去和人说说话吧。</Empty> : null}
