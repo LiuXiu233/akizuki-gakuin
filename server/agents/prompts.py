@@ -232,6 +232,28 @@ def build_npc_brief(character: dict[str, Any], relationship: dict[str, Any], mem
     return "\n".join(line for line in lines if line.strip() != "：")
 
 
+#: 注入到流水线时要剥掉的章节——模型已经通过工具 schema 拿到了这些信息，
+#: 而 system prompt 会在每一轮工具迭代里重发，重复内容的代价被放大很多倍。
+_REDUNDANT_SECTIONS = ("## 21. 工具速查",)
+
+
+def trim_agent_md(text: str) -> str:
+    """给运行时用的 AGENT.md：去掉与工具 schema 重复的章节。
+
+    CLI / MCP 那条路径读的仍然是完整原文，这里只影响流水线注入。
+    """
+    if not text:
+        return ""
+    for heading in _REDUNDANT_SECTIONS:
+        start = text.find(heading)
+        if start < 0:
+            continue
+        nxt = text.find("\n## ", start + len(heading))
+        end = nxt if nxt > 0 else len(text)
+        text = text[:start] + "（工具清单见你已经拿到的 tools 定义。）\n\n" + text[end:]
+    return text
+
+
 def build_system_prompt(
     *,
     role: str,
@@ -241,7 +263,7 @@ def build_system_prompt(
     extra: str = "",
     output_hint: str = "",
 ) -> str:
-    parts = [agent_md.strip()] if agent_md else [CORE_RULES]
+    parts = [trim_agent_md(agent_md).strip()] if agent_md else [CORE_RULES]
     role_block = ROLE_PROMPTS.get(role)
     if role_block:
         parts.append(role_block)

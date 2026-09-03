@@ -226,6 +226,40 @@ class TestAdapterPayloads(unittest.TestCase):
 
 
 @unittest.skipUnless(HAS_SERVER, "未安装 fastapi/httpx")
+class TestRecommendationParsing(unittest.TestCase):
+    """真机上 dual 流水线曾经因为模型用 "- " 列表而解析出 0 条推荐。"""
+
+    def setUp(self) -> None:
+        from server.agents.prompts import trim_agent_md
+        from server.agents.runner import _parse_recommendations
+
+        self.parse = _parse_recommendations
+        self.trim = trim_agent_md
+
+    def test_numbered_list(self) -> None:
+        items = self.parse("正文\n\n【你可以……】\n\n1. 去图书馆\n   约 1 小时\n\n2. 回家\n   约 30 分钟\n\n你也可以随便输入")
+        self.assertEqual([i["text"] for i in items], ["去图书馆", "回家"])
+        self.assertEqual(items[0]["minutes"], "约 1 小时")
+
+    def test_bullet_list_with_inline_duration(self) -> None:
+        items = self.parse("【你可以……】\n\n- 弯腰捡起来（约 1~2 分钟，探索）\n- 问旁边的人（约 3 分钟，社交）")
+        self.assertEqual(len(items), 2)
+        self.assertEqual(items[0]["text"], "弯腰捡起来")
+        self.assertEqual(items[0]["minutes"], "约 1~2 分钟")
+        self.assertEqual(items[0]["category"], "探索")
+
+    def test_no_block_means_no_recommendations(self) -> None:
+        self.assertEqual(self.parse("只有正文，没有推荐区块"), [])
+
+    def test_agent_md_trim_removes_tool_reference(self) -> None:
+        text = "## 20. 一致性\n内容\n\n## 21. 工具速查\n" + "x" * 3000 + "\n\n## 22. 开局\n开局内容"
+        trimmed = self.trim(text)
+        self.assertNotIn("x" * 100, trimmed)
+        self.assertIn("## 22. 开局", trimmed)
+        self.assertIn("## 20. 一致性", trimmed)
+
+
+@unittest.skipUnless(HAS_SERVER, "未安装 fastapi/httpx")
 class TestCredentialResolution(unittest.TestCase):
     def setUp(self) -> None:
         self.settings = Settings()

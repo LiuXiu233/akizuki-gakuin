@@ -28,15 +28,28 @@ function parseRecommendations(text: string): Recommendation[] {
   for (const raw of block.split("\n")) {
     const line = raw.trim();
     if (!line) continue;
-    if (/^\d+[.、)]/.test(line)) {
+    if (line.startsWith("你也可以")) break;
+    // 模型可能写成 "1. xxx" 也可能写成 "- xxx"，时长可能在括号里
+    const bullet = line.match(/^(?:\d+\s*[.、)）]|[-*•·—]\s|\d+\s*[:：])\s*(.+)$/);
+    if (bullet) {
       if (current) out.push(current);
-      current = { text: line.replace(/^\d+[.、)]\s*/, ""), minutes: "", category: "" };
-    } else if (current && /(约|分钟|小时|自由)/.test(line)) {
+      let body = bullet[1].trim();
+      let minutes = "";
+      let category = "";
+      const paren = body.match(/[（(]([^（()）]*)[)）]\s*$/);
+      if (paren && /(分钟|小时|自由|约)/.test(paren[1])) {
+        body = body.slice(0, paren.index).trim().replace(/[·\-—\s]+$/, "");
+        const pieces = paren[1].split(/[，,、/|]/).map((p) => p.trim());
+        minutes = pieces.find((p) => /(分钟|小时|自由)/.test(p)) ?? paren[1].trim();
+        category = pieces.find((p) => !/(分钟|小时|自由)/.test(p)) ?? "";
+      }
+      current = { text: body, minutes, category };
+    } else if (current && !current.minutes && /(约|分钟|小时|时间自由)/.test(line)) {
       current.minutes = line;
-    } else if (line.startsWith("你也可以")) break;
+    }
   }
   if (current) out.push(current);
-  return out.slice(0, 5);
+  return out.filter((item) => item.text).slice(0, 5);
 }
 
 function stripRecommendations(text: string): string {

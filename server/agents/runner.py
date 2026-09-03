@@ -16,6 +16,7 @@ import asyncio
 import fnmatch
 import json
 import logging
+import re
 import time
 from dataclasses import dataclass, field
 from typing import Any, AsyncIterator, Callable, Iterable
@@ -556,35 +557,52 @@ def _strip_recommendation_block(text: str) -> str:
 
 
 def _parse_recommendations(text: str) -> list[dict[str, Any]]:
-    """单 Agent 模式下推荐行动混在正文里，用文本规则捞出来。"""
+    """从正文里捞出推荐行动。
+
+    模型的写法五花八门：``1. xxx`` / ``- xxx`` / ``• xxx``，
+    时长可能另起一行，也可能写在括号里（``（约 1~2 分钟，探索）``）。
+    这里都要认，认不出来就等于这一轮没有推荐——曾经真的发生过。
+    """
     if not text:
         return []
     block = ""
     for marker in _REC_MARKERS:
         index = text.find(marker)
         if index >= 0:
-            block = text[index + len(marker) :]
+            block = text[index + len(marker):]
             break
     if not block:
         return []
+
     out: list[dict[str, Any]] = []
     current: dict[str, Any] | None = None
     for raw in block.splitlines():
         line = raw.strip()
         if not line:
             continue
-        if line[:1].isdigit() and (line[1:2] in ".、)" or line[2:3] in ".、)"):
+        if line.startswith("你也可以"):
+            break
+        bullet = re.match(r"^(?:\d+\s*[.、)）]|[-*•·—]\s|\d+\s*[:：])\s*(.+)$", line)
+        if bullet:
             if current:
                 out.append(current)
-            body = line.split(".", 1)[-1].split("、", 1)[-1].split(")", 1)[-1].strip()
-            current = {"text": body, "minutes": "", "category": ""}
-        elif current is not None and ("约" in line or "分钟" in line or "小时" in line or "自由" in line):
+            body = bullet.group(1).strip()
+            minutes, category = "", ""
+            # 括号里常常同时写了时长和类别
+            paren = re.search(r"[（(]([^（()）]*)[)）]\s*$", body)
+            if paren:
+                inside = paren.group(1)
+                if re.search(r"(分钟|小时|自由|约)", inside):
+                    body = body[: paren.start()].strip(" ·-—")
+                    pieces = re.split(r"[，,、/|]", inside)
+                    minutes = next((p.strip() for p in pieces if re.search(r"(分钟|小时|自由)", p)), inside.strip())
+                    category = next((p.strip() for p in pieces if not re.search(r"(分钟|小时|自由)", p)), "")
+            current = {"text": body, "minutes": minutes, "category": category}
+        elif current is not None and not current["minutes"] and re.search(r"(约|分钟|小时|时间自由)", line):
             current["minutes"] = line
-        elif current is not None and line.startswith("你也可以"):
-            break
     if current:
         out.append(current)
-    return out[:5]
+    return [item for item in out if item["text"]][:5]
 
 
 def _normalize_recommendations(items: Any) -> list[dict[str, Any]]:
