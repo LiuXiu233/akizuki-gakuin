@@ -40,6 +40,7 @@ def resolve_provider(credentials: Any, settings: Settings, *, model_override: st
             "api_key": getattr(credentials, "api_key", None),
             "model": getattr(credentials, "model", None),
             "extra_headers": getattr(credentials, "extra_headers", None) or {},
+            "extra_params": getattr(credentials, "extra_params", None) or {},
         }
 
     user_key = (data.get("api_key") or "").strip()
@@ -69,6 +70,8 @@ def resolve_provider(credentials: Any, settings: Settings, *, model_override: st
         raise LLMError("缺少模型名", status_code=400)
 
     headers = data.get("extra_headers") or {}
+    # 服务器预置的 extra_params 打底，用户传的覆盖
+    params = {**(settings.llm.extra_params or {}), **(data.get("extra_params") or {})}
     return ResolvedProvider(
         provider=provider,
         base_url=base_url,
@@ -76,6 +79,7 @@ def resolve_provider(credentials: Any, settings: Settings, *, model_override: st
         model=model,
         source=source,
         extra_headers={str(k): str(v) for k, v in headers.items()},
+        extra_params=params,
     )
 
 

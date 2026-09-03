@@ -13,7 +13,7 @@ stages:
     name: 主控解析
     role: main
     temperature: 0.4
-    max_tokens: 1200
+    max_tokens: 1600
     tools: ["get_*", "should_check", "find_duplicate"]
     output: json
     output_hint: plan
@@ -27,7 +27,7 @@ stages:
     name: 裁判结算
     role: judge
     temperature: 0.2
-    max_tokens: 1500
+    max_tokens: 2200
     tools: [perform_action, resolve_check, move_character, buy_item, advance_time, sleep,
             apply_relationship_event, npc_decide_invitation, npc_decide_confession,
             add_memory, join_club, leave_club, create_npc, promote_npc,
@@ -50,7 +50,7 @@ stages:
     max_subjects: 4
     parallel: true
     temperature: 0.9
-    max_tokens: 500
+    max_tokens: 900
     tools: []
     produces: [dialogue]
     inputs: [facts]
@@ -59,7 +59,7 @@ stages:
     name: 旁白合成
     role: narrator
     temperature: 0.85
-    max_tokens: 2000
+    max_tokens: 2600
     tools: []
     produces: [narration]
     inputs: [plan, facts, dialogue]
@@ -72,7 +72,7 @@ stages:
     name: 导演收尾
     role: director
     temperature: 0.7
-    max_tokens: 1200
+    max_tokens: 1600
     tools: [end_turn, get_action_context, record_recommendations]
     output: json
     output_hint: recommendations
@@ -88,7 +88,7 @@ stages:
     optional: true                  # 未配置文生图时自动跳过
     requires: images_enabled
     temperature: 0.7
-    max_tokens: 800
+    max_tokens: 1000
     tools: []
     output: json
     output_hint: images
@@ -97,3 +97,17 @@ stages:
     prompt: |
       判断这一回合是否值得出图。大多数回合不需要——只在场景切换、
       第一次见到某个角色、或情绪高点时出图。
+
+# ------------------------------------------------------------
+# 关于推理模型（DeepSeek v4 / o 系列 / gpt-5 等）
+# ------------------------------------------------------------
+# 这类模型会先花一大段 token 思考再输出正文。一个 multi 回合有 5~10 次调用，
+# 全开推理会让每回合多花 3 倍时间和费用。
+#
+# 关掉（推荐，工具调用不受影响）：在服务器 .env 里设置
+#     AKIZUKI_LLM_EXTRA_PARAMS={"reasoning_effort":"none"}
+#
+# 只给某个阶段开推理：在该阶段加
+#     extra_params: {reasoning_effort: "medium"}
+#
+# 非推理模型不要设这个参数——OpenAI 的 gpt-4o 一类收到会直接报错。

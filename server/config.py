@@ -36,6 +36,22 @@ def _env_list(name: str, default: str = "") -> list[str]:
     return [item.strip() for item in raw.split(",") if item.strip()]
 
 
+def _env_json(name: str) -> dict:
+    """读一个 JSON 对象型环境变量；格式错误时忽略并告警。"""
+    raw = _env(name)
+    if not raw:
+        return {}
+    import json
+    import logging
+
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        logging.getLogger("server.config").warning("%s 不是合法 JSON，已忽略: %s", name, exc)
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
 def load_dotenv(path: Path | None = None) -> None:
     """极简 .env 读取（不覆盖已存在的环境变量），避免引入额外依赖。"""
     path = path or PROJECT_ROOT / ".env"
@@ -59,6 +75,9 @@ class ProviderDefaults:
     base_url: str = ""
     api_key: str = ""
     model: str = ""
+    #: 透传给上游的额外请求体字段。用来适配各家的私有开关，
+    #: 例如 DeepSeek 的 {"reasoning_effort": "none"}（关掉推理，省时省钱）。
+    extra_params: dict = field(default_factory=dict)
 
     @property
     def configured(self) -> bool:
@@ -147,6 +166,7 @@ def get_settings() -> Settings:
         base_url=_env("AKIZUKI_LLM_BASE_URL"),
         api_key=_env("AKIZUKI_LLM_API_KEY"),
         model=_env("AKIZUKI_LLM_MODEL"),
+        extra_params=_env_json("AKIZUKI_LLM_EXTRA_PARAMS"),
     )
     settings.image = ImageDefaults(
         provider=_env("AKIZUKI_IMAGE_PROVIDER", "openai") or "openai",

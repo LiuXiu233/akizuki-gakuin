@@ -155,6 +155,8 @@ class ResolvedProvider:
     model: str
     source: str = "user"          # user | server
     extra_headers: dict[str, str] = field(default_factory=dict)
+    #: 透传进请求体的额外字段（各家私有开关，如 reasoning_effort）
+    extra_params: dict[str, Any] = field(default_factory=dict)
 
     def public(self) -> dict[str, Any]:
         return {
@@ -162,6 +164,7 @@ class ResolvedProvider:
             "base_url": self.base_url,
             "model": self.model,
             "source": self.source,
+            "extra_params": self.extra_params,
         }
 
 
@@ -178,6 +181,7 @@ class LLMAdapter(Protocol):
         tools: list[ToolSpec] | None = None,
         temperature: float | None = None,
         max_tokens: int | None = None,
+        extra_params: dict[str, Any] | None = None,
     ) -> LLMResult: ...
 
     def stream(
@@ -188,6 +192,7 @@ class LLMAdapter(Protocol):
         tools: list[ToolSpec] | None = None,
         temperature: float | None = None,
         max_tokens: int | None = None,
+        extra_params: dict[str, Any] | None = None,
     ) -> AsyncIterator[StreamEvent]: ...
 
 

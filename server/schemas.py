@@ -72,6 +72,8 @@ class LLMCredentials(BaseModel):
     api_key: str | None = None
     model: str | None = None
     extra_headers: dict[str, str] = Field(default_factory=dict)
+    #: 透传给上游的额外请求体字段，例如 {"reasoning_effort": "none"}
+    extra_params: dict[str, Any] = Field(default_factory=dict)
 
 
 class LLMMessage(BaseModel):

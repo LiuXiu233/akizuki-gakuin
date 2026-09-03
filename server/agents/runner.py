@@ -221,6 +221,7 @@ class PipelineRunner:
         max_iterations = int(stage.get("max_tool_iterations") or self.pipeline.get("max_tool_iterations", 6))
         temperature = stage.get("temperature")
         max_tokens = stage.get("max_tokens")
+        extra_params = stage.get("extra_params") or None
 
         total = Usage()
         final_text = ""
@@ -234,7 +235,7 @@ class PipelineRunner:
                 usage = Usage()
                 async for event in adapter.stream(
                     system=system, messages=messages, tools=tools or None,
-                    temperature=temperature, max_tokens=max_tokens,
+                    temperature=temperature, max_tokens=max_tokens, extra_params=extra_params,
                 ):
                     if event.type == "text" and event.text:
                         text_parts.append(event.text)
@@ -250,7 +251,7 @@ class PipelineRunner:
             else:
                 result = await adapter.complete(
                     system=system, messages=messages, tools=tools or None,
-                    temperature=temperature, max_tokens=max_tokens,
+                    temperature=temperature, max_tokens=max_tokens, extra_params=extra_params,
                 )
             total = total.add(result.usage)
 
@@ -389,6 +390,7 @@ class PipelineRunner:
                 completion = await adapter.complete(
                     system=system, messages=[Message.user(user)],
                     temperature=stage.get("temperature"), max_tokens=stage.get("max_tokens"),
+                    extra_params=stage.get("extra_params") or None,
                 )
             except LLMError as exc:
                 return {"npc_id": npc_id, "name": character.get("name", npc_id), "text": "",

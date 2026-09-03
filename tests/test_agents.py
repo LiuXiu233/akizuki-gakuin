@@ -124,14 +124,18 @@ class MockAdapter:
             usage=Usage(50, 120),
         )
 
-    async def complete(self, *, system, messages, tools=None, temperature=None, max_tokens=None):
-        self.calls.append({"system": system, "messages": len(messages), "tools": [t.name for t in (tools or [])]})
+    async def complete(self, *, system, messages, tools=None, temperature=None, max_tokens=None,
+                       extra_params=None):
+        self.calls.append({"system": system, "messages": len(messages),
+                           "tools": [t.name for t in (tools or [])], "extra_params": extra_params})
         await asyncio.sleep(0)
         return self._script(system, messages)
 
-    async def stream(self, *, system, messages, tools=None, temperature=None, max_tokens=None):
+    async def stream(self, *, system, messages, tools=None, temperature=None, max_tokens=None,
+                     extra_params=None):
         result = await self.complete(system=system, messages=messages, tools=tools,
-                                     temperature=temperature, max_tokens=max_tokens)
+                                     temperature=temperature, max_tokens=max_tokens,
+                                     extra_params=extra_params)
         for chunk in (result.text[i : i + 12] for i in range(0, len(result.text), 12)):
             yield StreamEvent(type="text", text=chunk)
         for call in result.tool_calls:
@@ -202,6 +206,16 @@ class TestAdapterPayloads(unittest.TestCase):
         self.assertEqual(result.text, "嗯")
         self.assertEqual(result.tool_calls[0].name, "resolve_check")
         self.assertEqual(result.stop_reason, "tool_use")
+
+    def test_extra_params_merged_into_payload(self) -> None:
+        config = ResolvedProvider("openai", "https://x/v1", "k", "m",
+                                  extra_params={"reasoning_effort": "none"})
+        adapter = OpenAIAdapter(config)
+        payload = adapter._payload("s", self.messages, None, None, 500, False)
+        self.assertEqual(payload["reasoning_effort"], "none")
+        override = adapter._payload("s", self.messages, None, None, 500, False,
+                                    extra_params={"reasoning_effort": "high"})
+        self.assertEqual(override["reasoning_effort"], "high", "阶段级应能覆盖全局")
 
     def test_headers_differ(self) -> None:
         openai = OpenAIAdapter(ResolvedProvider("openai", "https://x/v1", "k1", "m"))
@@ -389,6 +403,17 @@ class TestPipelineRunner(unittest.IsolatedAsyncioTestCase):
         names = {entry["name"] for entry in turn["tool_log"] if entry["type"] == "tool_call"}
         self.assertIn("perform_action", names)
         self.assertIn("end_turn", names)
+
+    async def test_extra_params_reach_adapter(self) -> None:
+        """阶段级 extra_params 必须透传到适配器（推理模型开关靠它）。"""
+        runner = self._runner("multi")
+        runner.pipeline["stages"][0]["extra_params"] = {"reasoning_effort": "none"}
+        async for _ in runner.run("测试", stream=False):
+            pass
+        self.assertTrue(
+            any(call.get("extra_params") == {"reasoning_effort": "none"} for call in self.adapter.calls),
+            "extra_params 没有传到上游",
+        )
 
     async def test_usage_accumulated(self) -> None:
         _events, turn = await self._run("multi")

@@ -47,6 +47,7 @@ class OpenAIAdapter:
         temperature: float | None,
         max_tokens: int | None,
         stream: bool,
+        extra_params: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         wire: list[dict[str, Any]] = []
         if system:
@@ -101,6 +102,9 @@ class OpenAIAdapter:
         if stream:
             payload["stream"] = True
             payload["stream_options"] = {"include_usage": True}
+        # 各家私有开关（如 DeepSeek 的 reasoning_effort），最后合并，允许覆盖上面的字段
+        for key, value in {**self.config.extra_params, **(extra_params or {})}.items():
+            payload[key] = value
         return payload
 
     # ------------------------------------------------------------------
@@ -112,8 +116,10 @@ class OpenAIAdapter:
         tools: list[ToolSpec] | None = None,
         temperature: float | None = None,
         max_tokens: int | None = None,
+        extra_params: dict[str, Any] | None = None,
     ) -> LLMResult:
-        payload = self._payload(system, messages, tools, temperature, max_tokens, stream=False)
+        payload = self._payload(system, messages, tools, temperature, max_tokens, stream=False,
+                                extra_params=extra_params)
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             try:
                 response = await client.post(self._url(), headers=self._headers(), json=payload)
@@ -168,8 +174,10 @@ class OpenAIAdapter:
         tools: list[ToolSpec] | None = None,
         temperature: float | None = None,
         max_tokens: int | None = None,
+        extra_params: dict[str, Any] | None = None,
     ) -> AsyncIterator[StreamEvent]:
-        payload = self._payload(system, messages, tools, temperature, max_tokens, stream=True)
+        payload = self._payload(system, messages, tools, temperature, max_tokens, stream=True,
+                                extra_params=extra_params)
         pending: dict[int, dict[str, Any]] = {}
         usage = Usage()
         async with httpx.AsyncClient(timeout=self.timeout) as client:
