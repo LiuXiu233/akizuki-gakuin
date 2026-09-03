@@ -1,0 +1,104 @@
+# ============================================================
+# 玩家角色模板 (player_template.yaml)
+# create_player() 会以此为基础，套用玩家在创建阶段的选择。
+# 强制：age >= 18。
+# ============================================================
+
+template:
+  id: player
+  name: null                 # 玩家自定义
+  age: 18                    # 必须 >= 18
+  gender: null               # 玩家自定义（自由文本）
+  pronouns: null             # 玩家自定义；未指定时叙事使用中性称呼
+  class: class_2a
+  seat: "窗边第三排"
+  role: student
+  grade: 2
+  appearance: null           # 玩家自定义
+  personality_tendency: []   # 玩家自定义，3 个以内的倾向词
+  interests: []              # 玩家自定义
+
+  attributes:
+    physique: 4
+    agility: 4
+    intellect: 4
+    perception: 4
+    charm: 4
+    willpower: 4
+    luck: 4
+
+  attribute_points_remaining: 12
+
+  status:
+    health: 100
+    energy: 100
+    stress: 10
+    mood: normal
+    money: 10000
+
+  conditions: []             # sleepy / tired / hungry / focused ...
+
+  skills: {}                 # 创建时选 3 个技能，初始 Lv.2
+  knowledge: {}              # 创建时选 3~5 个知识，初始 Lv.2
+  skill_xp: {}
+  knowledge_xp: {}
+
+  clubs: []
+  location: loc_school_gate
+  home_location: loc_player_home
+
+  flags:
+    tutorial_done: false
+    first_day: true
+
+creation_rules:
+  attribute_base: 4
+  attribute_points: 12
+  attribute_min: 3
+  attribute_max: 8
+  skill_choices: 3
+  skill_start_level: 2
+  knowledge_choices_min: 3
+  knowledge_choices_max: 5
+  knowledge_start_level: 2
+  age_minimum: 18
+  free_text_fields: [name, gender, pronouns, appearance, interests, personality_tendency]
+  validation:
+    - "所有属性在 3~8 之间"
+    - "属性总和 = 28 + 12 = 40"
+    - "技能必须存在于 skill_registry（或先 register_skill）"
+    - "知识必须存在于 knowledge_registry（或先 register_knowledge）"
+    - "age >= 18"
+
+presets:
+  # 快速开局用的预设，玩家也可以完全自定义
+  - id: preset_allrounder
+    name: "普通得刚刚好"
+    description: "没有特别突出的地方，也没有明显的短板。适合第一次玩。"
+    attributes: {physique: 5, agility: 5, intellect: 6, perception: 6, charm: 6, willpower: 6, luck: 6}
+    skills: [conversation, study, cooking]
+    knowledge: [literature, local_area, anime]
+  - id: preset_artist
+    name: "总在看着什么的人"
+    description: "感知和灵巧偏高。擅长注意到别人没注意到的东西。"
+    attributes: {physique: 4, agility: 7, intellect: 5, perception: 8, charm: 5, willpower: 5, luck: 6}
+    skills: [photography, drawing, conversation]
+    knowledge: [photography, literature, local_area, fashion]
+  - id: preset_athlete
+    name: "先动起来再说"
+    description: "体魄和意志偏高。体育祭的战力，考试周的难民。"
+    attributes: {physique: 8, agility: 7, intellect: 4, perception: 5, charm: 6, willpower: 7, luck: 3}
+    skills: [athletics, running, conversation]
+    knowledge: [biology, local_area, games]
+  - id: preset_scholar
+    name: "把事情想清楚的人"
+    description: "智力和意志偏高，社交需要努力。"
+    attributes: {physique: 4, agility: 4, intellect: 8, perception: 6, charm: 4, willpower: 8, luck: 6}
+    skills: [study, note_taking, writing]
+    knowledge: [mathematics, literature, psychology, school_rules]
+  - id: preset_social
+    name: "和谁都能说上两句"
+    description: "魅力和感知偏高。认识人的速度很快，深交则是另一回事。"
+    attributes: {physique: 5, agility: 5, intellect: 5, perception: 7, charm: 8, willpower: 5, luck: 5}
+    skills: [conversation, empathy, performance]
+    knowledge: [school_rumors, fashion, local_area, anime]

@@ -1,0 +1,116 @@
+# ============================================================
+# 角色原型 (archetypes.yaml)
+# 供 create_npc() 生成动态 NPC 时作为**起点**使用。
+# 硬性要求：原型只是骨架，绝不能直接套用成标签角色。
+# 每个动态 NPC 必须至少有 1 个与原型相矛盾的特征。
+# ============================================================
+
+usage_rules:
+  - "原型只提供属性/技能的合理区间和一个大致印象。"
+  - "必须为每个新 NPC 生成：一个具体的小习惯、一个与原型冲突的特征、一个自己的目标。"
+  - "必须至少与一个已有 NPC 建立关系（社交网络要求）。"
+  - "age 必须 >= 18。"
+  - "禁止批量生成外观和性格雷同的角色。"
+
+contradiction_examples:
+  - "体育系但完全不能吃辣，并且很在意别人知道。"
+  - "优等生但在音游上花的时间比学习多。"
+  - "看起来很凶，其实在给流浪猫喂食。"
+  - "外向健谈但从来不主动约人。"
+  - "文静的人有一个非常大胆的长期计划。"
+
+archetypes:
+  - id: arch_energetic
+    name: "活力型"
+    attribute_ranges: {physique: [5,8], agility: [5,8], intellect: [3,6], perception: [4,6], charm: [5,8], willpower: [5,8], luck: [3,7]}
+    likely_skills: [athletics, running, conversation, performance]
+    likely_knowledge: [biology, local_area, games]
+    speech_hint: "语速快、音量偏高、句尾上扬。"
+  - id: arch_quiet
+    name: "安静型"
+    attribute_ranges: {physique: [3,5], agility: [4,6], intellect: [5,8], perception: [6,9], charm: [3,6], willpower: [4,7], luck: [3,7]}
+    likely_skills: [study, writing, drawing, note_taking]
+    likely_knowledge: [literature, history, psychology]
+    speech_hint: "短句、停顿多、几乎不用语气词。"
+  - id: arch_honor_student
+    name: "优等生"
+    attribute_ranges: {physique: [3,5], agility: [4,6], intellect: [7,9], perception: [5,8], charm: [4,7], willpower: [6,9], luck: [3,6]}
+    likely_skills: [study, note_taking, exam_strategy, etiquette]
+    likely_knowledge: [mathematics, physics, school_rules, literature]
+    speech_hint: "条理清楚、用词准确、极少说废话。"
+  - id: arch_gyaru
+    name: "辣妹型"
+    attribute_ranges: {physique: [4,6], agility: [5,7], intellect: [4,7], perception: [6,9], charm: [7,9], willpower: [3,6], luck: [4,8]}
+    likely_skills: [conversation, empathy, performance, etiquette]
+    likely_knowledge: [fashion, school_rumors, local_area, music_theory]
+    speech_hint: "轻快、爱调侃、把认真的话包在玩笑里。"
+    warning: "绝不能写成'只会玩'。这个原型的人通常对人际关系极其敏感。"
+  - id: arch_band_member
+    name: "乐队成员"
+    attribute_ranges: {physique: [3,6], agility: [6,8], intellect: [4,7], perception: [5,8], charm: [5,8], willpower: [4,7], luck: [3,7]}
+    likely_skills: [instrument, singing, performance]
+    likely_knowledge: [music_theory, anime, local_area]
+    speech_hint: "随意、爱用行话、聊到音乐时突然变认真。"
+  - id: arch_photographer
+    name: "摄影爱好者"
+    attribute_ranges: {physique: [3,6], agility: [5,7], intellect: [5,7], perception: [7,9], charm: [3,6], willpower: [5,8], luck: [3,6]}
+    likely_skills: [photography, crafting, technology]
+    likely_knowledge: [photography, chemistry, local_area]
+    speech_hint: "话少，观察多，突然会说出很具体的细节。"
+  - id: arch_gamer
+    name: "游戏宅"
+    attribute_ranges: {physique: [2,5], agility: [5,8], intellect: [6,8], perception: [5,7], charm: [3,6], willpower: [3,6], luck: [4,8]}
+    likely_skills: [gaming, board_games, technology, arcade]
+    likely_knowledge: [games, computers, anime, mathematics]
+    speech_hint: "话痨、爱吐槽、比喻全来自游戏。"
+  - id: arch_athlete
+    name: "体育系"
+    attribute_ranges: {physique: [7,9], agility: [6,8], intellect: [3,6], perception: [4,7], charm: [5,7], willpower: [6,9], luck: [3,6]}
+    likely_skills: [athletics, running, swimming, first_aid]
+    likely_knowledge: [biology, local_area]
+    speech_hint: "直接、干脆、不擅长绕弯。"
+  - id: arch_bookworm
+    name: "文学爱好者"
+    attribute_ranges: {physique: [2,5], agility: [3,6], intellect: [7,9], perception: [6,8], charm: [4,6], willpower: [5,7], luck: [3,6]}
+    likely_skills: [writing, study, note_taking]
+    likely_knowledge: [literature, history, psychology]
+    speech_hint: "书面语偏多，比喻精确。"
+  - id: arch_council
+    name: "学生会成员"
+    attribute_ranges: {physique: [3,6], agility: [4,6], intellect: [6,9], perception: [6,8], charm: [5,8], willpower: [6,9], luck: [3,6]}
+    likely_skills: [club_management, persuasion, note_taking, etiquette]
+    likely_knowledge: [school_rules, economics, school_rumors]
+    speech_hint: "礼貌、结构化、公私分明。"
+  - id: arch_cook
+    name: "烹饪社成员"
+    attribute_ranges: {physique: [4,6], agility: [6,8], intellect: [4,7], perception: [6,8], charm: [5,8], willpower: [4,7], luck: [4,7]}
+    likely_skills: [cooking, etiquette, first_aid, crafting]
+    likely_knowledge: [cooking, chemistry, biology]
+    speech_hint: "温和、句子偏长、会先问对方吃了没有。"
+  - id: arch_worker
+    name: "打工组"
+    attribute_ranges: {physique: [4,7], agility: [5,7], intellect: [4,7], perception: [6,8], charm: [6,8], willpower: [6,8], luck: [4,7]}
+    likely_skills: [etiquette, conversation, cooking, crafting]
+    likely_knowledge: [economics, local_area, fashion, cooking]
+    speech_hint: "成年人的语气，务实，和同龄人有一点距离。"
+  - id: arch_freshman
+    name: "新生"
+    attribute_ranges: {physique: [3,7], agility: [4,7], intellect: [3,7], perception: [3,6], charm: [4,7], willpower: [4,8], luck: [3,8]}
+    likely_skills: [conversation, study, athletics]
+    likely_knowledge: [school_rules, local_area]
+    speech_hint: "敬语用得很勤，紧张时会忘掉。"
+  - id: arch_senior
+    name: "高年级前辈"
+    attribute_ranges: {physique: [4,7], agility: [4,7], intellect: [5,8], perception: [6,8], charm: [5,8], willpower: [5,8], luck: [3,7]}
+    likely_skills: [club_management, conversation, etiquette]
+    likely_knowledge: [school_rules, school_rumors, local_area]
+    speech_hint: "有余裕，偶尔会给出不请自来的建议。"
+  - id: arch_advisor
+    name: "指导老师"
+    role: teacher
+    min_age: 24
+    attribute_ranges: {physique: [4,8], agility: [4,7], intellect: [6,9], perception: [6,9], charm: [5,8], willpower: [6,9], luck: [3,6]}
+    likely_skills: [club_management, conversation, empathy, etiquette]
+    likely_knowledge: [school_rules, psychology]
+    speech_hint: "成年人的距离感，关键时刻会非常直接。"
+    romance_available: false

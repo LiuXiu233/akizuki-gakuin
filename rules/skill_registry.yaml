@@ -1,0 +1,197 @@
+# ============================================================
+# 技能注册表 (skill_registry.yaml)
+# 技能 = 会做。等级 0-5，修正 = level * 2。
+# 运行中新增技能必须通过 register_skill()，写入 state/world_registry.json。
+# 禁止过度细分：煎鸡蛋/炒饭/咖喱 → cooking。
+# aliases 用于重复检测（创建前先查这里）。
+# ============================================================
+
+meta:
+  levels:
+    0: {name: "不会", desc: "没有接触过，或者只知道它存在。"}
+    1: {name: "初学", desc: "能做，但结果不稳定。"}
+    2: {name: "熟练", desc: "日常场合基本不会出错。"}
+    3: {name: "擅长", desc: "在同龄人里明显突出。"}
+    4: {name: "专家", desc: "可以教别人，能应付专业场合。"}
+    5: {name: "大师", desc: "这件事已经成为你的一部分。"}
+  modifier_formula: "level * 2"
+  creation_note: "只有拥有独立成长路线、独立应用场景、足够使用频率的能力才能成为技能。"
+
+skills:
+  # ---------- 身体 ----------
+  - id: athletics
+    name: "运动"
+    category: physical
+    attribute: physique
+    aliases: ["体育", "sports", "体能", "运动能力", "身体素质"]
+    description: "综合体育能力：球类、跳跃、力量、耐力。"
+    used_in: [loc_gym, loc_field, loc_pool]
+  - id: running
+    name: "跑步"
+    category: physical
+    attribute: physique
+    aliases: ["长跑", "短跑", "田径", "jogging", "马拉松"]
+    description: "长距离与冲刺，也包括赶上末班车。"
+  - id: swimming
+    name: "游泳"
+    category: physical
+    attribute: physique
+    aliases: ["泳", "自由泳", "swim"]
+    description: "泳姿与水中耐力。"
+  - id: dancing
+    name: "舞蹈"
+    category: physical
+    attribute: agility
+    aliases: ["跳舞", "dance", "编舞"]
+    description: "节奏感与身体表现，从体育祭应援到 LIVE 现场。"
+
+  # ---------- 社交 ----------
+  - id: conversation
+    name: "会话"
+    category: social
+    attribute: charm
+    aliases: ["聊天", "谈话", "闲聊", "沟通", "talk", "social_talk"]
+    description: "把话说得自然，把气氛维持住。"
+  - id: persuasion
+    name: "说服"
+    category: social
+    attribute: charm
+    aliases: ["劝说", "谈判", "negotiation", "交涉"]
+    description: "让别人理解并接受你的想法。**不能剥夺对方的选择权。**"
+    hard_rule: "无论检定结果多好，NPC 是否答应始终由其人格、关系、情绪和边界决定。"
+  - id: deception
+    name: "掩饰"
+    category: social
+    attribute: charm
+    aliases: ["说谎", "撒谎", "隐瞒", "lie", "bluff"]
+    description: "含糊其辞、转移话题、把慌乱藏起来。"
+  - id: empathy
+    name: "共情"
+    category: social
+    attribute: perception
+    aliases: ["察言观色", "读空气", "同理心", "情绪识别"]
+    description: "读出对方没说出口的部分。**只给线索，不给答案。**"
+    hard_rule: "共情检定绝不能直接返回 NPC 的 attraction / romantic_interest 数值，只能返回可观察的线索。"
+  - id: etiquette
+    name: "礼仪"
+    category: social
+    attribute: charm
+    aliases: ["礼节", "待人接物", "manners", "招待"]
+    description: "在正式场合、长辈面前、店里不出错。"
+  - id: performance
+    name: "表演"
+    category: social
+    attribute: charm
+    aliases: ["舞台表现", "演出", "stage"]
+    description: "站在人前的那一刻能发挥出多少。"
+
+  # ---------- 校园 ----------
+  - id: study
+    name: "学习"
+    category: academic
+    attribute: intellect
+    aliases: ["读书", "念书", "自习", "复习", "learning"]
+    description: "理解与吸收课业内容的效率。"
+  - id: note_taking
+    name: "笔记"
+    category: academic
+    attribute: intellect
+    aliases: ["记笔记", "整理", "notes"]
+    description: "整理信息、做出别人也想借的笔记。"
+  - id: exam_strategy
+    name: "应试"
+    category: academic
+    attribute: willpower
+    aliases: ["考试技巧", "应考", "exam"]
+    description: "时间分配、取舍、以及考场上的心态。"
+  - id: club_management
+    name: "社团运营"
+    category: academic
+    attribute: intellect
+    aliases: ["组织", "策划", "管理", "活动运营", "management"]
+    description: "排班、预算、场地、以及让一群人真的把事做完。"
+
+  # ---------- 实用 ----------
+  - id: cooking
+    name: "料理"
+    category: practical
+    attribute: agility
+    aliases: ["做饭", "烹饪", "烧菜", "煎蛋", "炒饭", "咖喱", "便当", "甜点", "烘焙", "cook", "baking"]
+    description: "从便当到文化祭菜单。**所有具体菜式都归入本技能。**"
+  - id: first_aid
+    name: "急救"
+    category: practical
+    attribute: perception
+    aliases: ["救护", "包扎", "医疗常识", "first aid"]
+    description: "处理扭伤、擦伤、中暑，以及知道什么时候该叫人。"
+  - id: photography
+    name: "摄影"
+    category: practical
+    attribute: perception
+    aliases: ["拍照", "摄影技巧", "摄影技术", "camera_skill", "拍摄", "photo"]
+    description: "取景、光线、时机。**禁止再创建任何摄影同义技能。**"
+  - id: technology
+    name: "技术"
+    category: practical
+    attribute: intellect
+    aliases: ["电脑", "编程", "IT", "设备", "器材操作", "tech"]
+    description: "电脑、设备、软件、以及'能不能修好'。"
+  - id: crafting
+    name: "手工"
+    category: practical
+    attribute: agility
+    aliases: ["制作", "DIY", "道具制作", "缝纫", "craft"]
+    description: "道具、装饰、修理、文化祭那些必须自己做的东西。"
+
+  # ---------- 艺术 ----------
+  - id: singing
+    name: "歌唱"
+    category: art
+    attribute: charm
+    aliases: ["唱歌", "vocal", "声乐", "卡拉OK"]
+    description: "音准、气息、以及敢不敢唱。"
+  - id: instrument
+    name: "乐器"
+    category: art
+    attribute: agility
+    aliases: ["吉他", "贝斯", "钢琴", "鼓", "演奏", "guitar", "piano"]
+    description: "乐器演奏总称。**具体乐器不单独建技能，用 specialization 标签区分。**"
+    specializations: [guitar, bass, keyboard, drums, wind]
+  - id: drawing
+    name: "绘画"
+    category: art
+    attribute: agility
+    aliases: ["画画", "作画", "插画", "素描", "draw", "illustration"]
+    description: "从速写到完成度很高的作品。"
+  - id: writing
+    name: "写作"
+    category: art
+    attribute: intellect
+    aliases: ["文笔", "创作", "写文章", "写小说", "write"]
+    description: "把想说的东西写成别人愿意读的东西。"
+  - id: acting
+    name: "演技"
+    category: art
+    attribute: charm
+    aliases: ["表演戏剧", "演戏", "act"]
+    description: "成为另一个人，并且让别人相信。"
+
+  # ---------- 娱乐 ----------
+  - id: gaming
+    name: "电子游戏"
+    category: leisure
+    attribute: agility
+    aliases: ["打游戏", "电竞", "video_games", "游戏技术"]
+    description: "反应、操作与理解游戏系统的能力。"
+  - id: arcade
+    name: "街机"
+    category: leisure
+    attribute: agility
+    aliases: ["音游", "格斗游戏", "夹娃娃", "UFO catcher"]
+    description: "街机厅里的一切，包括那台永远夹不中的机器。"
+  - id: board_games
+    name: "桌游"
+    category: leisure
+    attribute: intellect
+    aliases: ["棋牌", "TRPG", "卡牌", "boardgame"]
+    description: "规则理解、概率判断和读人。"

@@ -1,0 +1,729 @@
+{
+  "player": {
+    "id": "player",
+    "name": null,
+    "age": 18,
+    "gender": null,
+    "pronouns": null,
+    "class": "class_2a",
+    "seat": "窗边第三排",
+    "role": "student",
+    "grade": 2,
+    "appearance": null,
+    "personality_tendency": [],
+    "interests": [],
+    "attributes": {
+      "physique": 4,
+      "agility": 4,
+      "intellect": 4,
+      "perception": 4,
+      "charm": 4,
+      "willpower": 4,
+      "luck": 4
+    },
+    "attribute_points_remaining": 12,
+    "status": {
+      "health": 100,
+      "energy": 100,
+      "stress": 10,
+      "mood": "normal",
+      "money": 10000
+    },
+    "conditions": [],
+    "skills": {},
+    "knowledge": {},
+    "skill_xp": {},
+    "knowledge_xp": {},
+    "clubs": [],
+    "location": "loc_school_gate",
+    "home_location": "loc_player_home",
+    "flags": {
+      "tutorial_done": false,
+      "first_day": true
+    },
+    "last_meal_minutes": -999
+  },
+  "npcs": {
+    "npc_amano_rin": {
+      "id": "npc_amano_rin",
+      "tier": "core",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "instrument": 4,
+        "singing": 3,
+        "performance": 3,
+        "conversation": 3,
+        "gaming": 2,
+        "study": 2,
+        "cooking": 1
+      },
+      "knowledge": {
+        "music_theory": 3,
+        "anime": 2,
+        "local_area": 3,
+        "school_rumors": 2,
+        "literature": 1
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_hoshino_makoto": {
+      "id": "npc_hoshino_makoto",
+      "tier": "core",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "writing": 4,
+        "study": 4,
+        "note_taking": 4,
+        "empathy": 3,
+        "conversation": 2,
+        "etiquette": 3,
+        "first_aid": 1
+      },
+      "knowledge": {
+        "literature": 4,
+        "history": 3,
+        "psychology": 2,
+        "school_rules": 2,
+        "mathematics": 2,
+        "school_rumors": 1
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_kurosawa_daichi": {
+      "id": "npc_kurosawa_daichi",
+      "tier": "core",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "athletics": 4,
+        "running": 3,
+        "conversation": 3,
+        "first_aid": 2,
+        "performance": 2,
+        "study": 1,
+        "cooking": 2
+      },
+      "knowledge": {
+        "biology": 2,
+        "school_rumors": 2,
+        "local_area": 2,
+        "games": 1
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_saotome_yui": {
+      "id": "npc_saotome_yui",
+      "tier": "core",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "running": 4,
+        "athletics": 4,
+        "conversation": 3,
+        "cooking": 2,
+        "performance": 2,
+        "first_aid": 2,
+        "study": 2
+      },
+      "knowledge": {
+        "biology": 3,
+        "fashion": 2,
+        "local_area": 2,
+        "cooking": 1,
+        "school_rumors": 1
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_shirai_kanade": {
+      "id": "npc_shirai_kanade",
+      "tier": "core",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "conversation": 4,
+        "performance": 3,
+        "instrument": 3,
+        "empathy": 3,
+        "etiquette": 3,
+        "technology": 2,
+        "singing": 2
+      },
+      "knowledge": {
+        "music_theory": 3,
+        "fashion": 3,
+        "school_rumors": 4,
+        "local_area": 3,
+        "anime": 2,
+        "psychology": 1
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_kirishima_sae": {
+      "id": "npc_kirishima_sae",
+      "tier": "core",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "club_management": 4,
+        "persuasion": 3,
+        "note_taking": 4,
+        "etiquette": 4,
+        "study": 4,
+        "conversation": 3,
+        "exam_strategy": 3
+      },
+      "knowledge": {
+        "school_rules": 5,
+        "economics": 3,
+        "mathematics": 3,
+        "history": 2,
+        "school_rumors": 2,
+        "psychology": 2
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_mizuki_ren": {
+      "id": "npc_mizuki_ren",
+      "tier": "core",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "writing": 3,
+        "instrument": 3,
+        "note_taking": 3,
+        "empathy": 4,
+        "conversation": 3,
+        "club_management": 3,
+        "singing": 2
+      },
+      "knowledge": {
+        "music_theory": 3,
+        "literature": 3,
+        "school_rules": 3,
+        "psychology": 3,
+        "local_area": 2
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_natsume_kou": {
+      "id": "npc_natsume_kou",
+      "tier": "core",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "photography": 5,
+        "crafting": 3,
+        "technology": 3,
+        "drawing": 2,
+        "conversation": 1,
+        "study": 2
+      },
+      "knowledge": {
+        "photography": 4,
+        "chemistry": 3,
+        "local_area": 4,
+        "history": 2,
+        "school_rumors": 1
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_takahashi_nao": {
+      "id": "npc_takahashi_nao",
+      "tier": "supporting",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "gaming": 4,
+        "board_games": 4,
+        "technology": 3,
+        "conversation": 3,
+        "arcade": 3,
+        "study": 2
+      },
+      "knowledge": {
+        "games": 4,
+        "computers": 3,
+        "anime": 3,
+        "mathematics": 3,
+        "school_rumors": 2
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_kagurazaka_hina": {
+      "id": "npc_kagurazaka_hina",
+      "tier": "supporting",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "cooking": 5,
+        "etiquette": 3,
+        "first_aid": 3,
+        "conversation": 3,
+        "empathy": 3,
+        "crafting": 2
+      },
+      "knowledge": {
+        "cooking": 4,
+        "chemistry": 2,
+        "biology": 2,
+        "fashion": 1,
+        "local_area": 2
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_fuyutsuki_iori": {
+      "id": "npc_fuyutsuki_iori",
+      "tier": "supporting",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "drawing": 5,
+        "crafting": 3,
+        "photography": 2,
+        "writing": 2,
+        "conversation": 1
+      },
+      "knowledge": {
+        "literature": 3,
+        "history": 2,
+        "fashion": 2,
+        "photography": 2,
+        "psychology": 1
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_himura_akane": {
+      "id": "npc_himura_akane",
+      "tier": "supporting",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "acting": 5,
+        "performance": 4,
+        "conversation": 4,
+        "persuasion": 3,
+        "deception": 3,
+        "singing": 2
+      },
+      "knowledge": {
+        "literature": 3,
+        "psychology": 3,
+        "school_rumors": 3,
+        "fashion": 2,
+        "history": 2
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_asakura_touma": {
+      "id": "npc_asakura_touma",
+      "tier": "supporting",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "athletics": 3,
+        "running": 3,
+        "conversation": 2,
+        "study": 2
+      },
+      "knowledge": {
+        "biology": 1,
+        "school_rules": 1,
+        "local_area": 1
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_narumi_koharu": {
+      "id": "npc_narumi_koharu",
+      "tier": "supporting",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "study": 3,
+        "note_taking": 3,
+        "writing": 2,
+        "conversation": 1
+      },
+      "knowledge": {
+        "literature": 3,
+        "anime": 2,
+        "school_rules": 2,
+        "history": 1
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_sakaki_juri": {
+      "id": "npc_sakaki_juri",
+      "tier": "supporting",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "etiquette": 4,
+        "conversation": 3,
+        "cooking": 3,
+        "empathy": 2,
+        "crafting": 2
+      },
+      "knowledge": {
+        "cooking": 3,
+        "fashion": 4,
+        "economics": 3,
+        "local_area": 4,
+        "school_rumors": 1
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_oda_shun": {
+      "id": "npc_oda_shun",
+      "tier": "supporting",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "conversation": 4,
+        "persuasion": 2,
+        "deception": 2,
+        "etiquette": 2,
+        "arcade": 2
+      },
+      "knowledge": {
+        "school_rumors": 5,
+        "local_area": 4,
+        "games": 2,
+        "fashion": 2,
+        "anime": 2
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_tsukishima_kaoru": {
+      "id": "npc_tsukishima_kaoru",
+      "tier": "supporting",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "study": 4,
+        "writing": 4,
+        "conversation": 4,
+        "empathy": 4,
+        "club_management": 3,
+        "etiquette": 3
+      },
+      "knowledge": {
+        "literature": 5,
+        "psychology": 3,
+        "school_rules": 4,
+        "history": 3,
+        "music_theory": 2,
+        "school_rumors": 3
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_ogata_juzo": {
+      "id": "npc_ogata_juzo",
+      "tier": "supporting",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "athletics": 5,
+        "running": 4,
+        "first_aid": 4,
+        "club_management": 3,
+        "conversation": 3
+      },
+      "knowledge": {
+        "biology": 4,
+        "school_rules": 3,
+        "local_area": 3
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_ayase_shizuku": {
+      "id": "npc_ayase_shizuku",
+      "tier": "supporting",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "first_aid": 5,
+        "empathy": 5,
+        "conversation": 3,
+        "etiquette": 3,
+        "cooking": 2
+      },
+      "knowledge": {
+        "biology": 5,
+        "psychology": 4,
+        "chemistry": 3,
+        "school_rules": 3
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_himekawa_souji": {
+      "id": "npc_himekawa_souji",
+      "tier": "background",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "study": 5,
+        "note_taking": 4,
+        "exam_strategy": 5
+      },
+      "knowledge": {
+        "mathematics": 5,
+        "physics": 4,
+        "history": 2,
+        "school_rules": 3
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    },
+    "npc_kanzaki_mio": {
+      "id": "npc_kanzaki_mio",
+      "tier": "background",
+      "status": {
+        "health": 100,
+        "energy": 100,
+        "stress": 15,
+        "mood": "normal",
+        "money": 5000
+      },
+      "location": null,
+      "current_activity": null,
+      "skills": {
+        "persuasion": 4,
+        "etiquette": 4,
+        "study": 4,
+        "conversation": 3
+      },
+      "knowledge": {
+        "school_rules": 5,
+        "literature": 3,
+        "psychology": 2,
+        "local_area": 3
+      },
+      "skill_xp": {},
+      "knowledge_xp": {},
+      "interaction_count": 0,
+      "flags": {},
+      "dynamic_interests": []
+    }
+  }
+}

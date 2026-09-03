@@ -1,0 +1,507 @@
+# ============================================================
+# 事件模板池 (event_pool.yaml)
+# 触发由 engine/event_manager.py 决定，LLM 只负责叙事。
+#
+# conditions 支持的键:
+#   time_blocks / not_time_blocks : blk_* (见 world/schedule.yaml)
+#   locations / location_tags / not_locations
+#   weekday / day_type / season_months / weather
+#   requires_npc (bool) / npc_tags / npc_stage_min / npc_stage_in
+#   min_relationship: {dim: value}  max_relationship: {dim: value}
+#   player_energy_min / player_energy_max / player_stress_min / player_stress_max
+#   calendar_tags / requires_club / requires_skill / requires_knowledge
+#   min_day_index / requires_flag
+#
+# weight  : 基础权重 (相对)
+# cooldown_days : 冷却
+# major   : true 的事件受 major_event_min_interval_days 限制（重大情感事件必须低频）
+# prompt  : 给 Agent 的导演提示（不是台词，也不是结局）
+# ============================================================
+
+meta:
+  version: 1
+  categories: [daily, romance, friendship, club, school_event, drama]
+  ratio_target: {daily: 0.40, romance: 0.25, friendship: 0.15, club: 0.10, school_event: 0.07, drama: 0.03}
+  rule: "事件只提供'发生了什么契机'，不提供结果。结果由玩家选择与 NPC 的自主决定产生。"
+
+events:
+
+# ======================= 日常 (daily) =======================
+- {id: ev_morning_gate_rush, name: "校门口的早高峰", category: daily, weight: 1.0, cooldown_days: 3,
+   conditions: {time_blocks: [blk_commute], locations: [loc_school_gate], requires_npc: true},
+   tags: [morning, encounter], prompt: "有人和玩家几乎同时到校门口。可能只是点个头，也可能一起走进去。"}
+- {id: ev_shoe_locker_note, name: "鞋柜里的纸条", category: daily, weight: 0.5, cooldown_days: 14,
+   conditions: {time_blocks: [blk_commute, blk_after_school], locations: [loc_shoe_lockers]},
+   tags: [rumor, mystery], prompt: "鞋柜里有一张纸条——十有八九是社团通知单或者值日表。不要默认是情书。"}
+- {id: ev_almost_late, name: "差点迟到", category: daily, weight: 0.8, cooldown_days: 5,
+   conditions: {time_blocks: [blk_commute], player_energy_max: 60},
+   tags: [morning, comedy], prompt: "预备铃已经响了。走廊上还有别人在跑。"}
+- {id: ev_homeroom_notice, name: "晨会通知", category: daily, weight: 0.9, cooldown_days: 2,
+   conditions: {time_blocks: [blk_homeroom], day_type: [school, school_no_club, half_day]},
+   tags: [class, info], prompt: "班主任宣布了一件事：值日调整、活动报名、或者某个截止日期。给玩家一个可以行动的信息。"}
+- {id: ev_class_pop_question, name: "被点名回答", category: daily, weight: 0.7, cooldown_days: 4,
+   conditions: {time_blocks: [blk_period_1, blk_period_2, blk_period_3, blk_period_4, blk_period_5, blk_period_6]},
+   tags: [class, check], prompt: "老师点了玩家的名字。可以是 intellect+study 的检定，也可以只是尴尬两秒。"}
+- {id: ev_borrow_eraser, name: "借东西", category: daily, weight: 1.0, cooldown_days: 3,
+   conditions: {time_blocks: [blk_period_1, blk_period_3, blk_period_5, blk_break_1, blk_break_2], requires_npc: true},
+   tags: [class, small], prompt: "有人小声问玩家借橡皮/笔/讲义。这是最轻的互动，几乎不改变什么——但会积累。"}
+- {id: ev_sleepy_class, name: "第四节课的困意", category: daily, weight: 0.8, cooldown_days: 3,
+   conditions: {time_blocks: [blk_period_4], player_energy_max: 50},
+   tags: [class, comedy], prompt: "阳光正好落在桌上。旁边的人也在硬撑。"}
+- {id: ev_break_chat, name: "课间十分钟", category: daily, weight: 1.2, cooldown_days: 1,
+   conditions: {time_blocks: [blk_break_1, blk_break_2, blk_break_3, blk_break_5], requires_npc: true},
+   tags: [social, small], prompt: "十分钟不够做任何事，但够说三句话。"}
+- {id: ev_lunch_alone, name: "一个人的午饭", category: daily, weight: 0.7, cooldown_days: 2,
+   conditions: {time_blocks: [blk_lunch]},
+   tags: [lunch, quiet], prompt: "今天没人约。这不是坏事，安静地写一下这段时间。"}
+- {id: ev_lunch_invite, name: "午饭搭子", category: daily, weight: 1.3, cooldown_days: 2,
+   conditions: {time_blocks: [blk_lunch], requires_npc: true, min_relationship: {familiarity: 15}},
+   tags: [lunch, social], prompt: "有人问玩家要不要一起吃。也可能是玩家先开口。"}
+- {id: ev_cafeteria_queue, name: "食堂排队", category: daily, weight: 1.0, cooldown_days: 3,
+   conditions: {time_blocks: [blk_lunch], locations: [loc_cafeteria]},
+   tags: [lunch, encounter], prompt: "A 定食的队排到了门口。前后左右都是人。"}
+- {id: ev_last_bread, name: "最后一个炸面包", category: daily, weight: 0.6, cooldown_days: 10,
+   conditions: {time_blocks: [blk_lunch], locations: [loc_cafeteria], requires_npc: true},
+   tags: [lunch, comedy], prompt: "两只手同时伸向最后一个炸面包。谁让谁是个小选择。"}
+- {id: ev_rooftop_lunch, name: "天台的风", category: daily, weight: 0.9, cooldown_days: 4,
+   conditions: {time_blocks: [blk_lunch], locations: [loc_rooftop], weather: [sunny, cloudy, warm, sakura_wind]},
+   tags: [lunch, quiet, view], prompt: "天台上风很大。可能已经有人在了。"}
+- {id: ev_vending_broken, name: "找零口又坏了", category: daily, weight: 0.7, cooldown_days: 7,
+   conditions: {locations: [loc_vending_area]},
+   tags: [comedy, small], prompt: "那台机器又吞了硬币。旁边可能有人在笑。"}
+- {id: ev_vending_meet, name: "自动售货机前", category: daily, weight: 1.2, cooldown_days: 2,
+   conditions: {locations: [loc_vending_area], requires_npc: true},
+   tags: [encounter, social], prompt: "全校最经典的偶遇地点。请一瓶饮料是最轻的示好。"}
+- {id: ev_cleaning_duty, name: "打扫时间", category: daily, weight: 1.0, cooldown_days: 3,
+   conditions: {time_blocks: [blk_cleaning], day_type: [school, school_no_club, half_day]},
+   tags: [chore, social], prompt: "扫地、擦窗、把桌子推回原位。干活的时候人比较容易说话。"}
+- {id: ev_blackboard_duty, name: "值日", category: daily, weight: 0.7, cooldown_days: 6,
+   conditions: {time_blocks: [blk_cleaning, blk_homeroom_end], requires_npc: true},
+   tags: [chore, pair], prompt: "值日表把玩家和某个人排在了一起。"}
+- {id: ev_after_school_empty_class, name: "放学后的教室", category: daily, weight: 1.0, cooldown_days: 3,
+   conditions: {time_blocks: [blk_after_school], locations: [loc_class_2a]},
+   tags: [quiet, romantic], prompt: "人走得差不多了。夕阳把桌子分成明暗两半。"}
+- {id: ev_library_quiet, name: "图书馆的下午", category: daily, weight: 0.9, cooldown_days: 3,
+   conditions: {locations: [loc_library]},
+   tags: [study, quiet], prompt: "二楼靠窗的位置只剩一个。翻书的声音很清楚。"}
+- {id: ev_same_book, name: "同一本书", category: daily, weight: 0.6, cooldown_days: 12,
+   conditions: {locations: [loc_library, loc_bookstore], requires_npc: true},
+   tags: [encounter, interest], prompt: "两个人伸手去拿同一本书。共同兴趣是关系里最扎实的地基之一。"}
+- {id: ev_infirmary_nap, name: "保健室的白色隔帘", category: daily, weight: 0.6, cooldown_days: 5,
+   conditions: {locations: [loc_infirmary], player_energy_max: 35},
+   tags: [rest, quiet], prompt: "校医不会赶人。隔壁床可能也有人。"}
+- {id: ev_corridor_bump, name: "走廊上撞到人", category: daily, weight: 0.8, cooldown_days: 4,
+   conditions: {locations: [loc_corridor], time_blocks: [blk_break_1, blk_break_2, blk_break_3, blk_break_5]},
+   tags: [encounter, comedy], prompt: "课间的走廊像一条湍急的河。别写成少女漫的老套摔倒。"}
+- {id: ev_courtyard_sunset, name: "中庭的夕阳", category: daily, weight: 0.9, cooldown_days: 4,
+   conditions: {locations: [loc_courtyard], time_blocks: [blk_after_school], weather: [sunny, cloudy]},
+   tags: [outdoor, photo, romantic], prompt: "光线很好。摄影部的人可能就在附近。"}
+- {id: ev_bike_park_talk, name: "推车走的那段路", category: daily, weight: 1.0, cooldown_days: 3,
+   conditions: {locations: [loc_bike_park], time_blocks: [blk_after_school], requires_npc: true},
+   tags: [walk, social], prompt: "推着自行车并排走，比骑车更容易说话。"}
+- {id: ev_convenience_run, name: "便利店一趟", category: daily, weight: 1.0, cooldown_days: 2,
+   conditions: {locations: [loc_convenience_store]},
+   tags: [shop, encounter], prompt: "白光、关东煮的味道、杂志架前站着的人。"}
+- {id: ev_discount_time, name: "熟食区贴折扣标签的时间", category: daily, weight: 0.6, cooldown_days: 7,
+   conditions: {locations: [loc_supermarket], time_blocks: [blk_evening]},
+   tags: [shop, life], prompt: "学生公认的黄金时段。可能会遇到同样在等的人。"}
+- {id: ev_train_delay, name: "电车延误", category: daily, weight: 0.5, cooldown_days: 10,
+   conditions: {locations: [loc_station], weather: [rain, typhoon, snow]},
+   tags: [transit, wait], prompt: "站台上挤满了人，广播在道歉。等待创造对话。"}
+- {id: ev_river_run, name: "河堤上的晨跑者", category: daily, weight: 0.7, cooldown_days: 5,
+   conditions: {locations: [loc_riverbank], time_blocks: [blk_early]},
+   tags: [morning, sport], prompt: "早上六点半的河堤只有固定的几个人。"}
+- {id: ev_homework_forgot, name: "作业忘带了", category: daily, weight: 0.6, cooldown_days: 8,
+   conditions: {time_blocks: [blk_homeroom, blk_period_1], day_type: [school, school_no_club, half_day]},
+   tags: [class, trouble], prompt: "现在借还来得及。或者干脆认了。"}
+- {id: ev_test_returned, name: "发考卷", category: daily, weight: 0.8, cooldown_days: 7,
+   conditions: {time_blocks: [blk_period_2, blk_period_5], day_type: [school]},
+   tags: [class, result], prompt: "分数不是重点，周围人的反应才是。"}
+- {id: ev_group_project, name: "分组作业", category: daily, weight: 0.8, cooldown_days: 10,
+   conditions: {time_blocks: [blk_period_3, blk_period_6], requires_npc: true},
+   tags: [class, social], prompt: "老师让自由组队。这是一个社交问题，不是学术问题。"}
+- {id: ev_rain_no_umbrella, name: "没带伞", category: daily, weight: 1.0, cooldown_days: 4,
+   conditions: {weather: [rain, typhoon], time_blocks: [blk_after_school, blk_evening]},
+   tags: [rain, choice], prompt: "雨比预报大。玄关处站着几个同样没带伞的人。"}
+- {id: ev_first_cicada, name: "第一声蝉鸣", category: daily, weight: 0.4, cooldown_days: 60,
+   conditions: {season_months: [6, 7]},
+   tags: [seasonal, atmosphere], prompt: "夏天开始了。用一小段描写标记季节的转换。"}
+- {id: ev_sakura_petals, name: "花吹雪", category: daily, weight: 0.6, cooldown_days: 10,
+   conditions: {season_months: [4], weather: [sakura_wind, sunny]},
+   tags: [seasonal, romantic], prompt: "樱花落在肩上。这是这个季节最廉价也最有效的浪漫。"}
+- {id: ev_first_cold_day, name: "突然变冷的那天", category: daily, weight: 0.5, cooldown_days: 60,
+   conditions: {season_months: [11, 12], weather: [cold]},
+   tags: [seasonal], prompt: "所有人都突然穿多了一件。围巾、热饮、缩着的肩膀。"}
+- {id: ev_phone_message, name: "手机响了一下", category: daily, weight: 0.9, cooldown_days: 2,
+   conditions: {time_blocks: [blk_evening, blk_night], min_relationship: {familiarity: 25}},
+   tags: [message, social], prompt: "有人发来消息。内容可以很普通——重要的是谁、什么时候、以及回复的节奏。"}
+- {id: ev_late_night_study, name: "深夜的桌灯", category: daily, weight: 0.7, cooldown_days: 3,
+   conditions: {time_blocks: [blk_night], locations: [loc_player_home]},
+   tags: [study, quiet], prompt: "房间里只有键盘声或者笔尖的声音。也可以什么都不做。"}
+- {id: ev_weekend_nothing, name: "什么都没安排的周末", category: daily, weight: 0.9, cooldown_days: 5,
+   conditions: {weekday: [sat, sun], time_blocks: [blk_commute, blk_period_1, blk_period_2]},
+   tags: [holiday, free], prompt: "睡到自然醒。一整天是空的——这本身就是一种选择题。"}
+- {id: ev_shopping_street_walk, name: "商店街的下午", category: daily, weight: 0.8, cooldown_days: 4,
+   conditions: {locations: [loc_shopping_street]},
+   tags: [walk, town], prompt: "褪色的彩旗、卖可乐饼的店、认识玩家的老板娘。"}
+- {id: ev_arcade_noise, name: "游戏厅的音量", category: daily, weight: 0.7, cooldown_days: 4,
+   conditions: {locations: [loc_arcade]},
+   tags: [entertainment], prompt: "音游区的声音盖过一切。夹娃娃机前有人在做最后一次尝试。"}
+- {id: ev_cafe_regular, name: "咖啡店的常客", category: daily, weight: 0.7, cooldown_days: 5,
+   conditions: {locations: [loc_cafe_kotori]},
+   tags: [quiet, town], prompt: "老板正在手冲。店里放着音量刚好的音乐。"}
+- {id: ev_family_restaurant_long, name: "坐了三个小时", category: daily, weight: 0.8, cooldown_days: 5,
+   conditions: {locations: [loc_family_restaurant], requires_npc: true},
+   tags: [food, talk], prompt: "饮料吧无限续杯。话题从作业滑到别的地方。"}
+- {id: ev_shrine_quiet, name: "神社的石阶", category: daily, weight: 0.6, cooldown_days: 7,
+   conditions: {locations: [loc_shrine]},
+   tags: [quiet, tradition], prompt: "除了风铃没有别的声音。适合说平时说不出口的话，也适合什么都不说。"}
+- {id: ev_park_swing, name: "旧秋千", category: daily, weight: 0.6, cooldown_days: 7,
+   conditions: {locations: [loc_park]},
+   tags: [quiet, memory], prompt: "锁链已经生锈了。坐上去会响。"}
+- {id: ev_bookstore_standing, name: "站着看完一本", category: daily, weight: 0.6, cooldown_days: 6,
+   conditions: {locations: [loc_bookstore]},
+   tags: [quiet, knowledge], prompt: "二楼没人管。看到一半会开始考虑要不要买。"}
+- {id: ev_new_vending_flavor, name: "新口味", category: daily, weight: 0.4, cooldown_days: 14,
+   conditions: {locations: [loc_vending_area, loc_convenience_store]},
+   tags: [small, comedy], prompt: "一个明显不该存在的新口味。可以拿来当话题。"}
+- {id: ev_lost_item, name: "捡到东西", category: daily, weight: 0.6, cooldown_days: 10,
+   conditions: {location_tags: [transit, social]},
+   tags: [encounter, kindness], prompt: "地上有个别人掉的东西。还回去需要先找到人。"}
+- {id: ev_teacher_errand, name: "老师叫住了你", category: daily, weight: 0.6, cooldown_days: 8,
+   conditions: {location_tags: [transit, formal], day_type: [school, school_no_club, half_day]},
+   tags: [chore, teacher], prompt: "搬东西、送文件、或者只是被问最近怎么样。"}
+- {id: ev_club_recruit_flyer, name: "招新传单", category: daily, weight: 0.6, cooldown_days: 20,
+   conditions: {calendar_tags: [club], locations: [loc_courtyard, loc_club_building, loc_corridor]},
+   tags: [club, info], prompt: "有人在发传单。这是玩家了解社团的自然入口。"}
+- {id: ev_notice_board, name: "公告栏更新了", category: daily, weight: 0.5, cooldown_days: 7,
+   conditions: {locations: [loc_corridor, loc_school_gate]},
+   tags: [info], prompt: "活动日程、比赛结果、失物招领。给玩家一条可以追的线索。"}
+- {id: ev_sudden_rain_stop, name: "雨停了", category: daily, weight: 0.4, cooldown_days: 10,
+   conditions: {weather: [rain]},
+   tags: [weather, atmosphere], prompt: "屋檐还在滴水，天亮起来。适合放在一段对话之后。"}
+
+# ======================= 恋爱 / 暧昧 (romance) =======================
+- {id: ev_shared_umbrella, name: "共伞", category: romance, weight: 1.4, cooldown_days: 10,
+   conditions: {weather: [rain, typhoon], requires_npc: true, min_relationship: {familiarity: 25, comfort: 20}, time_blocks: [blk_after_school, blk_evening]},
+   tags: [rain, ambiguous, classic], suggested_relationship_events: [alone_together, ambiguous_moment],
+   prompt: "一把伞，两个人，肩膀会湿一边。经典但有效——写距离，不要写心跳加速。"}
+- {id: ev_left_alone_together, name: "只剩下两个人", category: romance, weight: 1.2, cooldown_days: 8,
+   conditions: {time_blocks: [blk_after_school, blk_evening], requires_npc: true, min_relationship: {familiarity: 30}},
+   tags: [ambiguous, quiet], suggested_relationship_events: [alone_together],
+   prompt: "其他人陆续走了。留下来的理由可以很普通。"}
+- {id: ev_accidentally_close, name: "坐得比想象中近", category: romance, weight: 1.0, cooldown_days: 8,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 30, comfort: 30}},
+   tags: [ambiguous, small], suggested_relationship_events: [physical_closeness],
+   prompt: "位置就那么大。谁都没有挪开，也没有提这件事。"}
+- {id: ev_shared_earphones, name: "分一只耳机", category: romance, weight: 1.0, cooldown_days: 12,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 35, comfort: 35}},
+   tags: [ambiguous, music], suggested_relationship_events: [shared_interest, alone_together],
+   prompt: "耳机线的长度决定了两个人之间的距离。"}
+- {id: ev_teased_by_friends, name: "被朋友起哄", category: romance, weight: 1.0, cooldown_days: 10,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 40}, location_tags: [social, classroom]},
+   tags: [ambiguous, comedy], suggested_relationship_events: [teasing],
+   prompt: "旁边的人先笑了。两个人都笑了一下，然后各自转开视线。"}
+- {id: ev_noticed_small_change, name: "你今天不太一样", category: romance, weight: 1.1, cooldown_days: 10,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 35}},
+   tags: [ambiguous, observation], suggested_relationship_events: [compliment],
+   prompt: "换了发夹、剪了头发、指甲颜色不同。注意到本身就是一种信号——注意到并且说出来是另一种。"}
+- {id: ev_watch_sunset_together, name: "一起看夕阳", category: romance, weight: 1.0, cooldown_days: 12,
+   conditions: {requires_npc: true, time_blocks: [blk_after_school], weather: [sunny, cloudy], location_tags: [view, outdoor, romantic], min_relationship: {familiarity: 30, closeness: 25}},
+   tags: [ambiguous, view], suggested_relationship_events: [alone_together, ambiguous_moment],
+   prompt: "天空的颜色在几分钟内变了三次。有人先说了句和风景无关的话。"}
+- {id: ev_message_first, name: "对方先发了消息", category: romance, weight: 1.1, cooldown_days: 6,
+   conditions: {requires_npc: true, time_blocks: [blk_evening, blk_night], min_relationship: {familiarity: 35, comfort: 35}},
+   tags: [message, ambiguous], suggested_relationship_events: [messaged],
+   prompt: "内容没什么要紧。要紧的是对方先开了口，以及打字的那几秒。"}
+- {id: ev_walk_to_station, name: "顺路到车站", category: romance, weight: 1.2, cooldown_days: 5,
+   conditions: {requires_npc: true, time_blocks: [blk_after_school, blk_evening], min_relationship: {familiarity: 25}},
+   tags: [walk, ambiguous], suggested_relationship_events: [walk_home],
+   prompt: "方向不完全一样，但可以多走两站路。"}
+- {id: ev_waiting_at_gate, name: "有人在校门口等", category: romance, weight: 0.9, cooldown_days: 12,
+   conditions: {requires_npc: true, locations: [loc_school_gate], time_blocks: [blk_after_school], min_relationship: {familiarity: 40, closeness: 30}},
+   tags: [ambiguous, intent], suggested_relationship_events: [alone_together],
+   prompt: "对方明显是在等人，并且不承认是在等谁。"}
+- {id: ev_lend_something_personal, name: "借了一件私人物品", category: romance, weight: 0.9, cooldown_days: 12,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 30, trust: 25}},
+   tags: [ambiguous, object], suggested_relationship_events: [small_gift, helped_them],
+   prompt: "外套、伞、耳机、书。归还的时候会创造第二次见面的理由。"}
+- {id: ev_share_food, name: "分一半给你", category: romance, weight: 1.0, cooldown_days: 7,
+   conditions: {requires_npc: true, time_blocks: [blk_lunch, blk_after_school], min_relationship: {familiarity: 25, comfort: 25}},
+   tags: [food, ambiguous], suggested_relationship_events: [shared_meal],
+   prompt: "便当里多出来的一块，或者掰成两半的面包。"}
+- {id: ev_personal_topic, name: "说了一件没跟别人说过的事", category: romance, weight: 1.0, cooldown_days: 14,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 45, trust: 40, comfort: 40}},
+   tags: [deep, trust], suggested_relationship_events: [shared_secret, deep_talk],
+   prompt: "这句话之后，两个人的关系换了一个层级。不要立刻处理它，让它悬在那里。"}
+- {id: ev_ask_contact, name: "交换联系方式", category: romance, weight: 0.9, cooldown_days: 30,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 30, comfort: 25}},
+   tags: [milestone], suggested_relationship_events: [exchanged_contact],
+   prompt: "拿出手机的那两秒会有点尴尬。之后的第一条消息更难。"}
+- {id: ev_name_change, name: "称呼变了", category: romance, weight: 0.8, cooldown_days: 25,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 55, comfort: 50, closeness: 45}},
+   tags: [milestone, subtle], suggested_relationship_events: [alone_together],
+   prompt: "从姓氏变成名字，或者变成只有两个人在用的叫法。这是关系里最清楚的信号，比任何数值都直观。"}
+- {id: ev_jealous_moment, name: "看见对方和别人在一起", category: romance, weight: 0.8, cooldown_days: 14,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 40, romantic_interest: 25}},
+   tags: [jealousy, drama], suggested_relationship_events: [jealousy],
+   prompt: "那个场面本身完全正常。不正常的是玩家自己的反应。NPC 有权利和任何人来往。"}
+- {id: ev_misread_signal, name: "误会", category: romance, weight: 0.7, cooldown_days: 18,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 35}},
+   tags: [drama, misunderstanding], suggested_relationship_events: [misunderstanding],
+   prompt: "一句话被理解成了别的意思。误会应该有具体的、可以解释的原因。"}
+- {id: ev_make_up_after, name: "把话说开", category: romance, weight: 0.9, cooldown_days: 10,
+   conditions: {requires_npc: true, min_relationship: {conflict: 30}},
+   tags: [reconcile], suggested_relationship_events: [apology, reconciliation],
+   prompt: "有人先开的口。和好之后的关系和之前不一样——通常更结实一点。"}
+- {id: ev_first_date_family_restaurant, name: "第一次单独出去（家庭餐厅）", category: romance, weight: 1.0, cooldown_days: 10,
+   conditions: {requires_npc: true, locations: [loc_family_restaurant], npc_stage_in: [friend, close_friend, ambiguous, dating, relationship], min_relationship: {familiarity: 40, comfort: 35}},
+   tags: [date, casual], suggested_relationship_events: [date],
+   prompt: "谁都没说这是约会。菜单看了很久，点的还是老三样。"}
+- {id: ev_date_cafe, name: "咖啡店的两个小时", category: romance, weight: 0.9, cooldown_days: 10,
+   conditions: {requires_npc: true, locations: [loc_cafe_kotori], min_relationship: {familiarity: 40, comfort: 40}},
+   tags: [date, quiet], suggested_relationship_events: [date, deep_talk],
+   prompt: "咖啡凉了还剩一半。话题绕了好几圈才回到真正想说的那件事上。"}
+- {id: ev_date_shopping_street, name: "商店街闲逛", category: romance, weight: 0.9, cooldown_days: 8,
+   conditions: {requires_npc: true, locations: [loc_shopping_street], min_relationship: {familiarity: 35}},
+   tags: [date, walk], suggested_relationship_events: [date, alone_together],
+   prompt: "没有目的地。在某家店门口停下来的时间比别处长。"}
+- {id: ev_date_movie, name: "电影", category: romance, weight: 0.8, cooldown_days: 14,
+   conditions: {requires_npc: true, locations: [loc_shopping_street, loc_station], min_relationship: {familiarity: 40, comfort: 40}},
+   tags: [date], suggested_relationship_events: [date],
+   prompt: "两小时不能说话。散场后的第一句话决定了这次出门的性质。"}
+- {id: ev_date_arcade, name: "游戏厅对战", category: romance, weight: 0.8, cooldown_days: 10,
+   conditions: {requires_npc: true, locations: [loc_arcade], min_relationship: {familiarity: 30}},
+   tags: [date, play], suggested_relationship_events: [date, teasing],
+   prompt: "输赢会暴露性格。夹娃娃机是一个明确的示好装置。"}
+- {id: ev_date_karaoke, name: "卡拉OK包厢", category: romance, weight: 0.8, cooldown_days: 12,
+   conditions: {requires_npc: true, locations: [loc_karaoke], min_relationship: {familiarity: 35, comfort: 30}},
+   tags: [date, music], suggested_relationship_events: [date, shared_interest],
+   prompt: "第一首歌之前的沉默最难。选歌本身就是自我暴露。"}
+- {id: ev_date_aquarium, name: "水族馆", category: romance, weight: 0.7, cooldown_days: 20,
+   conditions: {requires_npc: true, locations: [loc_station], min_relationship: {familiarity: 45, comfort: 40}},
+   tags: [date, trip], suggested_relationship_events: [date],
+   prompt: "蓝色的光、玻璃、水母。这是一个'明确安排过'的约会，不能假装是顺路。"}
+- {id: ev_date_beach, name: "海边", category: romance, weight: 0.8, cooldown_days: 20,
+   conditions: {requires_npc: true, locations: [loc_beach], season_months: [6, 7, 8, 9], min_relationship: {familiarity: 45, comfort: 45}},
+   tags: [date, summer, trip], suggested_relationship_events: [date, ambiguous_moment],
+   prompt: "电车四十分钟。海风把说话声吹散一半。"}
+- {id: ev_summer_festival_date, name: "夏日祭", category: romance, weight: 1.2, cooldown_days: 300, major: true,
+   conditions: {calendar_tags: [festival], season_months: [8], requires_npc: true, min_relationship: {familiarity: 35}},
+   tags: [date, festival, major], suggested_relationship_events: [date, ambiguous_moment],
+   prompt: "浴衣、捞金鱼、人群里走散又找到。请写人群的密度和汗味，不要只写氛围。"}
+- {id: ev_fireworks, name: "烟火大会", category: romance, weight: 1.2, cooldown_days: 300, major: true,
+   conditions: {calendar_tags: [festival], season_months: [8], requires_npc: true, min_relationship: {familiarity: 40, closeness: 35}},
+   tags: [date, festival, major], suggested_relationship_events: [ambiguous_moment, date],
+   prompt: "声音比想象中更晚才到。在最响的那一刻说的话，对方可能没听见——这本身就是一个选择。"}
+- {id: ev_christmas_eve, name: "圣诞夜", category: romance, weight: 1.1, cooldown_days: 300, major: true,
+   conditions: {calendar_tags: [romantic], season_months: [12], requires_npc: true, min_relationship: {familiarity: 45}},
+   tags: [date, winter, major], suggested_relationship_events: [date],
+   prompt: "街上到处是灯。这一天的邀约含义太明显，被拒绝也很正常。"}
+- {id: ev_new_year_shrine, name: "初诣", category: romance, weight: 1.0, cooldown_days: 300, major: true,
+   conditions: {calendar_tags: [tradition], season_months: [1], requires_npc: true},
+   tags: [date, tradition, major], suggested_relationship_events: [date, alone_together],
+   prompt: "排队三十分钟只为了拍两下手。抽签的结果可以用 luck 检定。"}
+- {id: ev_valentine, name: "情人节", category: romance, weight: 1.1, cooldown_days: 300, major: true,
+   conditions: {calendar_tags: [chocolate], season_months: [2], requires_npc: true},
+   tags: [romantic, major], suggested_relationship_events: [small_gift],
+   prompt: "义理巧克力和本命巧克力的区别，全在给的时候说的那句话里。也可能玩家什么都没收到——这很正常。"}
+- {id: ev_white_day, name: "白色情人节", category: romance, weight: 1.0, cooldown_days: 300, major: true,
+   conditions: {calendar_tags: [romantic], season_months: [3], requires_npc: true},
+   tags: [romantic, major], suggested_relationship_events: [small_gift],
+   prompt: "回礼是一种回应。不回也是一种回应。"}
+- {id: ev_confession_setup, name: "有话想说", category: romance, weight: 0.5, cooldown_days: 30, major: true,
+   conditions: {requires_npc: true, npc_stage_in: [ambiguous], min_relationship: {romantic_interest: 45, closeness: 45}},
+   tags: [confession, major], prompt: "对方约玩家单独见面，或者反过来。**结果必须走 npc_decide_confession()，绝不能由骰子决定。**"}
+- {id: ev_npc_confesses, name: "对方先说了", category: romance, weight: 0.35, cooldown_days: 60, major: true,
+   conditions: {requires_npc: true, npc_stage_in: [ambiguous], min_relationship: {romantic_interest: 65, trust: 55, comfort: 55}},
+   tags: [confession, major], prompt: "NPC 主动告白。玩家有完全的决定权——接受、拒绝、或者要求时间。不要替玩家回答。"}
+- {id: ev_first_day_as_couple, name: "在一起之后的第一天", category: romance, weight: 0.8, cooldown_days: 20,
+   conditions: {requires_npc: true, npc_stage_in: [dating, relationship]},
+   tags: [couple, daily], suggested_relationship_events: [alone_together],
+   prompt: "学校里的一切都没变，但两个人不知道该保持多远的距离。"}
+- {id: ev_couple_anniversary, name: "满一个月", category: romance, weight: 0.6, cooldown_days: 30,
+   conditions: {requires_npc: true, npc_stage_in: [dating, relationship]},
+   tags: [couple, milestone], suggested_relationship_events: [date],
+   prompt: "一个人记得，另一个人可能忘了。这两种情况都不代表爱或者不爱。"}
+- {id: ev_couple_small_fight, name: "小争执", category: romance, weight: 0.7, cooldown_days: 15,
+   conditions: {requires_npc: true, npc_stage_in: [dating, relationship, strained]},
+   tags: [couple, conflict], suggested_relationship_events: [argument],
+   prompt: "起因非常小。真正的问题在别的地方，而且两个人都知道。"}
+- {id: ev_couple_public, name: "被人看见了", category: romance, weight: 0.6, cooldown_days: 30,
+   conditions: {requires_npc: true, npc_stage_in: [dating, relationship], location_tags: [social, transit]},
+   tags: [couple, social], prompt: "关系公开与否是两个人共同的决定，不是玩家一个人的。"}
+- {id: ev_introduce_to_friends, name: "介绍给朋友", category: romance, weight: 0.6, cooldown_days: 40,
+   conditions: {requires_npc: true, npc_stage_in: [dating, relationship], min_relationship: {trust: 55}},
+   tags: [couple, social], prompt: "朋友的反应比恋人的反应更难预料。"}
+- {id: ev_talk_about_future, name: "聊到了以后", category: romance, weight: 0.5, cooldown_days: 40,
+   conditions: {requires_npc: true, npc_stage_in: [dating, relationship], min_relationship: {trust: 65, closeness: 60}},
+   tags: [couple, deep], suggested_relationship_events: [deep_talk],
+   prompt: "毕业、搬走、各自想做的事。成年人的恋爱必须面对这些。"}
+- {id: ev_couple_ordinary_day, name: "恋人之间的普通一天", category: romance, weight: 1.0, cooldown_days: 4,
+   conditions: {requires_npc: true, npc_stage_in: [dating, relationship]},
+   tags: [couple, daily], prompt: "没有事件。一起吃饭、一起写作业、为便利店买什么争论两分钟。恋爱的绝大部分是这个。"}
+- {id: ev_stay_over_topic, name: "聊到了住的地方", category: romance, weight: 0.4, cooldown_days: 45,
+   conditions: {requires_npc: true, npc_stage_in: [dating, relationship], min_relationship: {trust: 70, comfort: 70, romantic_interest: 65}},
+   tags: [couple, adult], prompt: "成年人之间的现实话题。**任何进一步的发展都必须双方明确同意，且不能由检定决定。**"}
+- {id: ev_late_night_call, name: "深夜的电话", category: romance, weight: 0.6, cooldown_days: 12,
+   conditions: {requires_npc: true, time_blocks: [blk_night, blk_late_night], min_relationship: {closeness: 45, comfort: 45}},
+   tags: [message, deep], suggested_relationship_events: [deep_talk],
+   prompt: "两点了谁都没挂。说的内容白天绝对说不出口。"}
+- {id: ev_rejected_gracefully, name: "被婉拒之后", category: romance, weight: 0.5, cooldown_days: 20,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 30}},
+   tags: [rejection], suggested_relationship_events: [invite_declined],
+   prompt: "拒绝之后的第二天更难。关系不会归零，但会变——写出这个变化。"}
+
+# ======================= 友情 / 社交 (friendship) =======================
+- {id: ev_new_face, name: "没见过的人", category: friendship, weight: 1.0, cooldown_days: 5,
+   conditions: {location_tags: [social, club, shop]},
+   tags: [new_npc], prompt: "一个之前没出现过的人。**如果玩家主动交流，考虑 create_npc() 持久化；只是路人就不要注册。**"}
+- {id: ev_introduced_by_friend, name: "被朋友介绍认识", category: friendship, weight: 0.9, cooldown_days: 8,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 40}},
+   tags: [new_npc, network], prompt: "朋友带来了另一个人。新 NPC 必须先认识介绍人，再认识玩家。"}
+- {id: ev_group_hangout, name: "一群人出去", category: friendship, weight: 1.0, cooldown_days: 6,
+   conditions: {requires_npc: true, time_blocks: [blk_after_school, blk_evening], min_relationship: {familiarity: 30}},
+   tags: [group], prompt: "三个人以上的场合。玩家不是中心，这一点很重要。"}
+- {id: ev_friend_needs_help, name: "朋友遇到麻烦", category: friendship, weight: 0.8, cooldown_days: 12,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 40, trust: 30}},
+   tags: [help], suggested_relationship_events: [helped_them],
+   prompt: "具体的、可以解决的麻烦。帮忙是选择，不帮也是。"}
+- {id: ev_friend_venting, name: "有人想找人说话", category: friendship, weight: 0.8, cooldown_days: 10,
+   conditions: {requires_npc: true, min_relationship: {trust: 35, comfort: 35}},
+   tags: [emotional], suggested_relationship_events: [comforted_them, deep_talk],
+   prompt: "对方不一定需要建议。听完可能比说什么都有用。"}
+- {id: ev_study_group, name: "临时学习小组", category: friendship, weight: 0.9, cooldown_days: 8,
+   conditions: {requires_npc: true, calendar_tags: [study, exam], location_tags: [study, food]},
+   tags: [study, group], suggested_relationship_events: [study_together],
+   prompt: "考试前的互助。可以 register_group() 把它变成持续存在的小组。"}
+- {id: ev_lend_notes, name: "借笔记", category: friendship, weight: 0.9, cooldown_days: 6,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 20}},
+   tags: [help, class], suggested_relationship_events: [helped_them],
+   prompt: "笔记的整洁程度会暴露一个人的性格。"}
+- {id: ev_birthday, name: "有人过生日", category: friendship, weight: 0.6, cooldown_days: 30,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 45}},
+   tags: [celebration], suggested_relationship_events: [small_gift],
+   prompt: "知道生日这件事本身就说明关系到了某个程度。"}
+- {id: ev_two_friends_fight, name: "两个朋友吵架了", category: friendship, weight: 0.6, cooldown_days: 20,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 40}},
+   tags: [drama, network], prompt: "和玩家没有直接关系。玩家可以介入，也可以不介入——两种都有后果。"}
+- {id: ev_hear_rumor, name: "听说了一件事", category: friendship, weight: 0.9, cooldown_days: 5,
+   conditions: {requires_npc: true},
+   tags: [rumor, info], prompt: "**rumor 级信息，可能是错的。** 这是玩家得知后台世界变化的合法渠道之一。"}
+- {id: ev_friend_new_relationship, name: "听说谁和谁在一起了", category: friendship, weight: 0.5, cooldown_days: 25,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 35}},
+   tags: [rumor, npc_npc], prompt: "只有当后台真的发生了 NPC↔NPC 关系变化时才触发。不要凭空编造。"}
+- {id: ev_someone_absent, name: "有人没来", category: friendship, weight: 0.6, cooldown_days: 10,
+   conditions: {requires_npc: true, day_type: [school, school_no_club, half_day]},
+   tags: [concern], prompt: "座位空着。可以在意，也可以不在意。"}
+- {id: ev_walk_someone_home, name: "送人回家", category: friendship, weight: 0.8, cooldown_days: 10,
+   conditions: {requires_npc: true, time_blocks: [blk_evening], min_relationship: {familiarity: 35, comfort: 30}},
+   tags: [walk, care], suggested_relationship_events: [walk_home],
+   prompt: "天黑了，或者对方状态不好。这不一定是恋爱行为。"}
+- {id: ev_group_karaoke, name: "全员卡拉OK", category: friendship, weight: 0.7, cooldown_days: 15,
+   conditions: {requires_npc: true, locations: [loc_karaoke]},
+   tags: [group, music], prompt: "六个人一个包厢。谁点什么歌是最好的角色刻画。"}
+- {id: ev_convenience_store_gathering, name: "便利店门口站着聊", category: friendship, weight: 0.8, cooldown_days: 6,
+   conditions: {requires_npc: true, locations: [loc_convenience_store], time_blocks: [blk_evening, blk_night]},
+   tags: [group, casual], prompt: "关东煮、肉包、蹲在台阶上。学生最典型的社交场景之一。"}
+- {id: ev_upperclassman_advice, name: "前辈的建议", category: friendship, weight: 0.6, cooldown_days: 15,
+   conditions: {requires_npc: true, npc_tags: [senior]},
+   tags: [mentor], prompt: "不请自来的建议，但可能真的有用。"}
+- {id: ev_freshman_asks, name: "新生来问路", category: friendship, weight: 0.6, cooldown_days: 12,
+   conditions: {location_tags: [transit, entrance]},
+   tags: [new_npc, kindness], prompt: "校舍太复杂了。这是认识一年级学生的自然契机。"}
+- {id: ev_reconnect, name: "很久没说话的人", category: friendship, weight: 0.6, cooldown_days: 20,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 40}},
+   tags: [reconnect], prompt: "曾经很熟，最近很少说话。重新开口有一点门槛。"}
+- {id: ev_thanks_later, name: "后来才道谢", category: friendship, weight: 0.5, cooldown_days: 20,
+   conditions: {requires_npc: true, min_relationship: {familiarity: 30}},
+   tags: [callback], prompt: "为很久之前的一件小事道谢。**必须真的在记忆里找到那件事。**"}
+
+# ======================= 社团 / 兴趣 (club) =======================
+- {id: ev_club_regular_practice, name: "今天的社团活动", category: club, weight: 1.2, cooldown_days: 1,
+   conditions: {requires_club: any, time_blocks: [blk_after_school], day_type: [school, half_day]},
+   tags: [club, routine], suggested_relationship_events: [club_activity],
+   prompt: "常规活动。写具体在做什么，不要泛泛地说'练习了一会儿'。"}
+- {id: ev_club_visit, name: "去别的社团看看", category: club, weight: 0.9, cooldown_days: 5,
+   conditions: {locations: [loc_club_building, loc_music_room, loc_photo_room, loc_art_room, loc_game_room, loc_home_ec_room, loc_lit_room], time_blocks: [blk_after_school]},
+   tags: [club, explore], prompt: "参观是自由的。如果那个社团的人不够，可以 create_npc() 补充成员——但要合理。"}
+- {id: ev_club_recruit_pitch, name: "被拉进社团", category: club, weight: 0.8, cooldown_days: 10,
+   conditions: {calendar_tags: [club], location_tags: [club]},
+   tags: [club, invite], prompt: "缺人的社团会很积极。玩家可以拒绝。"}
+- {id: ev_club_new_member, name: "社团来了新人", category: club, weight: 0.6, cooldown_days: 20,
+   conditions: {requires_club: any},
+   tags: [club, new_npc], prompt: "新成员会改变社团内部的关系结构。"}
+- {id: ev_club_deadline, name: "截止日期快到了", category: club, weight: 0.9, cooldown_days: 10,
+   conditions: {requires_club: any, calendar_tags: [busy, club]},
+   tags: [club, pressure], prompt: "作品、演出、菜单、预算。压力会让人露出平时看不到的一面。"}
+- {id: ev_club_conflict, name: "社团内部的分歧", category: club, weight: 0.6, cooldown_days: 18,
+   conditions: {requires_club: any},
+   tags: [club, conflict], prompt: "选曲、方向、谁负责什么。分歧是社团的正常状态。"}
+- {id: ev_club_snack_run, name: "谁去买饮料", category: club, weight: 0.8, cooldown_days: 5,
+   conditions: {requires_club: any, time_blocks: [blk_after_school]},
+   tags: [club, casual], prompt: "跑腿的路上通常是两个人。"}
+- {id: ev_practice_breakthrough, name: "突然做到了", category: club, weight: 0.6, cooldown_days: 12,
+   conditions: {requires_club: any},
+   tags: [club, growth], prompt: "练了很久的东西突然成了。**必须对应真实的技能 XP 与检定结果。**"}
+- {id: ev_practice_slump, name: "怎么练都不对", category: club, weight: 0.6, cooldown_days: 12,
+   conditions: {requires_club: any},
+   tags: [club, setback], prompt: "失败也是内容。停滞期比进步期更能写出人物。"}
+- {id: ev_watch_others_practice, name: "看别人练习", category: club, weight: 0.7, cooldown_days: 6,
+   conditions: {location_tags: [club, sports, art, music]},
+   tags: [club, observe], prompt: "旁观是了解一个人最快的方式之一。"}
+- {id: ev_joint_club_project, name: "跨社团合作", category: club, weight: 0.5, cooldown_days: 25,
+   conditions: {requires_club: any, calendar_tags: [major, club]},
+   tags: [club, network], prompt: "两个社团一起做一件事。可以 register_group() 建立临时团队。"}
+- {id: ev_teach_skill, name: "有人教你", category: club, weight: 0.8, cooldown_days: 8,
+   conditions: {requires_npc: true, location_tags: [club, art, music, sports, cooking]},
+   tags: [club, growth], prompt: "被 NPC 教会一点东西。**走 progression 的 taught 来源给 XP。**"}
+
+# ======================= 校园大型活动 (school_event) =======================
+- {id: ev_sports_festival, name: "体育祭", category: school_event, weight: 2.0, cooldown_days: 300, major: true,
+   conditions: {calendar_tags: [sports]},
+   tags: [major, group], prompt: "全班一起。谁擅长什么、谁在偷懒、谁在最后一棒——一天之内能写完一整个群像。"}
+- {id: ev_culture_festival_prep, name: "文化祭准备", category: school_event, weight: 1.5, cooldown_days: 2,
+   conditions: {calendar_tags: [major, group, busy]},
+   tags: [major, prep], prompt: "放学后留下来做道具、排练、试菜单。三周里关系变化最快的时期。"}
+- {id: ev_culture_festival_day, name: "文化祭当天", category: school_event, weight: 2.0, cooldown_days: 300, major: true,
+   conditions: {calendar_tags: [festival, performance]},
+   tags: [major, festival], prompt: "咖啡厅、演出、人流。玩家可以只逛，也可以在自己社团忙一整天。"}
+- {id: ev_after_festival, name: "后夜祭", category: school_event, weight: 1.6, cooldown_days: 300, major: true,
+   conditions: {calendar_tags: [confession, romantic]},
+   tags: [major, romantic], prompt: "篝火、中庭那棵樱树、传说中的告白高峰。**传说不影响任何判定。**"}
+- {id: ev_exam_week, name: "考试周", category: school_event, weight: 1.4, cooldown_days: 60,
+   conditions: {calendar_tags: [exam]},
+   tags: [major, study], prompt: "压力上升，社团停止活动。**这段时间不要推荐约会。**"}
+- {id: ev_exam_results, name: "成绩公布", category: school_event, weight: 1.0, cooldown_days: 60,
+   conditions: {calendar_tags: [exam]},
+   tags: [result], prompt: "走廊上贴着排名，或者只是发回卷子。反应比分数重要。"}
+- {id: ev_school_trip, name: "修学旅行", category: school_event, weight: 1.8, cooldown_days: 300, major: true,
+   conditions: {calendar_tags: [trip]},
+   tags: [major, trip], prompt: "四天三夜。分房、自由行动时间、夜里的走廊。关系会被压缩着推进。"}
+- {id: ev_summer_camp, name: "社团合宿", category: school_event, weight: 1.4, cooldown_days: 300, major: true,
+   conditions: {calendar_tags: [club, trip], requires_club: any},
+   tags: [major, club, trip], prompt: "三天集中训练。累、吵、以及晚上没人想睡。"}
+- {id: ev_graduation, name: "毕业典礼", category: school_event, weight: 1.6, cooldown_days: 300, major: true,
+   conditions: {calendar_tags: [farewell, emotional]},
+   tags: [major, farewell], prompt: "三年级要走了。如果玩家和某个三年级关系很深，这是一个必须处理的节点。"}
+- {id: ev_new_term, name: "新学期第一天", category: school_event, weight: 1.0, cooldown_days: 60,
+   conditions: {calendar_tags: [ceremony]},
+   tags: [milestone], prompt: "座位可能换了。假期里发生的事需要一句话交代。"}
+
+# ======================= 较严肃剧情 (drama) =======================
+- {id: ev_family_pressure, name: "家里的意见", category: drama, weight: 0.4, cooldown_days: 40, major: true,
+   conditions: {requires_npc: true, min_relationship: {trust: 55, closeness: 50}},
+   tags: [serious, family], prompt: "升学、继承、搬走。成年人的现实问题，没有轻易的解法。"}
+- {id: ev_injury_setback, name: "受伤", category: drama, weight: 0.35, cooldown_days: 45, major: true,
+   conditions: {location_tags: [sports], requires_club: any},
+   tags: [serious, body], prompt: "训练中的意外，或者旧伤复发。**必须影响后续的属性检定与日程。**"}
+- {id: ev_club_disband_risk, name: "社团可能保不住", category: drama, weight: 0.4, cooldown_days: 45, major: true,
+   conditions: {requires_club: any},
+   tags: [serious, club], prompt: "人数不足、预算被砍、场地被占。这是很多社团的真实处境。"}
+- {id: ev_someone_leaving, name: "有人要走了", category: drama, weight: 0.3, cooldown_days: 60, major: true,
+   conditions: {requires_npc: true, min_relationship: {closeness: 50}},
+   tags: [serious, farewell], prompt: "转学、搬家、退部。告别需要提前铺垫，不能突然发生。"}
+- {id: ev_serious_talk_about_us, name: "关于我们的对话", category: drama, weight: 0.35, cooldown_days: 30, major: true,
+   conditions: {requires_npc: true, npc_stage_in: [ambiguous, dating, relationship, strained]},
+   tags: [serious, romance], prompt: "把一直没说的东西摊开。结果可能是更近，也可能是结束。**两种都要写得可信。**"}

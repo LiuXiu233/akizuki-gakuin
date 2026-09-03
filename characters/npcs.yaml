@@ -1,0 +1,880 @@
+# ============================================================
+# 初始 NPC 名册 (npcs.yaml)
+# 16 名学生 + 5 名教师。所有学生 age >= 18（世界强制）。
+# 运行中新增 NPC 必须通过 create_npc()，写入 state/world_registry.json。
+# tier: core / supporting / background
+# ============================================================
+
+meta:
+  minimum_age: 18
+  note: "本文件是初始名册。玩家开局时对绝大多数人只是'同班同学'——初始关系刻意保持很低。"
+
+npcs:
+
+# ============================== CORE ==============================
+
+- id: npc_amano_rin
+  name: "天野凛"
+  reading: "あまの りん"
+  age: 19
+  gender: female
+  class: class_2a
+  seat: "窗边第二排"
+  role: student
+  tier: core
+  club: club_light_music
+  club_role: "部长"
+  appearance: "偏短的黑发，习惯把左耳的头发别到耳后。校服领带永远松着一点，指尖有长期按弦留下的薄茧。个子不高，走路很快。"
+  personality: "看起来散漫、爱开玩笑、什么都无所谓的样子。实际上对自己在意的事有近乎偏执的标准。"
+  hidden_personality: "非常害怕自己'其实没有才能'这件事被证实，所以宁愿被人当成不努力的人。练习录音会反复听到凌晨。"
+  values: ["做出来的东西比说出来的话重要", "不喜欢被同情", "答应了的事一定做到"]
+  interests: [吉他, 独立乐队, 深夜广播, 罐装咖啡, 便利店限定零食]
+  dislikes: [被夸有天赋, 集体行动的形式主义, 早起]
+  strengths: ["现场感极强", "能把冷场救回来", "记谱快"]
+  weaknesses: ["拖延", "不擅长向别人求助", "熬夜"]
+  speech_style: "短句，语速快，喜欢用反问和自嘲收尾。很少说'谢谢'，会用别的方式还回来。称呼熟人只叫姓，非常熟的人叫名字。"
+  attributes: {physique: 4, agility: 7, intellect: 5, perception: 6, charm: 7, willpower: 6, luck: 5}
+  skills: {instrument: 4, singing: 3, performance: 3, conversation: 3, gaming: 2, study: 2, cooking: 1}
+  knowledge: {music_theory: 3, anime: 2, local_area: 3, school_rumors: 2, literature: 1}
+  family_background: "和开小酒馆的母亲两个人住在商店街尽头。父亲在她中学时离开，没人再提。母亲很支持她玩音乐，但从不去看演出。"
+  short_term_goals: ["在文化祭舞台上不搞砸", "写完那首一直卡在副歌的曲子"]
+  long_term_goals: ["做出一首能让不认识的人记住的歌"]
+  worries: ["部员人数不够会被降级为同好会", "自己是不是在浪费时间"]
+  secrets:
+    - {content: "她把自己写的 demo 全部存着，从来没给任何人完整听过。", visibility: secret}
+    - {content: "母亲的店经营状况不太好，她在考虑打工。", visibility: private_fact}
+  romantic_preferences: "会被'认真做某件事的人'吸引，对外表几乎无感。讨厌被追得太紧，也讨厌完全的被动。"
+  relationship_attitude: "慢热。会先把对方当成'能一起做事的人'，很久之后才会意识到自己在意对方。一旦意识到，反而会开始躲。"
+  social_circle: [npc_shirai_kanade, npc_hoshino_makoto, npc_takahashi_nao, npc_tsukishima_kaoru]
+  schedule_overrides:
+    - {days: [mon, tue, thu, fri], start: "15:40", end: "18:30", location: loc_music_room, activity: "轻音部练习"}
+    - {days: [wed], start: "15:40", end: "17:30", location: loc_convenience_store, activity: "闲逛"}
+    - {days: [sun], start: "13:00", end: "17:00", location: loc_live_house, activity: "看别人的演出"}
+  favorite_place: loc_music_room
+  home_location: loc_shopping_street
+  memories: []
+
+- id: npc_hoshino_makoto
+  name: "星野真琴"
+  reading: "ほしの まこと"
+  age: 19
+  gender: female
+  class: class_2a
+  seat: "最后一排靠墙"
+  role: student
+  tier: core
+  club: club_literature
+  club_role: "部长"
+  appearance: "长发扎成低马尾，戴细框眼镜。制服穿得一丝不苟，袖口总是扣好。手上经常有一本包着书皮的文库本。"
+  personality: "安静、克制、观察力强。说话前会先想两秒。对熟悉的人会露出相当刻薄的幽默感。"
+  hidden_personality: "其实很想被人搭话，但从来不会先开口。会记住别人随口说过的小事，很久以后再用上。"
+  values: ["语言应该准确", "不打扰别人也不被打扰", "承诺要小，兑现要稳"]
+  interests: [近代文学, 旧书店, 天台的风, 红茶, 写不完的短篇]
+  dislikes: [大声的人, 被强行拉进合影, 廉价的感动]
+  strengths: ["文字表达", "记忆力", "在混乱中保持冷静"]
+  weaknesses: ["体力差", "不会拒绝别人", "把情绪压到最后一刻"]
+  speech_style: "完整的句子，用词偏书面，几乎不用语气词。生气的时候句子会变得更短更礼貌。叫人一律用姓氏加'同学'，除非非常熟。"
+  attributes: {physique: 3, agility: 4, intellect: 8, perception: 7, charm: 5, willpower: 7, luck: 4}
+  skills: {writing: 4, study: 4, note_taking: 4, empathy: 3, conversation: 2, etiquette: 3, first_aid: 1}
+  knowledge: {literature: 4, history: 3, psychology: 2, school_rules: 2, mathematics: 2, school_rumors: 1}
+  family_background: "父母都是教师，家里书很多，规矩也很多。有一个已经工作的姐姐，两人关系不错但很少联系。"
+  short_term_goals: ["把这学期的部志做出来", "至少再拉到两个部员"]
+  long_term_goals: ["写出一篇自己不会中途丢掉的长篇"]
+  worries: ["文学部人数不够", "自己是不是把'安静'当成了逃避的借口"]
+  secrets:
+    - {content: "她在网上用笔名连载小说，有几千个读者。", visibility: secret}
+    - {content: "午休经常一个人在天台，因为教室太吵。", visibility: private_fact}
+  romantic_preferences: "会被'愿意听她把话说完的人'吸引。对推进速度极其敏感，太快会直接后退。"
+  relationship_attitude: "极慢热，但一旦认定就非常稳。会用行动而不是语言表达。"
+  social_circle: [npc_amano_rin, npc_fuyutsuki_iori, npc_narumi_koharu, npc_tsukishima_kaoru]
+  schedule_overrides:
+    - {days: [mon, wed, fri], start: "15:40", end: "17:30", location: loc_lit_room, activity: "文学部"}
+    - {days: [tue, thu], start: "15:40", end: "18:00", location: loc_library, activity: "看书"}
+    - {days: [mon, tue, wed, thu, fri], start: "12:25", end: "13:15", location: loc_rooftop, activity: "一个人吃午饭"}
+  favorite_place: loc_library
+  home_location: loc_park
+  memories: []
+
+- id: npc_kurosawa_daichi
+  name: "黑泽大地"
+  reading: "くろさわ だいち"
+  age: 20
+  gender: male
+  class: class_2a
+  seat: "中间靠前"
+  role: student
+  tier: core
+  club: club_basketball
+  club_role: "部长"
+  appearance: "个子很高，短发，肩膀很宽。校服外套基本不穿，冬天也一样。膝盖上有一道旧疤。"
+  personality: "直率、热情、嗓门大，对谁都一视同仁。不会拐弯抹角，也听不太懂拐弯抹角。"
+  hidden_personality: "对自己两年前那次受伤耿耿于怀，害怕自己已经过了最好的时候。会在没人的时候一个人加练。"
+  values: ["说到做到", "不让队友替自己收拾烂摊子", "输了就承认"]
+  interests: [篮球, 运动饮料, 深夜的体育新闻, 便宜又大份的定食]
+  dislikes: [找借口的人, 复杂的规则文件, 背后说人]
+  strengths: ["体能", "带动气氛", "承担责任"]
+  weaknesses: ["学业", "不擅长处理别人的情绪", "太容易相信人"]
+  speech_style: "音量偏大，句尾干脆。喜欢用'总之''先干了再说'。对人一律直呼姓氏，加'桑'的时候基本是在开玩笑。"
+  attributes: {physique: 8, agility: 7, intellect: 4, perception: 5, charm: 6, willpower: 7, luck: 5}
+  skills: {athletics: 4, running: 3, conversation: 3, first_aid: 2, performance: 2, study: 1, cooking: 2}
+  knowledge: {biology: 2, school_rumors: 2, local_area: 2, games: 1}
+  family_background: "家里开搬家公司，上面有两个哥哥。从小被当成'第三个劳动力'，因此对搬东西这件事有奇怪的自信。"
+  short_term_goals: ["带篮球部进县大会四强", "补考别再挂"]
+  long_term_goals: ["继续打球，哪怕不是职业"]
+  worries: ["膝盖", "毕业以后就没有球队了"]
+  secrets:
+    - {content: "他其实很在意早乙女唯，但把这归类为'队友之间的较劲'。", visibility: secret}
+    - {content: "他在偷偷做康复训练，没告诉任何队友。", visibility: private_fact}
+  romantic_preferences: "喜欢有自己想做的事、并且真的在做的人。完全没有'类型'这个概念。"
+  relationship_attitude: "感情上迟钝到令人绝望。真的意识到之后会非常直接。"
+  social_circle: [npc_saotome_yui, npc_takahashi_nao, npc_asakura_touma, npc_ogata_juzo]
+  schedule_overrides:
+    - {days: [mon, tue, thu, fri, sat], start: "15:40", end: "18:30", location: loc_gym, activity: "篮球部"}
+    - {days: [wed], start: "15:40", end: "17:00", location: loc_field, activity: "一个人跑步"}
+    - {days: [mon, tue, wed, thu, fri], start: "12:25", end: "13:15", location: loc_cafeteria, activity: "午饭（两份）"}
+  favorite_place: loc_gym
+  home_location: loc_riverbank
+  memories: []
+
+- id: npc_saotome_yui
+  name: "早乙女唯"
+  reading: "さおとめ ゆい"
+  age: 19
+  gender: female
+  class: class_2a
+  seat: "前排靠门"
+  role: student
+  tier: core
+  club: club_track
+  club_role: "部长"
+  appearance: "高马尾，晒得很健康的肤色，小腿线条很好看。夏季制服的袖子总是卷起来。跑鞋洗得很干净。"
+  personality: "元气、争强好胜、不服输。情绪写在脸上，高兴和不爽都藏不住三秒。"
+  hidden_personality: "非常怕输给'不努力却做得比自己好的人'。会在计时表上偷偷记录别人的成绩。"
+  values: ["努力应该有回报", "不迁怒", "赢要赢得干净"]
+  interests: [短跑, 甜食, 运动品牌, 早起的空气, 和人比赛任何事]
+  dislikes: [认输, 被让着, 阴天]
+  strengths: ["爆发力", "行动力", "带新人"]
+  weaknesses: ["急躁", "不会调整节奏", "被夸会脸红到说不出话"]
+  speech_style: "语速快，音调偏高，句尾常带感叹。不高兴的时候会突然变成敬语，这是危险信号。"
+  attributes: {physique: 7, agility: 8, intellect: 5, perception: 5, charm: 6, willpower: 8, luck: 4}
+  skills: {running: 4, athletics: 4, conversation: 3, cooking: 2, performance: 2, first_aid: 2, study: 2}
+  knowledge: {biology: 3, fashion: 2, local_area: 2, cooking: 1, school_rumors: 1}
+  family_background: "父亲是市体育馆的职员，从小被带着跑步。母亲希望她把重心放在学业上，为此吵过几次。"
+  short_term_goals: ["100米跑进 12 秒 5", "让田径部的新人留下来"]
+  long_term_goals: ["站在县大会的领奖台上一次就好"]
+  worries: ["成绩到了瓶颈", "自己是不是只剩下跑步"]
+  secrets:
+    - {content: "她把黑泽当成唯一的对手，也因此对他有一种自己没搞清楚的在意。", visibility: secret}
+    - {content: "她其实很喜欢可爱的东西，但绝不在人前表现。", visibility: private_fact}
+  romantic_preferences: "喜欢能跟上她节奏、又不会让她觉得被压制的人。对'温柔但没有主见'的类型没兴趣。"
+  relationship_attitude: "在感情上比在赛道上迟钝得多。会把心动误认为'不甘心'。"
+  social_circle: [npc_kurosawa_daichi, npc_kagurazaka_hina, npc_shirai_kanade, npc_ogata_juzo]
+  schedule_overrides:
+    - {days: [mon, tue, thu, fri], start: "15:40", end: "18:30", location: loc_field, activity: "田径部"}
+    - {days: [mon, tue, wed, thu, fri], start: "06:30", end: "07:30", location: loc_riverbank, activity: "晨跑"}
+    - {days: [sat], start: "10:00", end: "12:00", location: loc_field, activity: "自主训练"}
+  favorite_place: loc_field
+  home_location: loc_riverbank
+  memories: []
+
+- id: npc_shirai_kanade
+  name: "白井奏"
+  reading: "しらい かなで"
+  age: 19
+  gender: female
+  class: class_2b
+  seat: "窗边最后一排"
+  role: student
+  tier: core
+  club: club_broadcast
+  club_role: "部长（兼轻音部贝斯）"
+  appearance: "染成浅茶色的中长发，耳骨上有一枚很小的耳环。制服改短了裙摆，指甲总是修得很整齐。妆很淡但很讲究。"
+  personality: "外向、直接、看起来很会玩。实际上对人际关系的处理非常谨慎，几乎不越界。"
+  hidden_personality: "所有人都以为她恋爱经验丰富，其实一次都没有认真交往过。她维持这个误解，因为解释起来太麻烦。"
+  values: ["不给人添麻烦", "该说的话当面说", "谁都有不想被问的部分"]
+  interests: [选曲, 贝斯, 咖啡店巡回, 指甲油, 深夜播客]
+  dislikes: [被贴标签, 拖泥带水, 早八]
+  strengths: ["社交", "临场反应", "记住每个人的名字和喜好"]
+  weaknesses: ["把自己的事往后放", "熬夜", "不擅长认真的场面"]
+  speech_style: "轻快、爱调侃、经常用玩笑把话题带过去。真的认真时会突然把声音放低，这时候她说的每个字都是真的。"
+  attributes: {physique: 5, agility: 6, intellect: 6, perception: 8, charm: 8, willpower: 5, luck: 6}
+  skills: {conversation: 4, performance: 3, instrument: 3, empathy: 3, etiquette: 3, technology: 2, singing: 2}
+  knowledge: {music_theory: 3, fashion: 3, school_rumors: 4, local_area: 3, anime: 2, psychology: 1}
+  family_background: "父母开美容院，从小在店里被大人围着长大，因此很会应付各种人。有个上小学的弟弟。"
+  short_term_goals: ["午休广播的听众再多一点", "文化祭轻音部的演出别出事"]
+  long_term_goals: ["做和声音有关的工作"]
+  worries: ["大家喜欢的是不是只是'那个很会聊天的白井'", "水城前辈"]
+  secrets:
+    - {content: "她喜欢水城连已经一年多了，没有告诉任何人，也不打算说。", visibility: secret}
+    - {content: "她从来没有交往过，和外界印象完全相反。", visibility: secret}
+  romantic_preferences: "会被安静、可靠、不会因为她的外向而误会她的人吸引。"
+  relationship_attitude: "会主动接近所有人，但绝不会主动越过那条线。她把'被拒绝'看得比任何人都重。"
+  social_circle: [npc_amano_rin, npc_mizuki_ren, npc_saotome_yui, npc_sakaki_juri, npc_takahashi_nao]
+  schedule_overrides:
+    - {days: [tue, thu], start: "12:30", end: "13:00", location: loc_broadcast_room, activity: "午休广播"}
+    - {days: [mon, thu, fri], start: "15:40", end: "18:30", location: loc_music_room, activity: "轻音部"}
+    - {days: [sat], start: "14:00", end: "18:00", location: loc_cafe_kotori, activity: "咖啡店"}
+  favorite_place: loc_broadcast_room
+  home_location: loc_shopping_street
+  memories: []
+
+- id: npc_kirishima_sae
+  name: "桐岛沙绘"
+  reading: "きりしま さえ"
+  age: 20
+  gender: female
+  class: class_3a
+  seat: "第一排正中"
+  role: student
+  tier: core
+  club: club_student_council
+  club_role: "学生会长"
+  appearance: "及肩黑发，制服永远整齐到不像话，胸前别着学生会徽章。走路的时候手里几乎总是拿着文件夹。眼下最近有一点淡淡的黑眼圈。"
+  personality: "严谨、公正、说话有条理。对所有人都保持同样的距离，因此谁都说不上和她很熟。"
+  hidden_personality: "极度害怕让别人失望。会把所有做不完的事揽到自己身上，然后在没人看到的地方崩溃五分钟，再回去继续。"
+  values: ["规则存在是为了让更多人能做想做的事", "承诺就是承诺", "不利用职权"]
+  interests: [整理归档, 红笔, 早晨没人的校舍, 甜的罐装咖啡（不告诉别人）]
+  dislikes: [临时改期, 敷衍的报告, 被叫'会长大人']
+  strengths: ["组织能力", "抗压", "记得住所有细节"]
+  weaknesses: ["不会求助", "睡眠不足", "不知道怎么参与闲聊"]
+  speech_style: "礼貌、结构清晰、几乎不用缩略语。私下会突然用非常普通的口气说话，这时候她是放松的。"
+  attributes: {physique: 4, agility: 5, intellect: 8, perception: 7, charm: 6, willpower: 9, luck: 4}
+  skills: {club_management: 4, persuasion: 3, note_taking: 4, etiquette: 4, study: 4, conversation: 3, exam_strategy: 3}
+  knowledge: {school_rules: 5, economics: 3, mathematics: 3, history: 2, school_rumors: 2, psychology: 2}
+  family_background: "父亲经营地方建材公司，家教严格。母亲早逝。家里默认她会继承或者进好大学，从没问过她想做什么。"
+  short_term_goals: ["把文化祭预算在期限前敲定", "找到愿意接任的下一届会长"]
+  long_term_goals: ["找到一件不是'应该做'而是'想做'的事"]
+  worries: ["毕业以后的路是别人安排好的", "自己是不是一个很无趣的人"]
+  secrets:
+    - {content: "她每周有一天会一个人去河堤坐着，什么也不做。", visibility: secret}
+    - {content: "她把学生会当成唯一能证明自己的地方。", visibility: private_fact}
+  romantic_preferences: "会被'不需要她表现得完美的人'吸引。对方是否优秀不重要。"
+  relationship_attitude: "认为自己没有时间谈恋爱，并且相信这是自己的选择。会在很久以后才发现不是。"
+  social_circle: [npc_mizuki_ren, npc_himura_akane, npc_tsukishima_kaoru, npc_natsume_kou]
+  schedule_overrides:
+    - {days: [mon, tue, wed, thu, fri], start: "07:40", end: "08:20", location: loc_student_council, activity: "晨间事务"}
+    - {days: [mon, tue, wed, thu, fri], start: "15:40", end: "18:00", location: loc_student_council, activity: "学生会"}
+    - {days: [sun], start: "16:00", end: "18:00", location: loc_riverbank, activity: "一个人待着"}
+  favorite_place: loc_student_council
+  home_location: loc_park
+  memories: []
+
+- id: npc_mizuki_ren
+  name: "水城连"
+  reading: "みずき れん"
+  age: 20
+  gender: male
+  class: class_3a
+  seat: "窗边第三排"
+  role: student
+  tier: core
+  club: club_student_council
+  club_role: "书记"
+  appearance: "偏瘦，头发有点长，说话时习惯低头。手指很长。制服穿得很随意，但奇怪地好看。左手腕上戴着一条旧皮绳。"
+  personality: "温和、周到、几乎不会拒绝别人。和谁都能聊，但没人真正知道他在想什么。"
+  hidden_personality: "他的温柔有一部分是距离感——只要对每个人都一样好，就不用和任何人真正靠近。"
+  values: ["不让场面难堪", "别人的事优先", "有些话不说也没关系"]
+  interests: [写歌, 旧唱片, 深夜的便利店, 观察别人]
+  dislikes: [被追问, 大型合照, 承诺未来]
+  strengths: ["协调", "文书", "让人放松"]
+  weaknesses: ["不会拒绝", "回避冲突", "对自己的事一律含糊"]
+  speech_style: "语速慢、留白多、经常用'嗯……'开头。真心话通常藏在一句听起来像玩笑的话里。"
+  attributes: {physique: 5, agility: 6, intellect: 7, perception: 8, charm: 7, willpower: 5, luck: 6}
+  skills: {writing: 3, instrument: 3, note_taking: 3, empathy: 4, conversation: 3, club_management: 3, singing: 2}
+  knowledge: {music_theory: 3, literature: 3, school_rules: 3, psychology: 3, local_area: 2}
+  family_background: "父母在他初中时离婚，跟着父亲住，但父亲常年出差。基本上一个人生活，因此非常会照顾自己。"
+  short_term_goals: ["把学生会的事撑到会长毕业", "把那首写了两年的歌写完"]
+  long_term_goals: ["找到一个可以不必表现得很好的地方"]
+  worries: ["自己是不是对谁都不够真诚", "毕业之后就没有理由继续留在这里"]
+  secrets:
+    - {content: "他确实有一个乐队，只在市外演出，用的是别的名字。", visibility: secret}
+    - {content: "他知道白井奏喜欢自己，一直装作不知道，因为他不知道怎么回应才不会伤到她。", visibility: secret}
+  romantic_preferences: "会被'能看穿他在敷衍并且直接指出来的人'吸引。"
+  relationship_attitude: "会一直保持在暧昧的舒适区，除非有人逼他做出选择。"
+  social_circle: [npc_kirishima_sae, npc_shirai_kanade, npc_natsume_kou, npc_amano_rin]
+  schedule_overrides:
+    - {days: [mon, tue, wed, thu, fri], start: "15:40", end: "18:00", location: loc_student_council, activity: "学生会"}
+    - {days: [sat], start: "19:00", end: "23:00", location: loc_live_house, activity: "（对外不说的）演出"}
+  favorite_place: loc_stairwell
+  home_location: loc_station
+  memories: []
+
+- id: npc_natsume_kou
+  name: "夏目航"
+  reading: "なつめ こう"
+  age: 20
+  gender: male
+  class: class_3a
+  seat: "最后一排靠窗"
+  role: student
+  tier: core
+  club: club_photography
+  club_role: "部长（也是唯一的正式部员）"
+  appearance: "沉默寡言的类型，眼睛下面有点睡眠不足。脖子上永远挂着一台旧胶片机，手上有洗不掉的显影液味道。"
+  personality: "话少、专注、对不感兴趣的事一律不参与。不是冷淡，只是不觉得需要解释自己。"
+  hidden_personality: "他其实非常希望有人愿意认真看他的照片，但绝不会主动给别人看。"
+  values: ["照片不撒谎", "不拍不愿意被拍的人", "作品比出勤重要"]
+  interests: [胶片, 暗房, 清晨的空校舍, 秋月市的旧街区, 铁道]
+  dislikes: [摆拍, 被要求'帮忙拍一下', 社交场合]
+  strengths: ["观察力", "耐心", "对光线的直觉"]
+  weaknesses: ["社交", "不会说明自己在想什么", "作息混乱"]
+  speech_style: "非常短。经常只用一个词回答。偶尔在聊到摄影时会突然说一长段话，然后自己也愣住。"
+  attributes: {physique: 5, agility: 6, intellect: 6, perception: 9, charm: 4, willpower: 7, luck: 5}
+  skills: {photography: 5, crafting: 3, technology: 3, drawing: 2, conversation: 1, study: 2}
+  knowledge: {photography: 4, chemistry: 3, local_area: 4, history: 2, school_rumors: 1}
+  family_background: "祖父开过照相馆，现在关了。那台相机是祖父留下的。父母都是普通上班族，不太理解他在做什么。"
+  short_term_goals: ["在摄影部被降级前拉到一个真的想拍照的人", "把暗房修好"]
+  long_term_goals: ["拍完秋月市正在消失的那些地方"]
+  worries: ["部活存续", "祖父的相机快修不了了"]
+  secrets:
+    - {content: "旧校舍暗房里那卷没冲洗的胶卷是他祖父拍的，他一直不敢冲。", visibility: secret}
+    - {content: "他其实很在意别人怎么看他的照片。", visibility: private_fact}
+  romantic_preferences: "几乎没想过这件事。会对'能安静地和他待在同一个空间而不觉得尴尬的人'产生长期的好感。"
+  relationship_attitude: "极端慢热，需要非常长的时间。但一旦接受一个人进入自己的世界，就非常彻底。"
+  social_circle: [npc_mizuki_ren, npc_kirishima_sae, npc_fuyutsuki_iori, npc_ogata_juzo]
+  schedule_overrides:
+    - {days: [tue, thu, sat], start: "15:40", end: "18:00", location: loc_photo_room, activity: "摄影部"}
+    - {days: [mon, wed, fri], start: "16:00", end: "18:30", location: loc_shopping_street, activity: "外出拍照"}
+    - {days: [sun], start: "06:00", end: "09:00", location: loc_riverbank, activity: "拍晨光"}
+  favorite_place: loc_photo_room
+  home_location: loc_shopping_street
+  memories: []
+
+# ============================ SUPPORTING ============================
+
+- id: npc_takahashi_nao
+  name: "高桥直"
+  reading: "たかはし なお"
+  age: 19
+  gender: male
+  class: class_2b
+  seat: "中间靠后"
+  role: student
+  tier: supporting
+  club: club_game_research
+  club_role: "部长"
+  appearance: "中等身材，头发有点乱，戴着一副度数不低的眼镜。书包上挂着三个不同游戏的挂件。"
+  personality: "毒舌、话痨、在熟人面前完全不设防。对陌生人则突然变得沉默。"
+  hidden_personality: "非常渴望被认可，因此会用'我早就知道了'的姿态掩饰自己在乎。"
+  values: ["公平的规则", "不代打", "输了要复盘"]
+  interests: [格斗游戏, 桌游, 游戏设计, 便利店新品, 冷知识]
+  dislikes: [运气型游戏, 被叫'宅', 早起]
+  strengths: ["策略思考", "记忆机制", "带气氛"]
+  weaknesses: ["体力", "熬夜", "嘴比脑子快"]
+  speech_style: "语速快、爱吐槽、大量比喻。紧张时会说得更多。"
+  attributes: {physique: 3, agility: 6, intellect: 7, perception: 6, charm: 5, willpower: 5, luck: 6}
+  skills: {gaming: 4, board_games: 4, technology: 3, conversation: 3, arcade: 3, study: 2}
+  knowledge: {games: 4, computers: 3, anime: 3, mathematics: 3, school_rumors: 2}
+  family_background: "父母都在市政府上班，家里对他玩游戏这件事采取'不管但也不支持'的态度。"
+  short_term_goals: ["游研部在文化祭做出一个能玩的小游戏", "打进本地格斗赛前八"]
+  long_term_goals: ["做游戏"]
+  worries: ["自己做的东西没人玩", "神乐坂"]
+  secrets:
+    - {content: "他喜欢神乐坂日菜，但认为自己完全没有可能，所以只敢用开玩笑的方式接近。", visibility: secret}
+  romantic_preferences: "喜欢温柔但有主见的人。极度缺乏自信。"
+  relationship_attitude: "会一直停在朋友位置上，除非对方非常明确地推他一把。"
+  social_circle: [npc_kurosawa_daichi, npc_amano_rin, npc_kagurazaka_hina, npc_shirai_kanade]
+  schedule_overrides:
+    - {days: [tue, wed, fri], start: "15:40", end: "18:30", location: loc_game_room, activity: "游研部"}
+    - {days: [sat], start: "14:00", end: "19:00", location: loc_arcade, activity: "游戏厅"}
+  favorite_place: loc_game_room
+  home_location: loc_park
+  memories: []
+
+- id: npc_kagurazaka_hina
+  name: "神乐坂日菜"
+  reading: "かぐらざか ひな"
+  age: 19
+  gender: female
+  class: class_2c
+  seat: "靠门第二排"
+  role: student
+  tier: supporting
+  club: club_cooking
+  club_role: "部长"
+  appearance: "圆脸，柔和的短发，总是别着一个素色发夹。手上偶尔有烫伤的小疤。围裙自带三条。"
+  personality: "温柔、周到、会主动注意到别人没吃饭或者脸色不好。笑起来很有感染力。"
+  hidden_personality: "她的照顾里有一部分是不安——她害怕如果不对人有用，就没人需要她。"
+  values: ["让人吃好", "不浪费食材", "谁都不该一个人吃饭"]
+  interests: [做点心, 食材市场, 器皿, 家庭料理节目]
+  dislikes: [剩饭, 争吵, 被说'很适合当妈妈']
+  strengths: ["料理", "照顾人", "组织小型活动"]
+  weaknesses: ["不会拒绝", "把自己排在最后", "对冲突极度回避"]
+  speech_style: "柔和、句子偏长、经常用'那个……'起头。认真的时候会突然变得非常干脆。"
+  attributes: {physique: 5, agility: 7, intellect: 6, perception: 7, charm: 7, willpower: 5, luck: 6}
+  skills: {cooking: 5, etiquette: 3, first_aid: 3, conversation: 3, empathy: 3, crafting: 2}
+  knowledge: {cooking: 4, chemistry: 2, biology: 2, fashion: 1, local_area: 2}
+  family_background: "家里开了三十年的小定食屋，从小在厨房长大。上面有个已经离家的哥哥。"
+  short_term_goals: ["文化祭的咖啡厅菜单", "让烹饪部多两个人"]
+  long_term_goals: ["接手家里的店，或者开一家自己的"]
+  worries: ["店里的客人越来越少", "自己好像没有'非做不可的事'"]
+  secrets:
+    - {content: "她知道高桥喜欢自己，正在犹豫怎么处理才不会失去这个朋友。", visibility: secret}
+  romantic_preferences: "会被'愿意好好吃饭、并且会说出感受的人'吸引。"
+  relationship_attitude: "很容易对人好，因此常被误会。真正动心时反而会变得笨拙。"
+  social_circle: [npc_saotome_yui, npc_takahashi_nao, npc_narumi_koharu, npc_tsukishima_kaoru]
+  schedule_overrides:
+    - {days: [wed, fri, sat], start: "15:40", end: "18:00", location: loc_home_ec_room, activity: "烹饪部"}
+    - {days: [mon, tue, thu], start: "17:00", end: "21:00", location: loc_shopping_street, activity: "在自家店帮忙"}
+  favorite_place: loc_home_ec_room
+  home_location: loc_shopping_street
+  memories: []
+
+- id: npc_fuyutsuki_iori
+  name: "冬月伊织"
+  reading: "ふゆつき いおり"
+  age: 19
+  gender: nonbinary
+  class: class_2c
+  seat: "最后一排靠窗"
+  role: student
+  tier: supporting
+  club: club_art
+  club_role: "部长"
+  appearance: "中性打扮，头发长短参差，袖口沾着颜料。表情变化很少，看人的时候很直接。"
+  personality: "沉默、观察型、说话直接到有点冒犯。对艺术以外的事几乎没有反应。"
+  hidden_personality: "会把在意的人画进速写本，但从不告诉对方，也不打算给任何人看。"
+  values: ["不解释作品", "不迎合", "看着的时间比画着的时间长"]
+  interests: [北窗的光, 速写, 旧画册, 一个人吃饭]
+  dislikes: [被要求解释, 集体创作, 热闹的地方]
+  strengths: ["观察", "构图", "长时间专注"]
+  weaknesses: ["社交", "作息", "对自己的健康完全不在意"]
+  speech_style: "极短、平铺直叙、不带修饰。偶尔会说出一句非常准确的评价，让被说的人愣住。"
+  attributes: {physique: 3, agility: 7, intellect: 6, perception: 9, charm: 4, willpower: 7, luck: 4}
+  skills: {drawing: 5, crafting: 3, photography: 2, writing: 2, conversation: 1}
+  knowledge: {literature: 3, history: 2, fashion: 2, photography: 2, psychology: 1}
+  family_background: "单亲家庭，母亲是护士，长期上夜班。习惯了一个人待着。"
+  short_term_goals: ["县展入选", "把那张一直画不完的画完成"]
+  long_term_goals: ["靠画画活下去"]
+  worries: ["自己画的东西是不是没有意义"]
+  secrets:
+    - {content: "速写本最后几页全是同一个人的背影。", visibility: secret}
+  romantic_preferences: "目前对恋爱没有兴趣，也不认为这是需要改变的事。"
+  relationship_attitude: "明确表示不想谈恋爱。可以成为极好的朋友。这个立场是真实的，不是欲擒故纵。"
+  romance_available: false
+  social_circle: [npc_hoshino_makoto, npc_natsume_kou, npc_ogata_juzo]
+  schedule_overrides:
+    - {days: [mon, thu, sat], start: "15:40", end: "18:00", location: loc_art_room, activity: "美术部"}
+    - {days: [tue, wed, fri], start: "15:40", end: "19:00", location: loc_art_room, activity: "一个人画到关门"}
+  favorite_place: loc_art_room
+  home_location: loc_park
+  memories: []
+
+- id: npc_himura_akane
+  name: "绯村茜"
+  reading: "ひむら あかね"
+  age: 20
+  gender: female
+  class: class_3b
+  seat: "中间靠前"
+  role: student
+  tier: supporting
+  club: club_drama
+  club_role: "部长"
+  appearance: "个子高，红棕色卷发，动作幅度大。校服穿得像戏服一样有存在感。声音很有辨识度。"
+  personality: "夸张、外放、爱演。实际上是全校最会算人心的人之一。"
+  hidden_personality: "她的夸张是一层保护色。真正的情绪她从来不表演。"
+  values: ["舞台上不能骗人", "台下的事各自负责", "不勉强别人上台"]
+  interests: [剧本, 舞台灯光, 老电影, 观察别人的说话方式]
+  dislikes: [临阵脱逃, 敷衍的排练, 被说'很会演']
+  strengths: ["表演", "导演", "看穿别人的伪装"]
+  weaknesses: ["把自己的事也当成戏", "过度投入", "不擅长安静"]
+  speech_style: "戏剧腔和大白话来回切换。真心话往往用最平淡的语气说出来。"
+  attributes: {physique: 5, agility: 6, intellect: 6, perception: 8, charm: 9, willpower: 6, luck: 5}
+  skills: {acting: 5, performance: 4, conversation: 4, persuasion: 3, deception: 3, singing: 2}
+  knowledge: {literature: 3, psychology: 3, school_rumors: 3, fashion: 2, history: 2}
+  family_background: "父母都在剧团工作过，家里对'表演'这件事习以为常。"
+  short_term_goals: ["文化祭公演坐满", "找到能接班的人"]
+  long_term_goals: ["考戏剧专业，哪怕家里反对"]
+  worries: ["自己是不是只有在台上才是自己"]
+  secrets:
+    - {content: "她早就看出白井对水城的心思，也从来没有说破。", visibility: secret}
+  romantic_preferences: "喜欢能分清'台上的她'和'台下的她'的人。"
+  relationship_attitude: "在感情上意外地慎重，从不主动。"
+  social_circle: [npc_kirishima_sae, npc_shirai_kanade, npc_tsukishima_kaoru]
+  schedule_overrides:
+    - {days: [mon, wed, fri], start: "15:40", end: "18:30", location: loc_gym, activity: "戏剧部排练"}
+  favorite_place: loc_gym
+  home_location: loc_station
+  memories: []
+
+- id: npc_asakura_touma
+  name: "朝仓冬真"
+  reading: "あさくら とうま"
+  age: 18
+  gender: male
+  class: class_1a
+  seat: "前排靠窗"
+  role: student
+  tier: supporting
+  club: club_soccer
+  club_role: "一年级部员"
+  appearance: "刚入学不久的新生，晒黑的皮肤和还不太合身的制服。头发剪得很短。"
+  personality: "直率、有礼貌、对前辈有过剩的敬意。做事不惜力。"
+  hidden_personality: "非常怕被认为'只是个新人'，会在别人看不到的地方加练到脱力。"
+  values: ["前辈说的先听完", "不迟到", "拼到最后一秒"]
+  interests: [足球, 前辈们的比赛录像, 便宜的大碗饭]
+  dislikes: [被小看, 复杂的战术术语, 输给自己]
+  strengths: ["体能", "学习速度", "不服输"]
+  weaknesses: ["经验", "过度用力", "不会说'我做不到'"]
+  speech_style: "敬语用得很勤，句尾干脆。激动时会忘记敬语，然后马上道歉。"
+  attributes: {physique: 7, agility: 6, intellect: 4, perception: 5, charm: 5, willpower: 7, luck: 5}
+  skills: {athletics: 3, running: 3, conversation: 2, study: 2}
+  knowledge: {biology: 1, school_rules: 1, local_area: 1}
+  family_background: "从邻市搬来，一个人租房住。家里做水产生意。"
+  short_term_goals: ["进正选", "记住所有前辈的名字"]
+  long_term_goals: ["三年级时当队长"]
+  worries: ["一个人住有点寂寞", "钱不太够"]
+  secrets:
+    - {content: "他有点想家，但绝不会说。", visibility: private_fact}
+  romantic_preferences: "还没想过。对温柔的前辈容易产生崇拜和心动的混淆。"
+  relationship_attitude: "非常纯粹，也非常容易受伤。"
+  social_circle: [npc_kurosawa_daichi, npc_narumi_koharu, npc_ogata_juzo]
+  schedule_overrides:
+    - {days: [mon, wed, fri, sat], start: "15:40", end: "18:30", location: loc_field, activity: "足球部"}
+  favorite_place: loc_field
+  home_location: loc_station
+  memories: []
+
+- id: npc_narumi_koharu
+  name: "鸣海小春"
+  reading: "なるみ こはる"
+  age: 18
+  gender: female
+  class: class_1b
+  seat: "最后一排靠墙"
+  role: student
+  tier: supporting
+  club: null
+  club_role: "图书委员"
+  appearance: "个子小，齐刘海，说话时会不自觉地捏袖口。书包里永远塞着两本以上的书。"
+  personality: "怕生、说话小声、但一旦聊到喜欢的东西会突然变得话很多。"
+  hidden_personality: "她其实非常想加入某个社团，但每次走到门口都会折回来。"
+  values: ["不给人添麻烦", "认真读完每一本书"]
+  interests: [轻小说, 图书馆的味道, 便利店甜品, 观察别人]
+  dislikes: [被点名, 人多的地方, 电话]
+  strengths: ["阅读量", "记忆力", "整理"]
+  weaknesses: ["社交", "体力", "在人前说话"]
+  speech_style: "声音小、句子短、经常道歉。熟悉之后语速会明显变快。"
+  attributes: {physique: 3, agility: 5, intellect: 7, perception: 6, charm: 5, willpower: 4, luck: 6}
+  skills: {study: 3, note_taking: 3, writing: 2, conversation: 1}
+  knowledge: {literature: 3, anime: 2, school_rules: 2, history: 1}
+  family_background: "父母都是普通职员，家里对她的期待就是'平安顺利'。"
+  short_term_goals: ["鼓起勇气加入一个社团"]
+  long_term_goals: ["找到一个不用假装外向也能待着的地方"]
+  worries: ["自己是不是很无趣"]
+  secrets:
+    - {content: "她在图书馆的借阅记录里，跟着某个人借过好几本书。", visibility: secret}
+  romantic_preferences: "会被'不会催她说话的人'吸引。"
+  relationship_attitude: "极慢、极小心，需要对方非常有耐心。"
+  social_circle: [npc_hoshino_makoto, npc_kagurazaka_hina, npc_asakura_touma]
+  schedule_overrides:
+    - {days: [mon, tue, wed, thu, fri], start: "15:40", end: "17:30", location: loc_library, activity: "图书委员"}
+  favorite_place: loc_library
+  home_location: loc_park
+  memories: []
+
+- id: npc_sakaki_juri
+  name: "榊寿理"
+  reading: "さかき じゅり"
+  age: 20
+  gender: female
+  class: class_3c
+  seat: "窗边最后一排"
+  role: student
+  tier: supporting
+  club: null
+  club_role: "无社团（在咖啡店打工）"
+  appearance: "打扮成熟，指甲和发型都做得很讲究。制服穿得随性，外套是自己的。"
+  personality: "干脆、现实、说话不绕弯。对学校的事保持一种温和的旁观。"
+  hidden_personality: "她比谁都认真地在计划毕业以后的生活，只是不觉得需要向同学汇报。"
+  values: ["自己的事自己负责", "不掺和别人的感情", "钱要自己挣"]
+  interests: [咖啡, 打工, 存钱计划, 服装搭配]
+  dislikes: [校园八卦, 被问男朋友的事, 幼稚的争执]
+  strengths: ["待人接物", "现实判断", "手艺（冲煮）"]
+  weaknesses: ["和同龄人有距离感", "睡眠不足"]
+  speech_style: "简洁、成年人的语气、偶尔带点姐姐式的调侃。"
+  attributes: {physique: 5, agility: 6, intellect: 6, perception: 7, charm: 7, willpower: 7, luck: 5}
+  skills: {etiquette: 4, conversation: 3, cooking: 3, empathy: 2, crafting: 2}
+  knowledge: {cooking: 3, fashion: 4, economics: 3, local_area: 4, school_rumors: 1}
+  family_background: "和祖母一起住。父母在外地工作，很少回来。"
+  short_term_goals: ["存够搬出去的钱"]
+  long_term_goals: ["开自己的店"]
+  worries: ["祖母的身体"]
+  secrets:
+    - {content: "她和一个已经工作的人在交往，认识她的人里只有两三个知道。", visibility: private_fact}
+  romantic_preferences: "已经有交往对象。对校内的追求一律礼貌但明确地拒绝。"
+  relationship_attitude: "有稳定的恋人。可以成为很好的前辈和朋友，但不是恋爱对象。"
+  romance_available: false
+  existing_partner: "校外的社会人（未登场 NPC）"
+  social_circle: [npc_shirai_kanade, npc_himura_akane, npc_kirishima_sae]
+  schedule_overrides:
+    - {days: [mon, wed, fri, sat], start: "16:30", end: "21:00", location: loc_cafe_kotori, activity: "打工"}
+  favorite_place: loc_cafe_kotori
+  home_location: loc_shopping_street
+  memories: []
+
+- id: npc_oda_shun
+  name: "织田骏"
+  reading: "おだ しゅん"
+  age: 19
+  gender: male
+  class: class_2b
+  seat: "中间靠门"
+  role: student
+  tier: supporting
+  club: null
+  club_role: "无社团（便利店夜班）"
+  appearance: "普通身材，笑起来眼睛会眯成一条线。校服口袋里总有便利店的口香糖。"
+  personality: "自来熟、消息灵通、和谁都能说上两句。没有恶意，但嘴不严。"
+  hidden_personality: "他靠'知道很多事'来确认自己在群体里的位置。"
+  values: ["有来有往", "不说会害人的话（他自认为）", "热闹比什么都好"]
+  interests: [八卦, 便利店新品, 打工同事的故事, 骑自行车乱逛]
+  dislikes: [被排除在外, 安静的场合]
+  strengths: ["情报网", "搭话", "记住谁和谁认识"]
+  weaknesses: ["守不住秘密", "深度不足", "容易被人利用"]
+  speech_style: "热络、语速快、爱用'你知道吗'开场。"
+  attributes: {physique: 5, agility: 5, intellect: 5, perception: 7, charm: 7, willpower: 4, luck: 7}
+  skills: {conversation: 4, persuasion: 2, deception: 2, etiquette: 2, arcade: 2}
+  knowledge: {school_rumors: 5, local_area: 4, games: 2, fashion: 2, anime: 2}
+  family_background: "家里五口人，很热闹。打工的钱大半花在朋友身上。"
+  short_term_goals: ["攒钱换手机"]
+  long_term_goals: ["做点和人打交道的工作"]
+  worries: ["有一天会因为多嘴失去朋友"]
+  secrets:
+    - {content: "他知道水城连在市外有乐队，但答应过不说。这是他为数不多守住的秘密。", visibility: secret}
+  romantic_preferences: "对'能让他安静下来的人'意外地有好感。"
+  relationship_attitude: "看起来很会玩，实际上没什么经验。"
+  social_circle: [npc_takahashi_nao, npc_kurosawa_daichi, npc_shirai_kanade, npc_sakaki_juri]
+  schedule_overrides:
+    - {days: [tue, thu, sat], start: "17:00", end: "22:00", location: loc_convenience_store, activity: "打工"}
+    - {days: [mon, wed, fri], start: "15:40", end: "17:00", location: loc_vending_area, activity: "闲聊"}
+  favorite_place: loc_convenience_store
+  home_location: loc_shopping_street
+  memories: []
+
+# ============================== 教师 ==============================
+
+- id: npc_tsukishima_kaoru
+  name: "月岛薰"
+  reading: "つきしま かおる"
+  age: 29
+  gender: female
+  class: null
+  seat: null
+  role: teacher
+  tier: supporting
+  subject: literature
+  homeroom: class_2a
+  club: club_light_music
+  club_role: "顾问（同时挂名文学部、烹饪部、戏剧部、学生会）"
+  appearance: "总是穿着略微皱掉的西装外套，头发随手扎起来。手边永远有一杯已经凉掉的咖啡。"
+  personality: "散漫、亲切、对学生几乎不摆架子。上课时突然变得非常认真。"
+  hidden_personality: "她挂名那么多社团，是因为她知道这些社团一旦少了顾问就会被解散。"
+  values: ["学生自己决定的事就支持到底", "不替学生做选择", "该说的丑话先说"]
+  interests: [咖啡, 旧文库本, 学生的八卦（只听不传）, 睡眠]
+  dislikes: [写报告, 会议, 家长会]
+  strengths: ["看穿学生在逞强", "把话说到点子上", "护短"]
+  weaknesses: ["自己的生活一团糟", "拖延行政工作"]
+  speech_style: "随意、爱开玩笑、句尾拖长。正经起来会直接叫全名。"
+  attributes: {physique: 4, agility: 5, intellect: 8, perception: 8, charm: 7, willpower: 6, luck: 5}
+  skills: {study: 4, writing: 4, conversation: 4, empathy: 4, club_management: 3, etiquette: 3}
+  knowledge: {literature: 5, psychology: 3, school_rules: 4, history: 3, music_theory: 2, school_rumors: 3}
+  family_background: "单身，一个人住。本校毕业生。"
+  short_term_goals: ["把文化祭的顾问签名表交上去", "让学生会长睡个好觉"]
+  long_term_goals: ["撑到这批学生毕业"]
+  worries: ["社团存续问题", "自己是不是在替学生操过多的心"]
+  secrets:
+    - {content: "她自己也曾经是轻音部的，在同一间音乐室。", visibility: private_fact}
+  romantic_preferences: "与学生的恋爱不存在。这是硬性设定。"
+  relationship_attitude: "教师。可以成为极其可靠的成年人和顾问，绝不是恋爱对象。"
+  romance_available: false
+  social_circle: [npc_ogata_juzo, npc_ayase_shizuku, npc_kirishima_sae, npc_amano_rin]
+  schedule_overrides:
+    - {days: [mon, tue, wed, thu, fri], start: "15:40", end: "18:30", location: loc_staff_room, activity: "办公 / 顾问巡回"}
+  favorite_place: loc_staff_room
+  home_location: loc_station
+  memories: []
+
+- id: npc_ogata_juzo
+  name: "绪方十三"
+  reading: "おがた じゅうぞう"
+  age: 45
+  gender: male
+  class: null
+  seat: null
+  role: teacher
+  tier: supporting
+  subject: pe
+  homeroom: null
+  club: club_basketball
+  club_role: "顾问（篮球、足球、田径、游研、美术、摄影）"
+  appearance: "晒得很黑，运动服几乎是他的制服。声音洪亮，笑声能穿过整个操场。"
+  personality: "豪爽、原则性强、对偷懒零容忍，但从不羞辱人。"
+  hidden_personality: "他记得每一个曾经放弃的学生的名字。"
+  values: ["身体是自己的", "练不动就休息", "不让学生带伤上场"]
+  interests: [高中体育联赛, 钓鱼, 学生的成长曲线]
+  dislikes: [勉强上场, 家长施压, 甜食]
+  strengths: ["训练规划", "看出伤病", "镇住场面"]
+  weaknesses: ["不擅长细腻的情绪", "文书工作"]
+  speech_style: "洪亮、短促、爱用运动比喻。"
+  attributes: {physique: 8, agility: 5, intellect: 5, perception: 7, charm: 6, willpower: 8, luck: 4}
+  skills: {athletics: 5, running: 4, first_aid: 4, club_management: 3, conversation: 3}
+  knowledge: {biology: 4, school_rules: 3, local_area: 3}
+  family_background: "有家庭，两个孩子。住在市郊。"
+  short_term_goals: ["体育祭安全办完", "让黑泽的膝盖别再恶化"]
+  long_term_goals: ["带一支队伍进全国大会一次"]
+  worries: ["有学生在硬撑"]
+  secrets:
+    - {content: "他早就发现黑泽在偷偷做康复训练，选择了不揭穿，只是默默调整了训练量。", visibility: private_fact}
+  romantic_preferences: null
+  relationship_attitude: "教师。绝不是恋爱对象。"
+  romance_available: false
+  social_circle: [npc_tsukishima_kaoru, npc_ayase_shizuku, npc_kurosawa_daichi, npc_saotome_yui]
+  schedule_overrides:
+    - {days: [mon, tue, thu, fri, sat], start: "15:40", end: "18:30", location: loc_gym, activity: "社团指导"}
+  favorite_place: loc_gym
+  home_location: loc_station
+  memories: []
+
+- id: npc_ayase_shizuku
+  name: "绫濑雫"
+  reading: "あやせ しずく"
+  age: 27
+  gender: female
+  class: null
+  seat: null
+  role: teacher
+  tier: supporting
+  subject: school_nurse
+  homeroom: null
+  club: club_swimming
+  club_role: "顾问"
+  appearance: "白大褂，头发盘起来。说话时会先看着对方的眼睛两秒。保健室里有她自己带的茶。"
+  personality: "温和、耐心、不追问。会给出选项而不是建议。"
+  hidden_personality: "她知道保健室对某些学生来说不是治病的地方，而是唯一能喘气的地方，所以她从不赶人。"
+  values: ["身体的信号要认真对待", "不替学生做决定", "保密"]
+  interests: [茶, 园艺, 睡午觉的学生（不吵醒）]
+  dislikes: [硬撑, 讳疾忌医]
+  strengths: ["急救", "让人放松", "看出情绪问题"]
+  weaknesses: ["自己也会硬撑", "太容易被依赖"]
+  speech_style: "慢、轻、留白。问句多于陈述句。"
+  attributes: {physique: 5, agility: 6, intellect: 7, perception: 9, charm: 7, willpower: 7, luck: 5}
+  skills: {first_aid: 5, empathy: 5, conversation: 3, etiquette: 3, cooking: 2}
+  knowledge: {biology: 5, psychology: 4, chemistry: 3, school_rules: 3}
+  family_background: "独居。以前在市立医院工作过三年。"
+  short_term_goals: ["让常来保健室的那几个人真的去看医生"]
+  long_term_goals: ["继续待在这个位置上"]
+  worries: ["有些孩子只是需要一个地方待着，而这不是她能解决的"]
+  secrets:
+    - {content: "她记得每一个来保健室'只是睡一下'的学生。", visibility: private_fact}
+  romantic_preferences: null
+  relationship_attitude: "教职员。绝不是恋爱对象。"
+  romance_available: false
+  social_circle: [npc_tsukishima_kaoru, npc_ogata_juzo, npc_hoshino_makoto]
+  schedule_overrides:
+    - {days: [mon, tue, wed, thu, fri], start: "08:00", end: "17:00", location: loc_infirmary, activity: "保健室"}
+  favorite_place: loc_infirmary
+  home_location: loc_park
+  memories: []
+
+- id: npc_himekawa_souji
+  name: "姬川宗司"
+  reading: "ひめかわ そうじ"
+  age: 38
+  gender: male
+  class: null
+  seat: null
+  role: teacher
+  tier: background
+  subject: mathematics
+  homeroom: class_3a
+  club: null
+  club_role: null
+  appearance: "细框眼镜，衬衫扣到最上面一颗。板书极其工整。"
+  personality: "严格、精确、不容许含糊。会在下课后留下来给不懂的人重讲一遍。"
+  hidden_personality: "他的严格是因为他见过太多因为基础不牢而在最后关头崩掉的学生。"
+  values: ["理解比分数重要", "不放弃任何一个来问的人"]
+  interests: [数学史, 围棋]
+  dislikes: [抄作业, 上课睡觉]
+  strengths: ["讲解", "出题", "记得每个人的弱项"]
+  weaknesses: ["不会缓和气氛"]
+  speech_style: "精确、克制、几乎没有废话。"
+  attributes: {physique: 4, agility: 4, intellect: 9, perception: 6, charm: 4, willpower: 8, luck: 4}
+  skills: {study: 5, note_taking: 4, exam_strategy: 5}
+  knowledge: {mathematics: 5, physics: 4, history: 2, school_rules: 3}
+  romance_available: false
+  relationship_attitude: "教师。绝不是恋爱对象。"
+  social_circle: [npc_tsukishima_kaoru, npc_kanzaki_mio, npc_kirishima_sae]
+  schedule_overrides:
+    - {days: [mon, tue, wed, thu, fri], start: "15:40", end: "18:00", location: loc_staff_room, activity: "答疑"}
+  favorite_place: loc_staff_room
+  home_location: loc_station
+  memories: []
+
+- id: npc_kanzaki_mio
+  name: "神崎澪"
+  reading: "かんざき みお"
+  age: 33
+  gender: female
+  class: null
+  seat: null
+  role: teacher
+  tier: background
+  subject: english
+  homeroom: class_2b
+  club: null
+  club_role: "生活指导"
+  appearance: "干练的短发，说话时手上经常拿着点名册。走路很快。"
+  personality: "严肃但公平。负责生活指导，因此是学生最先想到要躲的人。"
+  hidden_personality: "她对'成年学生的恋爱'完全不干涉，只在有人被伤害时才介入。"
+  values: ["规则要一视同仁", "成年人为自己负责", "校园安全优先"]
+  interests: [英语原版剧集, 长跑]
+  dislikes: [推卸责任, 深夜还在校内的学生]
+  strengths: ["处理纠纷", "现实判断"]
+  weaknesses: ["容易被当成坏人"]
+  speech_style: "清晰、直接、公事公办。私下比想象中好说话。"
+  attributes: {physique: 6, agility: 5, intellect: 7, perception: 8, charm: 5, willpower: 8, luck: 5}
+  skills: {persuasion: 4, etiquette: 4, study: 4, conversation: 3}
+  knowledge: {school_rules: 5, literature: 3, psychology: 2, local_area: 3}
+  romance_available: false
+  relationship_attitude: "教师。绝不是恋爱对象。"
+  social_circle: [npc_himekawa_souji, npc_tsukishima_kaoru, npc_ogata_juzo]
+  schedule_overrides:
+    - {days: [mon, tue, wed, thu, fri], start: "15:40", end: "18:30", location: loc_corridor, activity: "校内巡查"}
+  favorite_place: loc_staff_room
+  home_location: loc_park
+  memories: []
+
+# ============================================================
+# 初始 NPC ↔ NPC 关系
+# 玩家不在场时这些关系也会通过 simulate_background_world() 变化。
+# 玩家一开始并不知道其中的绝大多数。
+# ============================================================
+initial_relationships:
+
+  - {a: npc_amano_rin, b: npc_shirai_kanade, familiarity: 85, trust: 75, closeness: 80, attraction: 15, romantic_interest: 5, comfort: 88, conflict: 12, stage: close_friend, note: "同乐队两年，为选曲吵过无数次，但没人怀疑她们的关系。"}
+  - {a: npc_amano_rin, b: npc_hoshino_makoto, familiarity: 70, trust: 68, closeness: 60, attraction: 10, romantic_interest: 5, comfort: 75, conflict: 5, stage: friend, note: "同班，性格相反，午休偶尔一起。凛是少数能让真琴主动开口的人。"}
+  - {a: npc_amano_rin, b: npc_takahashi_nao, familiarity: 60, trust: 55, closeness: 45, attraction: 5, romantic_interest: 3, comfort: 70, conflict: 8, stage: friend, note: "游戏搭子。"}
+  - {a: npc_shirai_kanade, b: npc_mizuki_ren, familiarity: 72, trust: 65, closeness: 58, attraction: 78, romantic_interest: 80, comfort: 60, conflict: 6, stage: friend, note: "白井单恋水城一年多。水城知道，装作不知道。"}
+  - {a: npc_mizuki_ren, b: npc_shirai_kanade, familiarity: 72, trust: 60, closeness: 52, attraction: 30, romantic_interest: 15, comfort: 65, conflict: 10, stage: friend, note: "水城把她当重要的后辈和朋友，没有恋爱意愿，也不知道怎么开口说清楚。"}
+  - {a: npc_kirishima_sae, b: npc_mizuki_ren, familiarity: 88, trust: 85, closeness: 70, attraction: 45, romantic_interest: 35, comfort: 78, conflict: 15, stage: close_friend, note: "搭档两年。谁都没往那个方向想过，或者说都不承认自己想过。"}
+  - {a: npc_mizuki_ren, b: npc_kirishima_sae, familiarity: 88, trust: 82, closeness: 68, attraction: 50, romantic_interest: 40, comfort: 72, conflict: 12, stage: close_friend, note: "他会记得她今天喝了几杯咖啡。"}
+  - {a: npc_kurosawa_daichi, b: npc_saotome_yui, familiarity: 80, trust: 78, closeness: 65, attraction: 55, romantic_interest: 30, comfort: 82, conflict: 25, stage: close_friend, note: "从一年级就在互相比。两个人都把心动理解成了胜负欲。"}
+  - {a: npc_saotome_yui, b: npc_kurosawa_daichi, familiarity: 80, trust: 76, closeness: 62, attraction: 58, romantic_interest: 35, comfort: 80, conflict: 28, stage: close_friend, note: "同上，方向相反，程度相似。"}
+  - {a: npc_takahashi_nao, b: npc_kagurazaka_hina, familiarity: 62, trust: 58, closeness: 48, attraction: 70, romantic_interest: 68, comfort: 55, conflict: 4, stage: friend, note: "高桥的暗恋。用玩笑掩饰。"}
+  - {a: npc_kagurazaka_hina, b: npc_takahashi_nao, familiarity: 62, trust: 60, closeness: 50, attraction: 25, romantic_interest: 18, comfort: 68, conflict: 6, stage: friend, note: "日菜已经察觉了，正在犹豫怎么处理。"}
+  - {a: npc_kagurazaka_hina, b: npc_saotome_yui, familiarity: 75, trust: 72, closeness: 70, attraction: 10, romantic_interest: 5, comfort: 85, conflict: 5, stage: close_friend, note: "唯练完跑步会去家政室蹭吃的。"}
+  - {a: npc_hoshino_makoto, b: npc_fuyutsuki_iori, familiarity: 65, trust: 70, closeness: 62, attraction: 12, romantic_interest: 8, comfort: 88, conflict: 2, stage: close_friend, note: "两个人可以在同一个房间里各做各的事两小时不说话。"}
+  - {a: npc_hoshino_makoto, b: npc_narumi_koharu, familiarity: 45, trust: 50, closeness: 40, attraction: 8, romantic_interest: 3, comfort: 65, conflict: 2, stage: friend, note: "图书馆的常客和图书委员。小春很崇拜她。"}
+  - {a: npc_natsume_kou, b: npc_mizuki_ren, familiarity: 68, trust: 70, closeness: 55, attraction: 8, romantic_interest: 3, comfort: 80, conflict: 3, stage: friend, note: "少数几个夏目愿意说话的人之一。水城给他的乐队拍过照。"}
+  - {a: npc_natsume_kou, b: npc_fuyutsuki_iori, familiarity: 55, trust: 58, closeness: 45, attraction: 10, romantic_interest: 5, comfort: 78, conflict: 2, stage: friend, note: "互相尊重对方的作品，几乎不聊别的。"}
+  - {a: npc_kirishima_sae, b: npc_himura_akane, familiarity: 70, trust: 62, closeness: 50, attraction: 10, romantic_interest: 5, comfort: 60, conflict: 18, stage: friend, note: "每年为了公演的场地和预算吵，吵完照样一起吃饭。"}
+  - {a: npc_oda_shun, b: npc_takahashi_nao, familiarity: 70, trust: 55, closeness: 55, attraction: 5, romantic_interest: 2, comfort: 78, conflict: 10, stage: friend, note: "损友。"}
+  - {a: npc_oda_shun, b: npc_shirai_kanade, familiarity: 65, trust: 45, closeness: 48, attraction: 35, romantic_interest: 20, comfort: 70, conflict: 8, stage: friend, note: "织田有点在意她，但很清楚自己没戏，也不打算认真。"}
+  - {a: npc_sakaki_juri, b: npc_shirai_kanade, familiarity: 68, trust: 70, closeness: 60, attraction: 8, romantic_interest: 3, comfort: 80, conflict: 4, stage: close_friend, note: "白井偶尔会去她打工的咖啡店坐到打烊。"}
+  - {a: npc_asakura_touma, b: npc_kurosawa_daichi, familiarity: 50, trust: 65, closeness: 40, attraction: 5, romantic_interest: 2, comfort: 60, conflict: 3, stage: friend, note: "新生对前辈的崇拜。"}
+  - {a: npc_asakura_touma, b: npc_narumi_koharu, familiarity: 30, trust: 35, closeness: 25, attraction: 30, romantic_interest: 20, comfort: 40, conflict: 2, stage: acquaintance, note: "同为一年级，在图书馆说过三次话。"}
+  - {a: npc_tsukishima_kaoru, b: npc_amano_rin, familiarity: 75, trust: 78, closeness: 60, attraction: 0, romantic_interest: 0, comfort: 82, conflict: 8, stage: friend, note: "顾问与部长。月岛是唯一听过凛部分 demo 的人。"}
+  - {a: npc_ogata_juzo, b: npc_kurosawa_daichi, familiarity: 82, trust: 85, closeness: 60, attraction: 0, romantic_interest: 0, comfort: 78, conflict: 10, stage: friend, note: "顾问与部长。绪方在装作不知道他的膝盖。"}
+  - {a: npc_ayase_shizuku, b: npc_hoshino_makoto, familiarity: 55, trust: 65, closeness: 45, attraction: 0, romantic_interest: 0, comfort: 80, conflict: 2, stage: friend, note: "真琴偶尔会去保健室，什么也不说，就坐一会儿。"}

@@ -1,0 +1,482 @@
+# ============================================================
+# 地点表 (locations.yaml)
+# 静态初始地点。运行中新增地点必须通过 register_location() 写入
+# state/world_registry.json，不要手改本文件。
+# zone 用于计算移动时间，见 travel 段。
+# ============================================================
+
+travel:
+  within_zone_minutes:
+    school_indoor: 3
+    school_outdoor: 5
+    town_center: 6
+    riverside: 8
+    residential: 5
+    far: 12
+  between_zone_minutes:
+    school_indoor|school_outdoor: 5
+    school_indoor|town_center: 20
+    school_indoor|riverside: 18
+    school_indoor|residential: 22
+    school_indoor|far: 45
+    school_outdoor|town_center: 18
+    school_outdoor|riverside: 15
+    school_outdoor|residential: 20
+    school_outdoor|far: 42
+    town_center|riverside: 10
+    town_center|residential: 12
+    town_center|far: 35
+    riverside|residential: 12
+    riverside|far: 30
+    residential|far: 38
+  default_minutes: 20
+
+locations:
+
+  # ---------------- 校内 ----------------
+  - id: loc_school_gate
+    name: "秋月学院·校门"
+    zone: school_outdoor
+    area: school
+    open_hours: [6, 22]
+    tags: [entrance, meeting, morning]
+    description: "两侧种着樱树的铁门。早上是全校密度最高的地方，放学后则是最容易'碰巧遇到'某人的地方。"
+    typical_npcs: [npc_kirishima_sae, npc_amano_rin]
+    actions: [talk, wait, observe, leave]
+
+  - id: loc_shoe_lockers
+    name: "鞋柜区"
+    zone: school_indoor
+    area: school
+    open_hours: [7, 20]
+    tags: [entrance, letters, rumor]
+    description: "一排排铝制鞋柜，混着换鞋和小声闲聊的声音。传说中情书会出现在这里——大部分时候只是社团通知单。"
+    actions: [talk, observe, check_locker]
+
+  - id: loc_class_2a
+    name: "二年A班教室"
+    zone: school_indoor
+    area: school
+    open_hours: [7, 19]
+    tags: [classroom, home, study, social]
+    description: "玩家所在的班级。窗边第三排是玩家的座位，午后阳光会正好落在桌面上。"
+    typical_npcs: [npc_amano_rin, npc_hoshino_makoto, npc_kurosawa_daichi, npc_saotome_yui]
+    actions: [talk, study, nap, observe, lunch]
+
+  - id: loc_class_2b
+    name: "二年B班教室"
+    zone: school_indoor
+    area: school
+    open_hours: [7, 19]
+    tags: [classroom, social]
+    description: "隔壁班。走廊窗户开着的时候，能听见他们比自己班吵一点。"
+    typical_npcs: [npc_takahashi_nao, npc_shirai_kanade]
+    actions: [talk, observe]
+
+  - id: loc_class_3a
+    name: "三年A班教室"
+    zone: school_indoor
+    area: school
+    open_hours: [7, 19]
+    tags: [classroom, senior]
+    description: "三年级的教室气氛明显更安静一些，桌上多出很多参考书。"
+    typical_npcs: [npc_kirishima_sae, npc_mizuki_ren]
+    actions: [talk, observe]
+
+  - id: loc_corridor
+    name: "教学楼走廊"
+    zone: school_indoor
+    area: school
+    open_hours: [7, 20]
+    tags: [transit, encounter]
+    description: "打蜡过头的地板，窗外是中庭。课间十分钟这里像一条湍急的河。"
+    actions: [talk, observe, move]
+
+  - id: loc_stairwell
+    name: "楼梯间"
+    zone: school_indoor
+    area: school
+    open_hours: [7, 20]
+    tags: [transit, quiet, private]
+    description: "通往天台的那段楼梯几乎没人走，是打电话和躲开人群的好地方。"
+    actions: [talk, rest, private_talk]
+
+  - id: loc_rooftop
+    name: "天台"
+    zone: school_outdoor
+    area: school
+    open_hours: [8, 18]
+    tags: [private, lunch, romantic, view]
+    description: "官方说法是禁止进入，实际上锁一直是坏的。风很大，能看到远处的车站和更远的海。"
+    typical_npcs: [npc_hoshino_makoto]
+    actions: [lunch, talk, rest, observe, private_talk]
+
+  - id: loc_courtyard
+    name: "中庭"
+    zone: school_outdoor
+    area: school
+    open_hours: [6, 20]
+    tags: [outdoor, social, photo]
+    description: "四栋楼围出来的一块草地，中间有棵老樱树和几张长椅。摄影部一年到头都在这里拍。"
+    actions: [talk, rest, photo, observe]
+
+  - id: loc_library
+    name: "图书馆"
+    zone: school_indoor
+    area: school
+    open_hours: [8, 19]
+    tags: [study, quiet, knowledge]
+    description: "三层挑高，二楼靠窗的位置总是先被抢走。管理老师对说话声音的容忍度取决于当天心情。"
+    typical_npcs: [npc_hoshino_makoto, npc_fuyutsuki_iori]
+    actions: [study, read, talk_quiet, research]
+
+  - id: loc_infirmary
+    name: "保健室"
+    zone: school_indoor
+    area: school
+    open_hours: [8, 17]
+    tags: [rest, care, private]
+    description: "白色隔帘和消毒水味。校医不太管学生来这里睡觉，只要别太频繁。"
+    typical_npcs: [npc_ayase_shizuku]
+    actions: [rest, talk, first_aid, nap]
+
+  - id: loc_gym
+    name: "体育馆"
+    zone: school_indoor
+    area: school
+    open_hours: [8, 19]
+    tags: [sports, club, noisy]
+    description: "篮球撞地板的声音在馆里回响。二楼的看台是观察和偷懒的好位置。"
+    typical_npcs: [npc_kurosawa_daichi, npc_saotome_yui]
+    actions: [exercise, watch, talk, club_activity]
+
+  - id: loc_field
+    name: "操场"
+    zone: school_outdoor
+    area: school
+    open_hours: [6, 19]
+    tags: [sports, outdoor, club]
+    description: "红土跑道和足球场。傍晚的时候整片场地会被染成橘色。"
+    typical_npcs: [npc_saotome_yui, npc_kurosawa_daichi]
+    actions: [exercise, run, watch, talk]
+
+  - id: loc_pool
+    name: "学校泳池"
+    zone: school_outdoor
+    area: school
+    open_hours: [9, 18]
+    seasonal: [5, 6, 7, 8, 9]
+    tags: [sports, summer, club]
+    description: "只有五月到九月开放。氯水味和瓷砖反光，是夏天开始的标志。"
+    actions: [swim, watch, talk, club_activity]
+
+  - id: loc_music_room
+    name: "音乐室"
+    zone: school_indoor
+    area: school
+    open_hours: [8, 19]
+    tags: [club, art, music]
+    description: "旧钢琴、隔音棉和一堆没人认领的乐谱。轻音部把第二音乐室当成了半个家。"
+    typical_npcs: [npc_amano_rin, npc_shirai_kanade]
+    actions: [practice, perform, talk, club_activity]
+
+  - id: loc_art_room
+    name: "美术室"
+    zone: school_indoor
+    area: school
+    open_hours: [8, 19]
+    tags: [club, art]
+    description: "松节油味道，石膏像永远蒙着一层灰。窗户朝北，光线稳定。"
+    typical_npcs: [npc_fuyutsuki_iori]
+    actions: [draw, talk, club_activity, observe]
+
+  - id: loc_home_ec_room
+    name: "家政室"
+    zone: school_indoor
+    area: school
+    open_hours: [8, 19]
+    tags: [club, cooking]
+    description: "六组料理台，抽油烟机的声音很大。烹饪部活动日这里会飘出让全楼分心的味道。"
+    typical_npcs: [npc_kagurazaka_hina]
+    actions: [cook, talk, club_activity]
+
+  - id: loc_student_council
+    name: "学生会室"
+    zone: school_indoor
+    area: school
+    open_hours: [8, 19]
+    tags: [organization, formal]
+    description: "打印机、活动预算表和一台永远在响的电话。墙上贴着全年活动日程。"
+    typical_npcs: [npc_kirishima_sae, npc_mizuki_ren]
+    actions: [talk, paperwork, negotiate, club_activity]
+
+  - id: loc_club_building
+    name: "社团楼"
+    zone: school_indoor
+    area: school
+    open_hours: [8, 19]
+    tags: [club, hub]
+    description: "老旧的三层小楼，每间房门上贴着手写社团名。走廊里同时能听见吉他、快门和骰子的声音。"
+    actions: [talk, visit_club, explore, club_activity]
+
+  - id: loc_photo_room
+    name: "摄影部部室"
+    zone: school_indoor
+    area: school
+    open_hours: [8, 19]
+    tags: [club, art, photo]
+    description: "社团楼二楼最里面。窗帘常年拉着，还留着一间几乎不再用的暗房。"
+    typical_npcs: [npc_natsume_kou]
+    actions: [talk, photo, club_activity, develop_film]
+
+  - id: loc_lit_room
+    name: "文学部部室"
+    zone: school_indoor
+    area: school
+    open_hours: [8, 19]
+    tags: [club, quiet, writing]
+    description: "两张对着的旧桌子，四面全是书。据说部员的主要活动是喝茶。"
+    typical_npcs: [npc_hoshino_makoto]
+    actions: [read, write, talk, club_activity]
+
+  - id: loc_game_room
+    name: "游戏研究部部室"
+    zone: school_indoor
+    area: school
+    open_hours: [8, 19]
+    tags: [club, games, noisy]
+    description: "三台老式显示器、一柜子桌游、以及永远缺一个人的四人组队。"
+    typical_npcs: [npc_takahashi_nao]
+    actions: [play, talk, club_activity]
+
+  - id: loc_broadcast_room
+    name: "广播室"
+    zone: school_indoor
+    area: school
+    open_hours: [8, 18]
+    tags: [club, media]
+    description: "调音台上贴满标签，午休广播的选曲权是校内一项隐形权力。"
+    typical_npcs: [npc_shirai_kanade]
+    actions: [broadcast, talk, club_activity]
+
+  - id: loc_vending_area
+    name: "自动售货机区"
+    zone: school_indoor
+    area: school
+    open_hours: [7, 20]
+    tags: [social, encounter, cheap]
+    description: "三台机器，其中一台的找零口从去年坏到现在。所有偶遇的经典发生地。"
+    actions: [buy_drink, talk, wait, observe]
+    shop:
+      items:
+        - {id: item_water, name: "矿泉水", price: 110}
+        - {id: item_coffee, name: "罐装咖啡", price: 130}
+        - {id: item_soda, name: "碳酸饮料", price: 150}
+        - {id: item_sports_drink, name: "运动饮料", price: 160}
+
+  - id: loc_cafeteria
+    name: "食堂"
+    zone: school_indoor
+    area: school
+    open_hours: [11, 15]
+    tags: [food, social, lunch]
+    description: "A 定食永远比 B 定食排得长。窗边的四人桌是社交战略要地。"
+    actions: [lunch, talk, observe]
+    shop:
+      items:
+        - {id: item_set_a, name: "A定食", price: 420}
+        - {id: item_set_b, name: "B定食", price: 380}
+        - {id: item_udon, name: "乌冬面", price: 320}
+        - {id: item_bread, name: "炸面包", price: 180}
+
+  - id: loc_bike_park
+    name: "自行车停车场"
+    zone: school_outdoor
+    area: school
+    open_hours: [6, 21]
+    tags: [transit, encounter]
+    description: "放学时段最热闹的地方，也是最容易发现某人今天心情如何的地方。"
+    actions: [talk, leave, observe]
+
+  - id: loc_staff_room
+    name: "教职员室"
+    zone: school_indoor
+    area: school
+    open_hours: [8, 19]
+    tags: [formal, teacher]
+    description: "咖啡味和打印机声。学生进来之前都会先深吸一口气。"
+    typical_npcs: [npc_tsukishima_kaoru, npc_ogata_juzo]
+    actions: [talk, consult, submit]
+
+  # ---------------- 校外 ----------------
+  - id: loc_convenience_store
+    name: "便利店 SUNMART 秋月站前店"
+    zone: town_center
+    area: town
+    open_hours: [0, 24]
+    tags: [shop, cheap, encounter]
+    description: "24 小时亮着的白光。放学后总有穿着本校制服的人在杂志架前站着。"
+    actions: [buy, talk, observe]
+    shop:
+      items:
+        - {id: item_onigiri, name: "饭团", price: 150}
+        - {id: item_bento, name: "便当", price: 520}
+        - {id: item_icecream, name: "冰淇淋", price: 200}
+        - {id: item_magazine, name: "杂志", price: 600}
+        - {id: item_umbrella, name: "塑料伞", price: 450}
+
+  - id: loc_family_restaurant
+    name: "家庭餐厅 Gusto风"
+    zone: town_center
+    area: town
+    open_hours: [10, 24]
+    tags: [food, date, group, study]
+    description: "无限续杯的饮料吧和永远太亮的灯。学生们能在这里坐三个小时只点一份薯条。"
+    actions: [eat, talk, study, date]
+    shop:
+      items:
+        - {id: item_drink_bar, name: "饮料吧", price: 320}
+        - {id: item_pasta, name: "意面", price: 780}
+        - {id: item_hamburg, name: "汉堡肉套餐", price: 980}
+        - {id: item_parfait, name: "芭菲", price: 560}
+
+  - id: loc_cafe_kotori
+    name: "咖啡店 KOTORI"
+    zone: town_center
+    area: town
+    open_hours: [9, 21]
+    tags: [food, date, quiet, coffee]
+    description: "商店街拐角的独立咖啡店，老板对手冲的执着程度略高于对营业额的执着。"
+    actions: [drink, talk, date, study]
+    shop:
+      items:
+        - {id: item_hand_drip, name: "手冲咖啡", price: 620}
+        - {id: item_latte, name: "拿铁", price: 580}
+        - {id: item_cheesecake, name: "芝士蛋糕", price: 540}
+
+  - id: loc_shopping_street
+    name: "秋月商店街"
+    zone: town_center
+    area: town
+    open_hours: [9, 21]
+    tags: [shop, walk, date, festival]
+    description: "一条挂着褪色彩旗的老街。夏天挂灯笼，年末挂彩灯，其余时候挂着'大甩卖'。"
+    actions: [shop, walk, talk, date, explore]
+
+  - id: loc_karaoke
+    name: "卡拉OK BIG ECHO风"
+    zone: town_center
+    area: town
+    open_hours: [11, 26]
+    tags: [entertainment, group, date, music]
+    description: "包厢隔音一般，走廊里能听见隔壁在唱十年前的动画歌。"
+    actions: [sing, talk, group_activity, date]
+    shop:
+      items:
+        - {id: item_karaoke_2h, name: "包厢2小时", price: 900}
+
+  - id: loc_arcade
+    name: "游戏厅 SEGA风"
+    zone: town_center
+    area: town
+    open_hours: [10, 23]
+    tags: [entertainment, games, date, noisy]
+    description: "音游区的音量能盖过一切谈话。夹娃娃机前永远有人在做最后一次尝试。"
+    actions: [play, talk, date, compete]
+    shop:
+      items:
+        - {id: item_arcade_coin, name: "游戏币x10", price: 500}
+
+  - id: loc_park
+    name: "秋月中央公园"
+    zone: residential
+    area: town
+    open_hours: [0, 24]
+    tags: [outdoor, quiet, walk, date]
+    description: "有一片草地、一个旧秋千和一圈跑步道。春天樱花，秋天银杏。"
+    actions: [walk, rest, talk, exercise, date]
+
+  - id: loc_riverbank
+    name: "秋月川河堤"
+    zone: riverside
+    area: town
+    open_hours: [0, 24]
+    tags: [outdoor, romantic, walk, sunset]
+    description: "长长的堤岸和一排电线杆。傍晚跑步、放学绕远路、以及说不出口的话，都发生在这里。"
+    actions: [walk, talk, rest, run, date, observe]
+
+  - id: loc_station
+    name: "秋月站"
+    zone: town_center
+    area: town
+    open_hours: [5, 25]
+    tags: [transit, encounter, meeting]
+    description: "三条线交汇的小站。检票口外的柱子是全市最常见的碰面地点。"
+    actions: [wait, talk, travel, observe]
+
+  - id: loc_shrine
+    name: "秋月神社"
+    zone: residential
+    area: town
+    open_hours: [0, 24]
+    tags: [outdoor, festival, quiet, tradition]
+    description: "石阶尽头的小神社。夏日祭和初诣时会挤满人，其他日子安静得能听见风铃。"
+    actions: [pray, walk, talk, date, festival]
+
+  - id: loc_bookstore
+    name: "文进堂书店"
+    zone: town_center
+    area: town
+    open_hours: [10, 22]
+    tags: [shop, knowledge, quiet]
+    description: "两层的老书店，二楼是文库本和杂志。站着看书没人会赶你。"
+    actions: [read, buy, talk, research]
+    shop:
+      items:
+        - {id: item_novel, name: "文库本", price: 780}
+        - {id: item_textbook, name: "参考书", price: 1600}
+        - {id: item_photo_book, name: "摄影集", price: 3200}
+
+  - id: loc_live_house
+    name: "LIVE HOUSE 月光"
+    zone: town_center
+    area: town
+    open_hours: [17, 25]
+    tags: [music, entertainment, night]
+    description: "地下一层，天花板很低。周末有本地乐队演出，票价一杯饮料。"
+    actions: [watch, perform, talk]
+    shop:
+      items:
+        - {id: item_live_ticket, name: "演出票（含一杯饮料）", price: 2000}
+
+  - id: loc_beach
+    name: "南滨海岸"
+    zone: far
+    area: town
+    open_hours: [0, 24]
+    seasonal: [6, 7, 8, 9]
+    tags: [outdoor, summer, trip, date]
+    description: "坐电车四十分钟。夏天挤满人，其他季节只有风和空荡的沙滩。"
+    actions: [swim, walk, talk, date, trip]
+
+  - id: loc_player_home
+    name: "自己的房间"
+    zone: residential
+    area: town
+    open_hours: [0, 24]
+    tags: [home, rest, private]
+    description: "一室一厅的学生公寓。书桌、床、以及总是差一点收拾干净的地板。"
+    actions: [sleep, rest, study, practice, message, cook]
+
+  - id: loc_supermarket
+    name: "超市 FRESCO"
+    zone: residential
+    area: town
+    open_hours: [9, 22]
+    tags: [shop, cooking]
+    description: "傍晚七点后熟食区开始贴折扣标签，这是学生公认的黄金时段。"
+    actions: [buy, talk]
+    shop:
+      items:
+        - {id: item_groceries, name: "食材一份", price: 800}
+        - {id: item_discount_bento, name: "折扣便当", price: 280}

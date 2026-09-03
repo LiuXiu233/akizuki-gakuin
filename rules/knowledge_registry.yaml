@@ -1,0 +1,129 @@
+# ============================================================
+# 知识注册表 (knowledge_registry.yaml)
+# 知识 = 知道。与技能完全分离，不能互相替代。
+# 等级 0-5；检定修正为 0 ~ +3（见 modifier_table）。
+# 知识的主要价值不是数值，而是：解锁信息 / 解锁对话 / 识别事物 / 跳过简单判定 / 影响推荐行动。
+# ============================================================
+
+meta:
+  levels:
+    0: {name: "不知道", modifier: 0}
+    1: {name: "基础", modifier: 0}
+    2: {name: "了解", modifier: 1}
+    3: {name: "熟悉", modifier: 2}
+    4: {name: "专业", modifier: 3}
+    5: {name: "深入研究", modifier: 3}
+  modifier_table: {0: 0, 1: 0, 2: 1, 3: 2, 4: 3, 5: 3}
+  non_numeric_effects:
+    - "unlock_info: 让旁白给出更细致的描述"
+    - "unlock_dialogue: 解锁只有懂行的人能聊的话题"
+    - "identify: 认出物品、地点、人物身份或作品"
+    - "bypass_check: 让某些简单判定直接成功（Lv>=3）"
+    - "modifier: 少量检定修正"
+    - "recommendation: 让推荐行动出现新可能"
+
+knowledge:
+  # ---------- 学科 ----------
+  - id: mathematics
+    name: "数学"
+    category: academic
+    aliases: ["数", "math", "代数", "几何"]
+    unlocks: ["概率判断", "预算计算", "考试范围推断"]
+  - id: physics
+    name: "物理"
+    category: academic
+    aliases: ["physics", "力学"]
+    unlocks: ["理解器材原理", "解释一些'怪谈'"]
+  - id: chemistry
+    name: "化学"
+    category: academic
+    aliases: ["chem", "化学实验"]
+    unlocks: ["理解料理中的反应", "冲洗胶卷的药水"]
+  - id: biology
+    name: "生物"
+    category: academic
+    aliases: ["bio", "生理", "人体"]
+    unlocks: ["判断身体状况", "训练与恢复常识"]
+  - id: literature
+    name: "文学"
+    category: academic
+    aliases: ["文", "书", "小说", "诗歌", "lit"]
+    unlocks: ["认出引用", "和文学部聊得起来", "写作评论"]
+  - id: history
+    name: "历史"
+    category: academic
+    aliases: ["史", "history"]
+    unlocks: ["理解地方沿革", "修学旅行的背景知识"]
+  - id: geography
+    name: "地理"
+    category: academic
+    aliases: ["地理学", "geo"]
+    unlocks: ["路线规划", "旅行常识"]
+  - id: economics
+    name: "经济"
+    category: academic
+    aliases: ["经济学", "econ", "财务"]
+    unlocks: ["社团预算", "打工与消费判断"]
+  - id: psychology
+    name: "心理学"
+    category: academic
+    aliases: ["心理", "psych"]
+    unlocks: ["理解他人反应的可能原因"]
+    hard_rule: "心理学等级再高也不能直接得知 NPC 的隐藏数值或真实心意，只能获得更细致的可观察线索。"
+  - id: computers
+    name: "计算机"
+    category: academic
+    aliases: ["电脑知识", "IT知识", "网络"]
+    unlocks: ["理解设备与软件", "处理数据"]
+
+  # ---------- 兴趣 ----------
+  - id: photography
+    name: "摄影知识"
+    category: hobby
+    aliases: ["相机", "器材", "镜头", "摄影史"]
+    unlocks: ["认出机身与镜头的用途", "看懂构图和光线", "和摄影部深聊"]
+    example: "Lv.3 时，'桌上放着一台看起来很贵的相机' → '你认出了机身和镜头的大致用途，看起来非常适合人像摄影。'"
+  - id: music_theory
+    name: "乐理"
+    category: hobby
+    aliases: ["音乐理论", "和声", "编曲知识"]
+    unlocks: ["听出编排问题", "和轻音部讨论选曲"]
+  - id: cooking
+    name: "料理知识"
+    category: hobby
+    aliases: ["食材", "菜谱", "美食"]
+    unlocks: ["判断食材与菜单", "认出店家水平"]
+    note: "与 skill:cooking 是两回事：知道 ≠ 会做。"
+  - id: anime
+    name: "动画漫画"
+    category: hobby
+    aliases: ["二次元", "漫画", "轻小说", "acg"]
+    unlocks: ["接住梗", "和同好迅速拉近距离"]
+  - id: games
+    name: "游戏"
+    category: hobby
+    aliases: ["电玩", "游戏史", "游戏设计"]
+    unlocks: ["理解机制", "和游研部聊得起来"]
+  - id: fashion
+    name: "时尚"
+    category: hobby
+    aliases: ["穿搭", "服装", "打扮"]
+    unlocks: ["注意到别人今天不一样", "给出穿搭建议"]
+
+  # ---------- 在地 ----------
+  - id: school_rules
+    name: "校规"
+    category: local
+    aliases: ["规章", "学校制度"]
+    unlocks: ["知道什么能做什么不能", "在学生会说得上话"]
+  - id: school_rumors
+    name: "校园传闻"
+    category: local
+    aliases: ["八卦", "小道消息", "传闻"]
+    unlocks: ["知道谁和谁最近走得近（rumor 级，未必准确）", "找到没人知道的地方"]
+    reliability: "rumor —— 可能是错的，Agent 必须按 rumor 级信息处理。"
+  - id: local_area
+    name: "秋月市"
+    category: local
+    aliases: ["本地", "街区", "地方"]
+    unlocks: ["知道好店和近路", "推荐约会地点"]

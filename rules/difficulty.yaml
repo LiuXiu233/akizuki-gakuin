@@ -1,0 +1,95 @@
+# ============================================================
+# 难度表 (difficulty.yaml)
+# D20 + 属性修正 + 技能修正 + 知识修正 + 情境修正  VS  DC
+# ============================================================
+
+difficulty_classes:
+  very_easy: {dc: 8,  name: "很容易", enum: "Difficulty.VERY_EASY", example: "在熟人面前说一句正常的话"}
+  easy:      {dc: 11, name: "容易",   enum: "Difficulty.EASY",      example: "和同班同学搭话"}
+  normal:    {dc: 14, name: "普通",   enum: "Difficulty.NORMAL",    example: "把一个想法讲清楚 / 拍出一张能用的照片"}
+  hard:      {dc: 17, name: "困难",   enum: "Difficulty.HARD",      example: "在全班面前即兴发言 / 做出让人惊讶的料理"}
+  very_hard: {dc: 20, name: "很困难", enum: "Difficulty.VERY_HARD", example: "在舞台上完成一次几乎没练过的独奏"}
+  extreme:   {dc: 23, name: "极困难", enum: "Difficulty.EXTREME",   example: "在县大会决赛的最后十秒完成逆转"}
+
+success_levels:
+  strong_success: {margin: ">= 5",  desc: "不仅做到了，还超出预期。"}
+  success:        {margin: ">= 0",  desc: "做到了。"}
+  failure:        {margin: ">= -4", desc: "没做到，但没有搞砸。"}
+  major_failure:  {margin: "<= -5", desc: "搞砸了，并且产生了后果。"}
+
+natural_rules:
+  natural_20:
+    effect: "结果等级提升一级"
+    limits:
+      - "不能完成物理上不可能的事"
+      - "不能剥夺 NPC 的自主权（社交检定尤其）"
+      - "不能凭空创造世界中不存在的事物"
+  natural_1:
+    effect: "结果等级降低一级"
+    limits:
+      - "不能凭空制造荒谬灾难"
+      - "不能造成不可逆的严重伤害"
+      - "后果必须与行动本身相关"
+
+when_to_roll:
+  roll_required:
+    - "存在合理失败概率的行为"
+    - "结果会影响世界或关系"
+    - "玩家试图超出自己当前水平"
+  no_roll_needed:
+    - "买一瓶水（店开着、有钱、没有异常）"
+    - "走到教室"
+    - "和熟人打招呼"
+    - "做自己已经很擅长的日常事情"
+    - "任何'结果毫无悬念'的行为"
+  never_roll:
+    - "NPC 是否愿意接受邀请 / 告白 / 亲密行为 —— 这由 NPC 决定，不是检定"
+    - "得知 NPC 的隐藏心意"
+    - "强迫世界产生不存在的资源"
+
+situational_modifiers:
+  # 情境修正建议表（-5 ~ +5），由 Agent 提出、引擎裁剪到范围内
+  positive:
+    prepared: {value: 2, desc: "事先做了准备"}
+    good_atmosphere: {value: 2, desc: "气氛很好"}
+    helped_by_friend: {value: 2, desc: "有朋友帮忙"}
+    familiar_place: {value: 1, desc: "在熟悉的场所"}
+    good_mood: {value: 1, desc: "心情很好"}
+    relevant_item: {value: 1, desc: "有合适的道具"}
+    high_familiarity: {value: 2, desc: "和对方已经很熟"}
+    perfect_timing: {value: 3, desc: "时机极佳"}
+  negative:
+    tired: {value: -2, desc: "疲惫"}
+    stressed: {value: -2, desc: "压力大"}
+    crowd_watching: {value: -2, desc: "很多人在看"}
+    bad_atmosphere: {value: -3, desc: "气氛很糟"}
+    rushed: {value: -2, desc: "时间紧迫"}
+    unfamiliar: {value: -1, desc: "陌生场合"}
+    interrupted: {value: -2, desc: "被打断"}
+    bad_weather: {value: -1, desc: "天气恶劣"}
+    first_time: {value: -2, desc: "第一次做"}
+
+difficulty_by_intent:
+  # Agent 选难度的参考
+  casual_greeting: very_easy
+  small_talk_with_friend: very_easy
+  small_talk_with_stranger: easy
+  ask_for_contact: normal
+  invite_to_group_activity: easy
+  invite_to_one_on_one: normal
+  invite_someone_busy: hard
+  share_personal_topic: normal
+  comfort_someone_upset: hard
+  perform_on_stage: hard
+  cook_for_others: normal
+  cook_for_event: hard
+  take_good_photo: normal
+  take_exceptional_photo: hard
+  exam_normal: normal
+  exam_top_score: very_hard
+  athletic_competition: hard
+  win_prefectural: extreme
+  notice_subtle_change: normal
+  read_the_room: normal
+  hide_your_feelings: normal
+  confess_feelings: null   # 告白不检定：结果由 NPC 决定，检定只影响"说得好不好"

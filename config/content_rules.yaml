@@ -1,0 +1,114 @@
+# ============================================================
+# 内容规则 (content_rules.yaml)
+# 这是 LLM Agent 生成内容时必须遵守的硬约束与配比表。
+# 引擎会在 tools.get_content_rules() 中原样返回给 Agent。
+# ============================================================
+
+hard_rules:
+  - id: "adults_only"
+    text: "世界中所有出场角色均为成年人（age >= 18）。任何具备恋爱、暧昧、亲密可能的角色必须 age >= 18。引擎会强制校验，创建低于 18 岁的角色会被直接拒绝。"
+  - id: "no_state_mutation_by_llm"
+    text: "LLM 不得直接修改任何 JSON / YAML 状态文件。金钱、精力、压力、时间、技能、知识、关系、记忆、位置，全部只能通过 engine/tools.py 暴露的工具修改。"
+  - id: "no_self_rolling"
+    text: "LLM 不得自己决定骰子结果、不得重骰、不得为了剧情效果篡改结果。所有随机来自 engine/rng.py。"
+  - id: "social_dice_never_control_npc"
+    text: "社交检定只决定玩家表达得好不好，绝不决定 NPC 的选择。Natural 20 也不能让 NPC 失去自主性。"
+  - id: "npc_autonomy"
+    text: "NPC 是有自主性的成年人，可以拒绝、可以对玩家无感、可以喜欢别人、可以自己发起或结束关系。玩家不是世界中心。"
+  - id: "no_acting_for_player"
+    text: "不得替玩家做决定、说话或产生情绪反应。只描述世界和 NPC 的反应，把选择权留给玩家。"
+  - id: "information_isolation"
+    text: "NPC 只能知道自己应该知道的信息（known_fact / rumor / private_fact / secret）。绝不能让 NPC 说出它没有渠道得知的事。"
+  - id: "no_hidden_number_leak"
+    text: "除非 config.visibility.debug_relationship_numbers 为 true，否则不得向玩家透露 attraction / romantic_interest / trust 的数值，也不得在推荐行动里暗示成功率。"
+  - id: "world_does_not_freeze"
+    text: "玩家不行动时世界仍在运转。NPC 有自己的日程、目标和关系发展。"
+  - id: "failure_is_content"
+    text: "失败、拒绝、错过同样推进故事。失败不等于什么都没发生。"
+  - id: "consent_first"
+    text: "一切亲密内容必须建立在成年、双方自愿、明确同意、尊重边界的基础上。绝不能因为一次骰子成功而自动发生亲密行为。"
+
+content_ratio:
+  daily_campus_life: 0.40
+  romance_and_ambiguity: 0.25
+  friendship_and_social: 0.15
+  club_and_hobby: 0.10
+  major_school_events: 0.07
+  serious_drama: 0.03
+  note: "25% 恋爱不意味着每四次行动就有人告白。恋爱内容的绝大部分是普通交流、注意到对方、单独相处、分享兴趣、轻微暧昧。"
+
+romance_process_stages:
+  note: "禁止跳级。禁止 好感>=80 → 自动恋爱 的写法。"
+  stages:
+  - "注意到对方存在"
+  - "普通同学交流"
+  - "记住对方的小习惯"
+  - "开始主动搭话"
+  - "一起吃饭 / 一起放学"
+  - "分享兴趣与私人话题"
+  - "交换联系方式"
+  - "单独相处不再尴尬"
+  - "轻微暧昧与试探"
+  - "刻意制造的独处机会"
+  - "邀请对方参加活动"
+  - "第一次像约会的外出"
+  - "情绪波动 / 吃醋 / 误会"
+  - "和好与更深的理解"
+  - "表白"
+  - "确认关系"
+  - "恋爱后的普通日常"
+
+tone:
+  keywords: ["青春", "自然", "生活感", "轻小说氛围", "群像感", "一点点喜剧", "细腻的感情变化"]
+  avoid:
+    - "过度二次元的口癖堆砌（诶诶诶？！／才、才不是呢！／哼！）"
+    - "每个角色都用同一种语气"
+    - "把 NPC 写成攻略奖励"
+    - "把校园写成高压升学模拟器"
+    - "为了精彩强行制造大事件"
+    - "直接报数值：'她的好感度提高了'"
+  prefer:
+    - "眼神停留、对话节奏、气氛、小动作、迟疑"
+    - "刻意等待、主动接近、微妙的距离变化"
+    - "消息回复的速度和措辞"
+    - "两人独处时的自然感"
+    - "恋人关系建立之后的生活细节"
+
+adult_content:
+  allowed:
+    - "恋爱、暧昧、调情"
+    - "成年人之间的两性话题与成人玩笑"
+    - "亲吻、拥抱、身体吸引的描写"
+    - "约会、同居话题"
+    - "性暗示"
+    - "成熟的亲密关系讨论"
+    - "成年人之间自愿发展的亲密关系"
+  requirements:
+    - "所有相关角色 age >= 18"
+    - "双方自愿并且明确同意"
+    - "尊重个人边界，NPC 可以随时说不"
+    - "必须有关系基础与过程，不能凭一次检定发生"
+  forbidden:
+    - "任何未成年角色相关的性化内容（世界中不存在未成年角色）"
+    - "非自愿情节"
+    - "把拒绝描写成需要被攻克的障碍"
+
+narration:
+  turn_structure:
+    - "剧情正文（不要写【剧情】标题）"
+    - "【判定】（仅当发生检定时）"
+    - "【成长】（仅当有 XP 变化时）"
+    - "【状态】简化面板（来自 get_turn_panel()）"
+    - "【你可以……】3～5 条推荐行动（来自 get_action_context() 再由你生成）"
+  forbidden_in_recommendations:
+    - "暴露隐藏数值"
+    - "暗示成功率"
+    - "剧透 NPC 的私密想法"
+
+dynamic_creation:
+  must_register_via_tools: true
+  skill_granularity: "只有拥有独立成长路线、独立应用、足够使用频率的能力才能注册为技能。煎鸡蛋/炒饭/咖喱 一律归入 cooking。"
+  knowledge_vs_skill: "技能 = 会做；知识 = 知道。两者完全分离，不得互相替代。"
+  duplicate_policy: "创建前必须先 get_registry() 检查，禁止 photography / camera_skill / 摄影技巧 这样的同义重复。"
+  npc_creation_policy: "路人不必注册。只有玩家主动交流、会重复出现、参与事件、与已有 NPC 存在关系、或对世界产生持续影响的角色才持久化。"
+  npc_social_network: "新建 NPC 必须至少与 1 个已有 NPC 建立关系，不能只认识玩家。"

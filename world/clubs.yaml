@@ -1,0 +1,238 @@
+# ============================================================
+# 社团表 (clubs.yaml)
+# 运行中新建的社团 / 临时组织必须通过 register_group() 注册。
+# ============================================================
+
+policy:
+  max_clubs_per_player: 2
+  trial_visits_allowed: true
+  quit_cooldown_days: 7
+  activity_days_note: "社团活动时间一般为 16:00-18:30，周三为全校社团休息日。"
+
+clubs:
+  - id: club_light_music
+    name: "轻音部"
+    location: loc_music_room
+    activity_days: [mon, tue, thu, fri]
+    activity_time: ["16:00", "18:30"]
+    members: [npc_amano_rin, npc_shirai_kanade, npc_takahashi_nao]
+    leader: npc_amano_rin
+    advisor: npc_tsukishima_kaoru
+    related_skills: [instrument, singing, performance]
+    related_knowledge: [music_theory, anime]
+    energy_cost_per_hour: 8
+    stress_delta_per_hour: -2
+    description: "四个人、两把吉他、一台借来的贝斯。目标是在文化祭的舞台上不搞砸。"
+    culture: "散漫但认真，练习时会突然跑题四十分钟，然后一口气练到关门。"
+
+  - id: club_photography
+    name: "摄影部"
+    location: loc_photo_room
+    activity_days: [tue, thu, sat]
+    activity_time: ["16:00", "18:00"]
+    members: [npc_natsume_kou]
+    leader: npc_natsume_kou
+    advisor: npc_ogata_juzo
+    related_skills: [photography, crafting]
+    related_knowledge: [photography, local_area]
+    energy_cost_per_hour: 5
+    stress_delta_per_hour: -3
+    description: "常年缺人。部长一个人扛着相机跑遍全市，还在维持那间几乎不用的暗房。"
+    culture: "安静、自由，交作品比出勤重要。"
+
+  - id: club_literature
+    name: "文学部"
+    location: loc_lit_room
+    activity_days: [mon, wed, fri]
+    activity_time: ["16:00", "17:30"]
+    members: [npc_hoshino_makoto, npc_fuyutsuki_iori]
+    leader: npc_hoshino_makoto
+    advisor: npc_tsukishima_kaoru
+    related_skills: [writing, note_taking]
+    related_knowledge: [literature, history, psychology]
+    energy_cost_per_hour: 4
+    stress_delta_per_hour: -4
+    description: "每学期出一本部志，实际活动内容是喝茶、看书、以及互相点评稿子。"
+    culture: "低声、缓慢、不勉强任何人开口。"
+
+  - id: club_game_research
+    name: "游戏研究部"
+    location: loc_game_room
+    activity_days: [tue, wed, fri]
+    activity_time: ["16:00", "18:30"]
+    members: [npc_takahashi_nao, npc_kurosawa_daichi]
+    leader: npc_takahashi_nao
+    advisor: npc_ogata_juzo
+    related_skills: [gaming, board_games, technology]
+    related_knowledge: [games, computers]
+    energy_cost_per_hour: 5
+    stress_delta_per_hour: -5
+    description: "对外说是研究游戏设计，对内是每周三场排位和一场跑团。"
+    culture: "嘴很碎，输了会认真复盘。"
+
+  - id: club_art
+    name: "美术部"
+    location: loc_art_room
+    activity_days: [mon, thu, sat]
+    activity_time: ["16:00", "18:00"]
+    members: [npc_fuyutsuki_iori]
+    leader: npc_fuyutsuki_iori
+    advisor: npc_ogata_juzo
+    related_skills: [drawing, crafting]
+    related_knowledge: [literature, fashion]
+    energy_cost_per_hour: 5
+    stress_delta_per_hour: -3
+    description: "参加县展是官方目标，但大部分人只是想在北窗的光线下画画。"
+    culture: "各画各的，除非有人主动求评。"
+
+  - id: club_basketball
+    name: "篮球部"
+    location: loc_gym
+    activity_days: [mon, tue, thu, fri, sat]
+    activity_time: ["16:00", "18:30"]
+    members: [npc_kurosawa_daichi]
+    leader: npc_kurosawa_daichi
+    advisor: npc_ogata_juzo
+    related_skills: [athletics, running]
+    related_knowledge: [biology]
+    energy_cost_per_hour: 16
+    stress_delta_per_hour: -2
+    description: "县大会八强是这几年的天花板，今年的目标是再往前一步。"
+    culture: "练得狠，但不搞学长权威那一套。"
+
+  - id: club_soccer
+    name: "足球部"
+    location: loc_field
+    activity_days: [mon, wed, fri, sat]
+    activity_time: ["16:00", "18:30"]
+    members: []
+    leader: null
+    advisor: npc_ogata_juzo
+    related_skills: [athletics, running]
+    related_knowledge: [biology]
+    energy_cost_per_hour: 17
+    stress_delta_per_hour: -2
+    description: "人数最多的社团，正选竞争很激烈。"
+    culture: "热闹、直接、场上吵完场下就忘。"
+
+  - id: club_swimming
+    name: "游泳部"
+    location: loc_pool
+    activity_days: [tue, thu, sat]
+    activity_time: ["16:00", "18:00"]
+    members: []
+    leader: null
+    advisor: npc_ayase_shizuku
+    related_skills: [swimming, athletics]
+    related_knowledge: [biology]
+    energy_cost_per_hour: 15
+    stress_delta_per_hour: -3
+    season: [5, 6, 7, 8, 9]
+    description: "只有夏季学期活动，冬天转去健身房和跑步。"
+    culture: "早训很硬，赛季外很松。"
+
+  - id: club_track
+    name: "田径部"
+    location: loc_field
+    activity_days: [mon, tue, thu, fri]
+    activity_time: ["16:00", "18:30"]
+    members: [npc_saotome_yui]
+    leader: npc_saotome_yui
+    advisor: npc_ogata_juzo
+    related_skills: [running, athletics]
+    related_knowledge: [biology]
+    energy_cost_per_hour: 16
+    stress_delta_per_hour: -3
+    description: "个人项目为主，训练表贴在部室墙上，谁都能看到自己落后多少。"
+    culture: "各练各的，但会互相掐表。"
+
+  - id: club_cooking
+    name: "烹饪部"
+    location: loc_home_ec_room
+    activity_days: [wed, fri, sat]
+    activity_time: ["16:00", "18:00"]
+    members: [npc_kagurazaka_hina]
+    leader: npc_kagurazaka_hina
+    advisor: npc_tsukishima_kaoru
+    related_skills: [cooking, etiquette]
+    related_knowledge: [cooking, chemistry]
+    energy_cost_per_hour: 7
+    stress_delta_per_hour: -4
+    description: "文化祭的咖啡厅菜单由这里决定，因此每年这个时候都很紧张。"
+    culture: "成品必须有人试吃，试吃者拥有发言权。"
+
+  - id: club_drama
+    name: "戏剧部"
+    location: loc_gym
+    activity_days: [mon, wed, fri]
+    activity_time: ["16:00", "18:30"]
+    members: [npc_himura_akane]
+    leader: npc_himura_akane
+    advisor: npc_tsukishima_kaoru
+    related_skills: [acting, performance, conversation]
+    related_knowledge: [literature, psychology]
+    energy_cost_per_hour: 10
+    stress_delta_per_hour: -1
+    description: "一年两场公演。台本经常在开演前一周还在改。"
+    culture: "排练时非常严肃，结束后立刻散架。"
+
+  - id: club_student_council
+    name: "学生会"
+    location: loc_student_council
+    activity_days: [mon, tue, wed, thu, fri]
+    activity_time: ["16:00", "18:00"]
+    members: [npc_kirishima_sae, npc_mizuki_ren]
+    leader: npc_kirishima_sae
+    advisor: npc_tsukishima_kaoru
+    related_skills: [club_management, persuasion, etiquette, note_taking]
+    related_knowledge: [school_rules, economics, school_rumors]
+    energy_cost_per_hour: 9
+    stress_delta_per_hour: 2
+    description: "活动预算、场地分配、校规调整——所有人都在抱怨的事都由这六个人处理。"
+    culture: "开会准时开始，超时会被会长打断。"
+
+  - id: club_broadcast
+    name: "广播部"
+    location: loc_broadcast_room
+    activity_days: [tue, thu]
+    activity_time: ["12:30", "13:00"]
+    members: [npc_shirai_kanade]
+    leader: npc_shirai_kanade
+    advisor: npc_tsukishima_kaoru
+    related_skills: [performance, conversation, technology]
+    related_knowledge: [music_theory, school_rumors, anime]
+    energy_cost_per_hour: 5
+    stress_delta_per_hour: -2
+    description: "午休广播 30 分钟。选曲、点播、以及偶尔失控的自由发言环节。"
+    culture: "台本只是参考。"
+
+  - id: club_board_games
+    name: "桌游研究会"
+    location: loc_game_room
+    activity_days: [wed, sat]
+    activity_time: ["16:00", "18:30"]
+    members: [npc_takahashi_nao]
+    leader: null
+    advisor: npc_ogata_juzo
+    related_skills: [board_games, gaming, conversation]
+    related_knowledge: [games, mathematics]
+    energy_cost_per_hour: 4
+    stress_delta_per_hour: -5
+    description: "同好会性质，和游戏研究部共用部室，经常为了场地和他们互相调侃。"
+    culture: "谁带新游戏谁当主持。"
+
+  - id: club_occult
+    name: "秋月怪谈研究会"
+    location: loc_club_building
+    activity_days: [thu]
+    activity_time: ["16:30", "18:00"]
+    members: []
+    leader: null
+    advisor: null
+    related_skills: [photography, writing]
+    related_knowledge: [school_rumors, local_area, history]
+    energy_cost_per_hour: 3
+    stress_delta_per_hour: -3
+    description: "同好会，成员数长期在解散线上下浮动。收集校内传闻并认真做成档案。"
+    culture: "气氛很足，但所有人都清楚——这个世界没有超能力。"
+    note: "世界观强制：不存在真正的超自然力量。所有'怪谈'最终都有现实解释或永远无解。"

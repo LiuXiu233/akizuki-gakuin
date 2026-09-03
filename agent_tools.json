@@ -1,0 +1,1172 @@
+{
+  "schema_version": "1.0",
+  "generated_by": "scripts/export_tools.py",
+  "engine_version": "1.0.0",
+  "call_conventions": {
+    "python": "from engine.tools import call_tool; call_tool(name, args)",
+    "cli": "python3 -m engine.tools call <name> '<json>'",
+    "mcp": "python3 -m engine.mcp_server  (stdio JSON-RPC)"
+  },
+  "error_shape": {
+    "ok": false,
+    "error": "string",
+    "hint": "string?"
+  },
+  "tools": [
+    {
+      "name": "get_world_state",
+      "description": "获取当前世界状态：时间、日期、天气、地点、今日日历事件、学期。",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_player_state",
+      "description": "获取玩家的完整状态（属性、状态值、技能、知识、社团、位置、物品）。",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_character_state",
+      "description": "获取某个角色的状态。\n\n``include_hidden=False`` 时不返回 secrets / hidden_personality。\n即使取到隐藏内容，也**绝不能**让该角色说出自己不知道的事。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "character_id": {
+            "type": "string"
+          },
+          "include_hidden": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "character_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_nearby_characters",
+      "description": "当前（或指定）地点有哪些角色在场。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "location_id": {
+            "type": "string"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_relationship",
+      "description": "获取关系描述。**默认不返回任何数值**——玩家只能从行为判断。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "actor_id": {
+            "type": "string"
+          },
+          "target_id": {
+            "type": "string"
+          },
+          "debug": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "actor_id",
+          "target_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_relevant_memories",
+      "description": "取出某角色与当前情境最相关的记忆（事实 / 解释 / 情绪 三层分离）。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "character_id": {
+            "type": "string"
+          },
+          "context": {
+            "type": "string"
+          },
+          "participants": {
+            "type": "array",
+            "items": {}
+          },
+          "tags": {
+            "type": "array",
+            "items": {}
+          },
+          "limit": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "character_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_schedule",
+      "description": "查询某角色在某时刻的**计划**日程（计划不等于实际）。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "character_id": {
+            "type": "string"
+          },
+          "weekday": {
+            "type": "string"
+          },
+          "time_hhmm": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "character_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_locations",
+      "description": "列出地点（可按 school / town 过滤，或只看现在开着的）。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "area": {
+            "type": "string"
+          },
+          "open_only": {
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_clubs",
+      "description": "列出所有社团 / 组织。",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_content_rules",
+      "description": "获取内容硬规则与配比表（config/content_rules.yaml 原样返回）。",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_world_lore",
+      "description": "读取世界设定文档。topic: school / culture / rules / agent",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_rules_digest",
+      "description": "一次性获取所有 Agent 需要的规则速查表（难度、修正、关系事件、行动类型）。",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_registry",
+      "description": "查看注册表。**创建任何新内容之前必须先调用这个查重。**\n\nkind: skill / knowledge / location / group / npc（省略则返回全部）",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "verbose": {
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "find_duplicate",
+      "description": "在创建前检查是否已经存在同义条目。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "entry_id": {
+            "type": "string"
+          },
+          "aliases": {
+            "type": "array",
+            "items": {}
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_event_candidates",
+      "description": "查看当前满足条件的事件候选（调试 / 导演参考用）。",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_background_events",
+      "description": "玩家**有可能**通过观察或传闻得知的后台变化。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_rng_log",
+      "description": "查看最近的骰点日志（审计用：证明没有人偷偷重骰）。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "n": {
+            "type": "integer"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_saves",
+      "description": "列出全部存档。",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "resolve_check",
+      "description": "执行一次 D20 判定。**这是唯一合法的骰点方式。**\n\n返回真实结果；Agent 只能据此叙述，不得重骰或修改。\n社交类检定只决定玩家表达得如何，绝不决定 NPC 的选择。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "actor_id": {
+            "type": "string"
+          },
+          "action_type": {
+            "type": "string"
+          },
+          "attribute": {
+            "type": "string"
+          },
+          "skill": {
+            "type": "string"
+          },
+          "knowledge": {
+            "type": "string"
+          },
+          "difficulty": {
+            "type": "string"
+          },
+          "situational_modifiers": {}
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "should_check",
+      "description": "判断一个行动是否需要检定（结果毫无悬念的事不要骰）。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "action_type": {
+            "type": "string"
+          },
+          "difficulty": {
+            "type": "string"
+          },
+          "skill": {
+            "type": "string"
+          },
+          "actor_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "action_type"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "advance_time",
+      "description": "推进时间并结算精力 / 压力 / 跨日。时间只能由代码推进。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "minutes": {
+            "type": "integer"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "sleeping": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "minutes"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "sleep",
+      "description": "睡觉。``until=\"07:00\"`` 可以直接睡到指定时刻。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "hours": {
+            "type": "number"
+          },
+          "until": {
+            "type": "string"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "move_character",
+      "description": "移动角色。玩家移动会消耗真实通勤时间。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "character_id": {
+            "type": "string"
+          },
+          "location_id": {
+            "type": "string"
+          },
+          "duration_minutes": {
+            "type": "integer"
+          },
+          "activity": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "character_id",
+          "location_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "perform_action",
+      "description": "执行一次行动并完成全部结算（检定 / 时间 / 精力 / 压力 / 金钱 / XP / 关系）。\n\n这是 Agent 最常用的工具。返回结果里的每一个数字都是引擎算出来的，\nAgent 只能据此叙述。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "action_type": {
+            "type": "string"
+          },
+          "actor_id": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "skill": {
+            "type": "string"
+          },
+          "knowledge": {
+            "type": "string"
+          },
+          "attribute": {
+            "type": "string"
+          },
+          "difficulty": {
+            "type": "string"
+          },
+          "situational_modifiers": {},
+          "minutes": {
+            "type": "integer"
+          },
+          "energy_cost": {
+            "type": "number"
+          },
+          "stress_delta": {
+            "type": "number"
+          },
+          "money_cost": {
+            "type": "integer"
+          },
+          "force_check": {
+            "type": "boolean"
+          },
+          "relationship_event": {
+            "type": "string"
+          },
+          "intensity": {
+            "type": "number"
+          },
+          "context": {},
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "action_type"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "buy_item",
+      "description": "购买物品。营业中 + 有钱 + 无异常 = 不需要检定。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "item_id": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "location_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "item_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "apply_relationship_event",
+      "description": "套用一次关系事件。日常互动的变化非常小；恋爱必须长期积累。\n\n可用 event_type 见返回的 ``available_events``（或 get_rules_digest）。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "actor_id": {
+            "type": "string"
+          },
+          "target_id": {
+            "type": "string"
+          },
+          "event_type": {
+            "type": "string"
+          },
+          "intensity": {
+            "type": "number"
+          },
+          "context": {},
+          "bidirectional": {
+            "type": "boolean"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "actor_id",
+          "target_id",
+          "event_type"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "npc_decide_invitation",
+      "description": "NPC 是否接受邀请。**与检定结果无关**——这是 NPC 自己的决定。\n\ninvite_type: casual / group_activity / meal / study / one_on_one /\nwalk_home / date / trip / intimate",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "npc_id": {
+            "type": "string"
+          },
+          "invite_type": {
+            "type": "string"
+          },
+          "actor_id": {
+            "type": "string"
+          },
+          "context": {}
+        },
+        "required": [
+          "npc_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "npc_decide_confession",
+      "description": "NPC 对告白的回应：accept / defer / decline。**绝不由骰子决定。**",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "npc_id": {
+            "type": "string"
+          },
+          "actor_id": {
+            "type": "string"
+          },
+          "context": {}
+        },
+        "required": [
+          "npc_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "add_memory",
+      "description": "写入一条记忆。必须区分 事实 / 主观解释 / 情绪。\n\nvisibility: global_fact / known_fact / rumor / private_fact / secret",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "character_id": {
+            "type": "string"
+          },
+          "fact": {
+            "type": "string"
+          },
+          "interpretation": {
+            "type": "string"
+          },
+          "emotion": {
+            "type": "string"
+          },
+          "intensity": {
+            "type": "integer"
+          },
+          "visibility": {
+            "type": "string"
+          },
+          "participants": {
+            "type": "array",
+            "items": {}
+          },
+          "tags": {
+            "type": "array",
+            "items": {}
+          }
+        },
+        "required": [
+          "character_id",
+          "fact"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "roll_random_event",
+      "description": "由代码决定是否发生随机事件，以及发生哪一个。\n\n返回 ``{\"event\": null}`` 表示这一回合什么都没发生——这非常正常。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "force": {
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "trigger_event",
+      "description": "强制触发某个事件（用于日历事件或剧情推进）。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "event_id": {
+            "type": "string"
+          },
+          "npc_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "simulate_background_world",
+      "description": "推进后台世界：NPC 日程、NPC↔NPC 互动、关系发展、恋爱与冲突。\n\n返回的内容对玩家是**隐藏的**，只能通过合理渠道（看到 / 听说 / 被告知）呈现。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "minutes": {
+            "type": "integer"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "create_npc",
+      "description": "创建一个会持久存在的 NPC。\n\n强制校验：age >= 18、ID/姓名查重、地点与技能必须已注册、\n**必须至少与一个已有角色建立关系**（新人不能只认识玩家）。\n\n只有\"玩家主动交流 / 会重复出现 / 参与事件 / 与已有 NPC 有关系 /\n对世界有持续影响\"的角色才需要创建。路人不要注册。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer"
+          },
+          "gender": {
+            "type": "string"
+          },
+          "npc_id": {
+            "type": "string"
+          },
+          "reading": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "tier": {
+            "type": "string"
+          },
+          "class_id": {
+            "type": "string"
+          },
+          "club": {
+            "type": "string"
+          },
+          "archetype": {
+            "type": "string"
+          },
+          "appearance": {
+            "type": "string"
+          },
+          "personality": {
+            "type": "string"
+          },
+          "speech_style": {
+            "type": "string"
+          },
+          "interests": {
+            "type": "array",
+            "items": {}
+          },
+          "attributes": {
+            "type": "object"
+          },
+          "skills": {
+            "type": "object"
+          },
+          "knowledge": {
+            "type": "object"
+          },
+          "home_location": {
+            "type": "string"
+          },
+          "favorite_place": {
+            "type": "string"
+          },
+          "schedule_overrides": {},
+          "social_links": {},
+          "romance_available": {
+            "type": "boolean"
+          },
+          "existing_partner": {
+            "type": "string"
+          },
+          "relationship_attitude": {
+            "type": "string"
+          },
+          "romantic_preferences": {
+            "type": "string"
+          },
+          "created_reason": {
+            "type": "string"
+          },
+          "allow_isolated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "age"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "promote_npc",
+      "description": "提升 NPC 等级 background → supporting → core。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "npc_id": {
+            "type": "string"
+          },
+          "tier": {
+            "type": "string"
+          },
+          "force": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "npc_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "check_npc_promotions",
+      "description": "检查所有 NPC 是否达到晋升条件并自动晋升（每回合调用一次）。",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "register_skill",
+      "description": "注册新技能（会做的事）。\n\n**粒度铁律**：只有拥有独立成长路线、独立应用、足够使用频率的能力才建技能。\n煎鸡蛋 / 炒饭 / 咖喱 → 一律用 cooking。创建前引擎会自动查重。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "skill_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "attribute": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "aliases": {
+            "type": "array",
+            "items": {}
+          },
+          "specializations": {
+            "type": "array",
+            "items": {}
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "skill_id",
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "register_knowledge",
+      "description": "注册新知识领域（知道的事）。知识与技能完全分离。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "knowledge_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "aliases": {
+            "type": "array",
+            "items": {}
+          },
+          "unlocks": {
+            "type": "array",
+            "items": {}
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "knowledge_id",
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "register_location",
+      "description": "注册新地点。创建后永久进入玩家的世界。\n\nzone: school_indoor / school_outdoor / town_center / riverside / residential / far",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "location_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "zone": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "open_hours": {
+            "type": "array",
+            "items": {}
+          },
+          "tags": {
+            "type": "array",
+            "items": {}
+          },
+          "description": {
+            "type": "string"
+          },
+          "actions": {
+            "type": "array",
+            "items": {}
+          },
+          "shop_items": {},
+          "aliases": {
+            "type": "array",
+            "items": {}
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "location_id",
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "register_group",
+      "description": "注册新组织：临时乐队、学习小组、文化祭委员会、兴趣小组……",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "group_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "group_type": {
+            "type": "string"
+          },
+          "members": {
+            "type": "array",
+            "items": {}
+          },
+          "location": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "leader": {
+            "type": "string"
+          },
+          "temporary": {
+            "type": "boolean"
+          },
+          "aliases": {
+            "type": "array",
+            "items": {}
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "group_id",
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "add_dynamic_interest",
+      "description": "让 NPC 形成一个新兴趣。**必须提供长期事件依据。**",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "npc_id": {
+            "type": "string"
+          },
+          "interest": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "npc_id",
+          "interest",
+          "evidence"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_turn_panel",
+      "description": "生成每回合的简化状态面板（文本 + 结构化）。**面板必须来自代码。**",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_player_sheet",
+      "description": "完整角色面板：属性、状态、全部技能与知识、XP、金钱、社团、公开关系描述。\n\n**默认不显示任何 NPC 的隐藏恋爱数值。**",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_action_context",
+      "description": "生成推荐行动所需的全部上下文。\n\nAgent 据此生成 3～5 条推荐行动。\n**没有合理恋爱机会时不要硬塞恋爱选项**（考试中、极度疲惫、重要社团事件中同理）。",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "record_recommendations",
+      "description": "记录本回合给出的推荐行动，用于避免重复推荐。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "recommendations": {
+            "type": "array",
+            "items": {}
+          }
+        },
+        "required": [
+          "recommendations"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "end_turn",
+      "description": "回合收尾：后台世界模拟 → 随机事件 → NPC 晋升检查 → 存档 → 面板 + 推荐上下文。\n\nAgent 在每个正常回合的最后调用一次。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "simulate_minutes": {
+            "type": "integer"
+          },
+          "autosave": {
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "save_game",
+      "description": "保存游戏到指定存档槽（同时写入 state/）。原子写入 + 备份。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "slot": {
+            "type": "string"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "load_game",
+      "description": "读取存档。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "slot": {
+            "type": "string"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "new_game",
+      "description": "开始新游戏（会覆盖 state/ 下的当前状态）。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "seed": {
+            "type": "integer"
+          },
+          "player": {}
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "create_player",
+      "description": "创建玩家角色。\n\n属性：基础 4，自由分配 12 点，创建时下限 3、上限 8（总和 40）。\n技能：选 3 个，初始 Lv.2。知识：选 3～5 个，初始 Lv.2。\n**age 必须 >= 18。**",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer"
+          },
+          "gender": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "object"
+          },
+          "skills": {
+            "type": "array",
+            "items": {}
+          },
+          "knowledge": {
+            "type": "array",
+            "items": {}
+          },
+          "appearance": {
+            "type": "string"
+          },
+          "interests": {
+            "type": "array",
+            "items": {}
+          },
+          "personality_tendency": {
+            "type": "array",
+            "items": {}
+          },
+          "pronouns": {
+            "type": "string"
+          },
+          "preset": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "join_club",
+      "description": "加入社团（上限 2 个）。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "club_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "club_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "leave_club",
+      "description": "退出社团。",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "club_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "club_id"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

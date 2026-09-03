@@ -1,0 +1,197 @@
+# ============================================================
+# 秋月学院 · 主配置 (game.yaml)
+# 所有键都会被 engine/state_manager.py 读取并做类型校验。
+# LLM Agent 不允许修改本文件；只能读取。
+# ============================================================
+
+game:
+  id: "akizuki_gakuin"
+  title: "秋月学院 · 青春模拟"
+  version: "1.0.0"
+  language: "zh-CN"
+  narrative_language: "zh-CN"
+  engine_min_python: "3.11"
+
+world:
+  school_name: "秋月学院"
+  school_type: "高等综合学院（成人高等学院 / 大学预科）"
+  city_name: "秋月市"
+  # 游戏起始时间：学年第一学期开始后的第二周
+  start_date: "2025-04-16"
+  start_time: "07:30"
+  start_location: "loc_school_gate"
+  start_weekday_note: "周三"
+  timezone_note: "使用日式学年制：4 月新学期开始"
+
+age_policy:
+  # 强制规则：任何具备恋爱 / 暧昧 / 亲密可能性的角色都必须 >= 18
+  minimum_age_any_character: 18
+  minimum_age_romanceable: 18
+  minimum_age_student: 18
+  enforce_on_dynamic_creation: true
+  reject_creation_below_minimum: true
+  all_characters_are_adults: true
+
+player_creation:
+  attribute_base: 4
+  attribute_points: 12
+  attribute_min_at_creation: 3
+  attribute_max_at_creation: 8
+  starting_skill_slots: 3
+  starting_skill_level: 2
+  starting_knowledge_slots_min: 3
+  starting_knowledge_slots_max: 5
+  starting_knowledge_level: 2
+  starting_money: 10000
+  minimum_age: 18
+  default_age: 18
+
+status_defaults:
+  health: 100
+  energy: 100
+  stress: 10
+  mood: "normal"
+  money: 10000
+
+check_system:
+  dice: "1d20"
+  attribute_modifier_formula: "attribute - 5"
+  skill_modifier_formula: "skill_level * 2"
+  knowledge_modifier_range: [0, 3]
+  situational_modifier_range: [-5, 5]
+  natural_20_shifts_result: 1
+  natural_1_shifts_result: -1
+  # 强制规则：社交检定绝不能剥夺 NPC 的自主权
+  social_checks_cannot_control_npc: true
+
+time:
+  minutes_per_turn_default: 15
+  day_start_hour: 6
+  day_end_hour: 26            # 26 = 次日 02:00，超过则强制睡眠
+  forced_sleep_hour: 26
+  school_start: "08:30"
+  school_end: "15:40"
+  club_time_end: "18:30"
+  curfew_soft: "22:00"
+
+energy:
+  max: 100
+  sleep_recovery_per_hour: 12
+  nap_recovery_per_hour: 7
+  low_energy_threshold: 25
+  exhausted_threshold: 10
+  # 精力低时检定罚值
+  low_energy_penalty: -2
+  exhausted_penalty: -4
+
+stress:
+  max: 100
+  daily_natural_decay: 3
+  high_stress_threshold: 60
+  overload_threshold: 85
+  high_stress_penalty: -2
+
+progression:
+  xp_per_level: [0, 100, 300, 700, 1400, 2600]
+  daily_skill_xp_cap: 60
+  daily_knowledge_xp_cap: 45
+  diminishing_returns_after: 3      # 同一技能当日第 4 次开始衰减
+  diminishing_factor: 0.5
+  minimum_gain: 1
+  failure_xp_ratio: 0.4
+  # 难度门槛：低难度行动无法把高等级技能继续练上去
+  difficulty_requirement:
+    0: "very_easy"
+    1: "very_easy"
+    2: "easy"
+    3: "normal"
+    4: "hard"
+    5: "very_hard"
+
+relationship:
+  dimensions: ["familiarity", "trust", "closeness", "attraction", "romantic_interest", "comfort", "conflict"]
+  min: 0
+  max: 100
+  # 日常互动的变化幅度非常小，恋爱必须长期积累
+  daily_interaction_delta_range: [0, 2]
+  significant_event_delta_range: [2, 8]
+  natural_decay_per_week: 1
+  decay_floor_familiarity: 10
+  # 同一天对同一角色重复互动的收益衰减
+  repeat_interaction_decay: 0.5
+  max_relationship_gain_per_day: 12
+
+romance:
+  # 关系推进不是数值阈值自动触发，而是数值 + 经历 + NPC 意愿三者共同决定
+  requires_explicit_event: true
+  requires_npc_consent: true
+  dice_cannot_force_consent: true
+  min_days_before_confession_accept: 14
+  min_shared_experiences_for_dating: 5
+  ambiguous_stage_min_turns: 8
+  npc_can_reject_permanently: false
+  npc_can_have_other_partners: true
+  npc_npc_romance_enabled: true
+
+visibility:
+  debug_relationship_numbers: false
+  show_numeric_relationship_feedback: false
+  show_dice_details: true
+  show_xp_gain: true
+  show_turn_panel: true
+
+recommendations:
+  min: 3
+  max: 5
+  recent_memory_size: 12
+  repeat_penalty: 0.35
+  categories: ["social", "romance", "hobby", "study", "explore", "rest", "club", "event"]
+  # 没有合理恋爱机会时，绝不硬塞恋爱推荐
+  romance_requires_opportunity: true
+
+events:
+  random_event_base_chance: 0.28
+  default_cooldown_days: 5
+  max_events_per_day: 4
+  major_event_min_interval_days: 6
+  weight_floor: 0.05
+
+npc:
+  tiers: ["background", "supporting", "core"]
+  promotion_thresholds:
+    background_to_supporting:
+      interactions: 3
+      familiarity: 20
+    supporting_to_core:
+      interactions: 12
+      familiarity: 45
+      shared_experiences: 3
+  max_persistent_npcs: 400
+  background_simulation_limit: 40
+
+simulation:
+  simulate_core: true
+  simulate_supporting: true
+  simulate_background: false
+  npc_npc_interaction_chance: 0.35
+  npc_npc_romance_chance: 0.06
+  schedule_deviation_chance: 0.18
+
+save:
+  autosave_every_turns: 1
+  autosave_slot: "autosave"
+  keep_backups: 5
+  atomic_write: true
+  save_dir: "saves"
+  state_dir: "state"
+
+rng:
+  default_seed: null            # null = 使用系统随机源
+  test_seed: 42
+  log_rolls: true
+  max_roll_log: 500
+
+logging:
+  level: "INFO"
+  file: "state/engine.log"
+  console: false

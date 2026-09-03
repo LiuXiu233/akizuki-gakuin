@@ -1,0 +1,66 @@
+# ============================================================
+# 学年日历 (calendar.yaml)
+# 日期格式 MM-DD；引擎按当前年份匹配。
+# ============================================================
+
+academic_year:
+  start: "04-08"
+  end: "03-20"
+  terms:
+    - {id: term_1, name: "第一学期", start: "04-08", end: "07-20"}
+    - {id: term_summer, name: "暑假", start: "07-21", end: "08-31"}
+    - {id: term_2, name: "第二学期", start: "09-01", end: "12-24"}
+    - {id: term_winter, name: "寒假", start: "12-25", end: "01-07"}
+    - {id: term_3, name: "第三学期", start: "01-08", end: "03-20"}
+
+weather:
+  # 每月天气权重，roll_random_event / 世界模拟使用
+  4: {sunny: 5, cloudy: 3, rain: 2, sakura_wind: 2}
+  5: {sunny: 6, cloudy: 3, rain: 2}
+  6: {rain: 6, cloudy: 4, sunny: 2}
+  7: {sunny: 6, hot: 4, cloudy: 2, rain: 2}
+  8: {hot: 7, sunny: 4, thunder: 2}
+  9: {sunny: 4, cloudy: 3, rain: 3, typhoon: 1}
+  10: {sunny: 6, cloudy: 3, rain: 2}
+  11: {sunny: 5, cloudy: 4, cold: 2}
+  12: {cold: 5, cloudy: 4, sunny: 3, snow: 1}
+  1: {cold: 6, cloudy: 3, snow: 2, sunny: 2}
+  2: {cold: 6, cloudy: 3, snow: 2, sunny: 2}
+  3: {sunny: 5, cloudy: 3, rain: 2, warm: 2}
+
+events:
+  - {id: cal_entrance, date: "04-08", name: "开学典礼", scale: school, tags: [ceremony, new_start], duration_days: 1}
+  - {id: cal_club_recruit, date: "04-10", name: "社团招新周", scale: school, tags: [club, social], duration_days: 7}
+  - {id: cal_sakura, date: "04-12", name: "樱花季", scale: city, tags: [seasonal, romantic, outdoor], duration_days: 10}
+  - {id: cal_hanami, date: "04-18", name: "班级赏樱会", scale: class, tags: [social, food, romantic], duration_days: 1}
+  - {id: cal_golden_week, date: "04-29", name: "黄金周", scale: city, tags: [holiday, trip, date], duration_days: 7}
+  - {id: cal_midterm_1, date: "05-20", name: "第一学期期中考试", scale: school, tags: [exam, stress, study], duration_days: 3}
+  - {id: cal_sports_festival, date: "06-06", name: "体育祭", scale: school, tags: [major, sports, group], duration_days: 1}
+  - {id: cal_rainy_season, date: "06-10", name: "梅雨季", scale: city, tags: [seasonal, rain, ambiguous], duration_days: 25}
+  - {id: cal_pool_open, date: "06-20", name: "泳池开放", scale: school, tags: [summer, sports], duration_days: 1}
+  - {id: cal_final_1, date: "07-13", name: "第一学期期末考试", scale: school, tags: [exam, stress, study], duration_days: 4}
+  - {id: cal_summer_start, date: "07-21", name: "暑假开始", scale: school, tags: [holiday, free], duration_days: 1}
+  - {id: cal_summer_camp, date: "07-28", name: "社团夏季合宿", scale: club, tags: [club, trip, major, romantic], duration_days: 3}
+  - {id: cal_beach_trip, date: "08-05", name: "海边出游季", scale: city, tags: [summer, date, group], duration_days: 20}
+  - {id: cal_summer_festival, date: "08-14", name: "秋月夏日祭", scale: city, tags: [major, festival, romantic, yukata], duration_days: 1}
+  - {id: cal_fireworks, date: "08-15", name: "河川烟火大会", scale: city, tags: [major, festival, romantic], duration_days: 1}
+  - {id: cal_term2_start, date: "09-01", name: "第二学期开始", scale: school, tags: [ceremony], duration_days: 1}
+  - {id: cal_culture_prep, date: "09-20", name: "文化祭准备期", scale: school, tags: [major, club, group, busy], duration_days: 21}
+  - {id: cal_culture_festival, date: "10-11", name: "秋月学院文化祭（学园祭）", scale: school, tags: [major, festival, romantic, performance], duration_days: 2}
+  - {id: cal_after_festival, date: "10-13", name: "文化祭后夜祭", scale: school, tags: [major, romantic, confession], duration_days: 1}
+  - {id: cal_midterm_2, date: "11-10", name: "第二学期期中考试", scale: school, tags: [exam, stress, study], duration_days: 3}
+  - {id: cal_school_trip, date: "11-25", name: "修学旅行", scale: grade, tags: [major, trip, romantic, group], duration_days: 4}
+  - {id: cal_christmas, date: "12-24", name: "圣诞夜", scale: city, tags: [major, romantic, date], duration_days: 1}
+  - {id: cal_final_2, date: "12-18", name: "第二学期期末考试", scale: school, tags: [exam, stress, study], duration_days: 4}
+  - {id: cal_new_year, date: "01-01", name: "初诣（新年参拜）", scale: city, tags: [tradition, romantic, group], duration_days: 3}
+  - {id: cal_term3_start, date: "01-08", name: "第三学期开始", scale: school, tags: [ceremony], duration_days: 1}
+  - {id: cal_valentine, date: "02-14", name: "情人节", scale: city, tags: [major, romantic, chocolate], duration_days: 1}
+  - {id: cal_white_day, date: "03-14", name: "白色情人节", scale: city, tags: [major, romantic], duration_days: 1}
+  - {id: cal_final_3, date: "03-02", name: "学年末考试", scale: school, tags: [exam, stress, study], duration_days: 4}
+  - {id: cal_graduation, date: "03-15", name: "毕业典礼", scale: school, tags: [major, emotional, farewell], duration_days: 1}
+  - {id: cal_year_end, date: "03-20", name: "结业式", scale: school, tags: [ceremony, farewell], duration_days: 1}
+
+weekly:
+  - {id: wk_no_club_day, weekday: wed, name: "全校社团休息日", note: "周三社团停止活动，放学后自由。"}
+  - {id: wk_cleaning, weekday: fri, name: "全校大扫除", time: "15:40", duration_minutes: 30}
+  - {id: wk_broadcast, weekday: [tue, thu], name: "午休广播", time: "12:30", duration_minutes: 30}

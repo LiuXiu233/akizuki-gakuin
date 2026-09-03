@@ -1,0 +1,102 @@
+# ============================================================
+# 属性表 (attributes.yaml)  范围 1-10，修正 = attribute - 5
+# ============================================================
+
+meta:
+  min: 1
+  max: 10
+  average: 5
+  modifier_formula: "attribute - 5"
+  creation_base: 4
+  creation_points: 12
+  creation_min: 3
+  creation_max: 8
+
+attributes:
+  physique:
+    name: "体魄"
+    short: "体"
+    description: "力量、耐力、体育表现、搬运、长时间运动。"
+    governs: [athletics, running, swimming]
+    typical_checks: ["搬运器材", "跑完全程", "在体育祭上坚持到最后", "熬夜后仍然清醒"]
+    high_flavor: "你在体育祭上被三个班同时抢着要。"
+    low_flavor: "第四节课之后，楼梯对你来说是个哲学问题。"
+
+  agility:
+    name: "灵巧"
+    short: "巧"
+    description: "反应、协调、精细动作、身体控制。"
+    governs: [dancing, crafting, instrument, cooking]
+    typical_checks: ["接住掉下来的东西", "在人群里穿过去", "切出漂亮的食材", "第一次就按对和弦"]
+    high_flavor: "你伸手的时候，杯子还没落到桌沿。"
+    low_flavor: "你和门框之间有一种长期的紧张关系。"
+
+  intellect:
+    name: "智力"
+    short: "智"
+    description: "学习、推理、理解、分析。"
+    governs: [study, exam_strategy, note_taking, technology]
+    typical_checks: ["理解一道没讲过的题", "看懂说明书", "推断出前因后果", "在考试里选对策略"]
+    high_flavor: "老师讲到一半你已经知道结论了——但你没打断。"
+    low_flavor: "你相信理解是可以靠时间换的，这也没错。"
+
+  perception:
+    name: "感知"
+    short: "感"
+    description: "观察、察觉、注意细节、判断环境与气氛。"
+    governs: [photography, empathy, first_aid]
+    typical_checks: ["注意到她换了发夹", "察觉气氛不对", "在人群里找到某个人", "发现照片构图的问题"]
+    high_flavor: "你会先注意到别人今天有点不一样，然后才想到要不要问。"
+    low_flavor: "有些事你要等别人说出来才知道。"
+
+  charm:
+    name: "魅力"
+    short: "魅"
+    description: "社交表现、表达、演讲、舞台表现力。"
+    note: "Charm 高不等于任何人必须喜欢玩家。它只影响你表达得好不好，不影响别人的选择。"
+    governs: [conversation, persuasion, performance, singing, acting, deception]
+    typical_checks: ["在全班面前发言", "把气氛救回来", "把一件小事讲得很好笑", "站在舞台上不发抖"]
+    high_flavor: "你说话的时候，房间里的注意力会稍微偏过来一点。"
+    low_flavor: "你的笑话需要一点时间发酵，有时候要到第二天。"
+
+  willpower:
+    name: "意志"
+    short: "意"
+    description: "专注、自控、抗压、克服紧张。"
+    governs: [study, exam_strategy, athletics, performance]
+    typical_checks: ["熬过复习周", "紧张时把话说完", "不去看手机", "拒绝一个很想答应的邀请"]
+    high_flavor: "你决定的事，基本上就是会做完的事。"
+    low_flavor: "计划表是你写给未来的自己的一封没人回的信。"
+
+  luck:
+    name: "幸运"
+    short: "运"
+    description: "偶发事件、运气、抽签，以及极少数特殊判定。"
+    note: "幸运不能替代关系、努力和 NPC 的意愿。它只影响'碰巧'。"
+    governs: []
+    typical_checks: ["抽到好签", "刚好赶上末班车", "在便利店碰见谁", "扭蛋一发入魂"]
+    high_flavor: "你走进便利店的时机总是刚刚好。"
+    low_flavor: "你伞带了的那天不下雨。"
+
+state_effects:
+  energy:
+    - {below: 10, modifier: -4, tag: exhausted, note: "精疲力竭"}
+    - {below: 25, modifier: -2, tag: tired, note: "疲惫"}
+  stress:
+    - {above: 85, modifier: -3, tag: overloaded, note: "压力过载"}
+    - {above: 60, modifier: -2, tag: stressed, note: "压力较大"}
+  mood:
+    confident: {modifier: 1, social_bonus: 1}
+    inspired: {modifier: 1, creative_bonus: 2}
+    focused: {modifier: 1, study_bonus: 2}
+    energetic: {modifier: 1, physical_bonus: 2}
+    excited: {modifier: 0, social_bonus: 1}
+    relaxed: {modifier: 0}
+    normal: {modifier: 0}
+    sleepy: {modifier: -1}
+    tired: {modifier: -1}
+    hungry: {modifier: -1}
+    nervous: {modifier: -1, social_bonus: -1}
+    embarrassed: {modifier: -1, social_bonus: -2}
+    stressed: {modifier: -2}
+    sick: {modifier: -3, physical_bonus: -2}

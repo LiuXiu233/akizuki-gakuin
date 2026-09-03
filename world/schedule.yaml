@@ -1,0 +1,114 @@
+# ============================================================
+# 作息与课表 (schedule.yaml)
+# 引擎用于判断"现在应该在哪里/能不能做什么"，以及 NPC 默认日程。
+# ============================================================
+
+daily_blocks:
+  - {id: blk_early, name: "清晨", start: "05:00", end: "07:00", tags: [quiet, run]}
+  - {id: blk_commute, name: "上学路上", start: "07:00", end: "08:20", tags: [encounter, social]}
+  - {id: blk_homeroom, name: "晨会", start: "08:20", end: "08:30", tags: [class]}
+  - {id: blk_period_1, name: "第一节课", start: "08:30", end: "09:20", tags: [class, study]}
+  - {id: blk_break_1, name: "课间", start: "09:20", end: "09:30", tags: [social]}
+  - {id: blk_period_2, name: "第二节课", start: "09:30", end: "10:20", tags: [class, study]}
+  - {id: blk_break_2, name: "课间", start: "10:20", end: "10:35", tags: [social]}
+  - {id: blk_period_3, name: "第三节课", start: "10:35", end: "11:25", tags: [class, study]}
+  - {id: blk_break_3, name: "课间", start: "11:25", end: "11:35", tags: [social]}
+  - {id: blk_period_4, name: "第四节课", start: "11:35", end: "12:25", tags: [class, study]}
+  - {id: blk_lunch, name: "午休", start: "12:25", end: "13:15", tags: [lunch, social, romantic]}
+  - {id: blk_period_5, name: "第五节课", start: "13:15", end: "14:05", tags: [class, study]}
+  - {id: blk_break_5, name: "课间", start: "14:05", end: "14:15", tags: [social]}
+  - {id: blk_period_6, name: "第六节课", start: "14:15", end: "15:05", tags: [class, study]}
+  - {id: blk_cleaning, name: "打扫时间", start: "15:05", end: "15:25", tags: [chore, social]}
+  - {id: blk_homeroom_end, name: "放学班会", start: "15:25", end: "15:40", tags: [class]}
+  - {id: blk_after_school, name: "放学后", start: "15:40", end: "18:30", tags: [club, social, romantic, free]}
+  - {id: blk_evening, name: "傍晚", start: "18:30", end: "21:00", tags: [free, date, home]}
+  - {id: blk_night, name: "夜晚", start: "21:00", end: "24:00", tags: [home, message, study, rest]}
+  - {id: blk_late_night, name: "深夜", start: "24:00", end: "05:00", tags: [sleep, penalty]}
+
+weekday_type:
+  mon: school
+  tue: school
+  wed: school_no_club
+  thu: school
+  fri: school
+  sat: half_day      # 上午三节课，下午社团
+  sun: holiday
+
+class_timetable:
+  class_2a:
+    mon: [mathematics, literature, english, physics, pe, history]
+    tue: [chemistry, mathematics, literature, art_or_music, english, biology]
+    wed: [english, history, mathematics, literature, home_ec, free_study]
+    thu: [physics, english, mathematics, pe, literature, geography]
+    fri: [literature, biology, english, mathematics, chemistry, homeroom_activity]
+    sat: [mathematics, english, literature]
+  class_2b:
+    mon: [english, mathematics, physics, literature, history, pe]
+    tue: [literature, chemistry, english, mathematics, art_or_music, biology]
+    wed: [mathematics, english, history, home_ec, literature, free_study]
+    thu: [english, physics, pe, mathematics, geography, literature]
+    fri: [biology, literature, chemistry, english, mathematics, homeroom_activity]
+    sat: [english, mathematics, literature]
+  class_3a:
+    mon: [mathematics, english, physics, literature, history, exam_prep]
+    tue: [english, chemistry, mathematics, literature, biology, exam_prep]
+    wed: [literature, mathematics, english, geography, history, free_study]
+    thu: [physics, mathematics, english, literature, economics, exam_prep]
+    fri: [chemistry, english, literature, mathematics, biology, homeroom_activity]
+    sat: [mathematics, english, exam_prep]
+
+subject_to_knowledge:
+  mathematics: mathematics
+  physics: physics
+  chemistry: chemistry
+  biology: biology
+  literature: literature
+  history: history
+  geography: geography
+  economics: economics
+  english: literature
+  art_or_music: music_theory
+  home_ec: cooking
+  pe: null
+  free_study: null
+  exam_prep: null
+  homeroom_activity: null
+
+default_npc_routine:
+  student:
+    school_day:
+      - {start: "07:20", end: "08:20", location: loc_station, activity: "上学路上"}
+      - {start: "08:20", end: "12:25", location: "@home_class", activity: "上课"}
+      - {start: "12:25", end: "13:15", location: loc_cafeteria, activity: "午休"}
+      - {start: "13:15", end: "15:40", location: "@home_class", activity: "上课"}
+      - {start: "15:40", end: "18:30", location: "@club_location", activity: "社团活动"}
+      - {start: "18:30", end: "22:00", location: "@home", activity: "回家"}
+      - {start: "22:00", end: "07:20", location: "@home", activity: "睡觉"}
+    holiday:
+      - {start: "09:00", end: "12:00", location: "@home", activity: "自由时间"}
+      - {start: "12:00", end: "18:00", location: "@favorite_place", activity: "外出"}
+      - {start: "18:00", end: "23:00", location: "@home", activity: "回家"}
+      - {start: "23:00", end: "09:00", location: "@home", activity: "睡觉"}
+  teacher:
+    school_day:
+      - {start: "07:40", end: "08:20", location: loc_staff_room, activity: "备课"}
+      - {start: "08:20", end: "15:40", location: "@work", activity: "授课"}
+      - {start: "15:40", end: "18:30", location: "@club_location", activity: "顾问/办公"}
+      - {start: "18:30", end: "07:40", location: "@home", activity: "下班"}
+    holiday:
+      - {start: "09:00", end: "17:00", location: "@home", activity: "休息"}
+      - {start: "17:00", end: "09:00", location: "@home", activity: "休息"}
+
+time_costs:
+  quick_chat: [2, 5]
+  normal_chat: [10, 30]
+  deep_talk: [30, 60]
+  lunch: [20, 45]
+  date_short: [60, 120]
+  date_long: [120, 300]
+  club_activity: [60, 180]
+  study_session: [30, 180]
+  exercise: [30, 120]
+  shopping: [20, 60]
+  nap: [20, 60]
+  sleep: [360, 540]
