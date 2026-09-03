@@ -132,6 +132,11 @@ export const api = {
     request<{ ok: boolean; image?: { url: string; kind: string; subject_id: string }; error?: string; skipped?: string }>(
       cfg, `/api/worlds/${worldId}/images`, { method: "POST", body: JSON.stringify(body) },
     ),
+  /** 图像服务自检：不需要存档，但会真实生成一张图（产生一次计费）。 */
+  probeImage: (cfg: ApiConfig, credentials: Record<string, unknown>) =>
+    request<{ ok: boolean; error?: string; preview?: string; model?: string; provider?: string; size?: string }>(
+      cfg, "/api/images/probe", { method: "POST", body: JSON.stringify({ credentials }) },
+    ),
   listImages: (cfg: ApiConfig, worldId: string) =>
     request<{ images: Array<{ kind: string; subject_id: string; url: string; created_at: number }> }>(
       cfg, `/api/worlds/${worldId}/images`,

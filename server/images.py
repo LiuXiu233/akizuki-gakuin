@@ -300,6 +300,35 @@ class ImageService:
             "prompt": prompt,
         }
 
+    async def probe(self, credentials: Any = None, *, prompt: str = "") -> dict[str, Any]:
+        """连通性自检：真实向上游要一张图，但不写入任何世界。
+
+        与世界无关，所以不需要 world_id——这正是「设置」里那个测试按钮该走的路径。
+        """
+        if not self.settings.image_enabled:
+            return {"ok": False, "error": "服务器关闭了图像功能（AKIZUKI_IMAGE_ENABLED=false）"}
+        config = self.resolve(credentials)
+        if not (config["api_key"] or (config["provider"] == "custom" and config["base_url"])):
+            return {"ok": False, "error": "没有配置文生图服务：缺少 API Key，或自定义模式缺少接口地址"}
+        test_prompt = sanitize_prompt(
+            prompt or f"{config['style']}; an empty Japanese classroom in the afternoon, no people",
+            sfw=config["sfw"],
+        )
+        raw = await self._call_upstream(test_prompt, config)
+        result = {
+            "ok": True,
+            "bytes": len(raw),
+            "provider": config["provider"],
+            "model": config["model"],
+            "size": config["size"],
+            "sfw": config["sfw"],
+            "prompt": test_prompt,
+        }
+        # 小图直接回一个 data URL，让你在设置里就能看到"确实出图了"
+        if len(raw) <= 4 * 1024 * 1024:
+            result["preview"] = "data:image/png;base64," + base64.b64encode(raw).decode()
+        return result
+
     async def _call_upstream(self, prompt: str, config: dict[str, Any]) -> bytes:
         if config["provider"] == "custom":
             return await self._call_custom(prompt, config)

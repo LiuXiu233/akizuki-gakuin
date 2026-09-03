@@ -132,6 +132,12 @@ class ImageRequest(BaseModel):
     force: bool = False
 
 
+class ImageProbeRequest(BaseModel):
+    """图像服务自检。与存档无关，所以不需要 world_id。"""
+
+    credentials: ImageCredentials = Field(default_factory=ImageCredentials)
+
+
 class ErrorResponse(BaseModel):
     ok: bool = False
     error: str

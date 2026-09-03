@@ -12,9 +12,9 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 
-from ..deps import AccessDep, RegistryDep, SettingsDep, WorldDep
+from ..deps import AccessDep, RegistryDep, SettingsDep, UserDep, WorldDep
 from ..images import ImageError, ImageService, KINDS
-from ..schemas import ImageRequest
+from ..schemas import ImageProbeRequest, ImageRequest
 
 router = APIRouter(tags=["images"])
 
@@ -27,6 +27,23 @@ def _service(settings, registry, entry) -> ImageService:
         entry.session,
         registry.store.images_dir(entry.user_id, entry.world_id),
     )
+
+
+@router.post("/images/probe")
+async def probe_image(
+    payload: ImageProbeRequest, _: AccessDep, settings: SettingsDep, user_id: UserDep
+) -> dict[str, Any]:
+    """图像服务连通性自检。**不需要存档**，也不会把图写进任何世界。
+
+    注意：它会真的向上游要一张图，因此会产生一次计费。
+    """
+    from .meta import readonly_session
+
+    service = ImageService(settings, readonly_session(settings), settings.data_dir / "_probe")
+    try:
+        return await service.probe(payload.credentials)
+    except ImageError as exc:
+        return {"ok": False, "error": str(exc), "status": exc.status_code}
 
 
 @router.get("/worlds/{world_id}/images")

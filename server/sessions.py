@@ -165,7 +165,9 @@ class WorldStore:
 
     def world_dir(self, user_id: str, world_id: str) -> Path:
         if not WORLD_ID_RE.match(str(world_id or "")):
-            raise SessionError("非法的世界 ID", 400)
+            raise SessionError(
+                f"非法的世界 ID: {world_id!r}（应为 12 位十六进制，来自 GET /api/worlds）", 400
+            )
         path = self.worlds_dir(user_id) / world_id
         if not path.exists():
             raise SessionError("世界不存在", 404)

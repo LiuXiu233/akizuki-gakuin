@@ -32,6 +32,7 @@ export function SettingsDialog({ open, onClose }: { open: boolean; onClose: () =
   const [pipelines, setPipelines] = useState<PipelineInfo[]>([]);
   const [checking, setChecking] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -85,12 +86,15 @@ export function SettingsDialog({ open, onClose }: { open: boolean; onClose: () =
   async function testImage() {
     setChecking(true);
     setMessage(null);
+    setPreview(null);
     try {
-      const cfg = apiConfig(settings);
-      const result = await api.generateImage(cfg, "probe", {
-        kind: "scene", subject_id: "probe", credentials: imageCredentials(settings), probe: true,
-      });
-      setMessage(result.ok ? { ok: true, text: "图像服务可用" } : { ok: false, text: result.error ?? "不可用" });
+      const result = await api.probeImage(apiConfig(settings), imageCredentials(settings));
+      if (result.ok) {
+        setMessage({ ok: true, text: `图像服务可用（${result.provider} · ${result.model} · ${result.size}）` });
+        if (result.preview) setPreview(result.preview);
+      } else {
+        setMessage({ ok: false, text: result.error ?? "不可用" });
+      }
     } catch (error) {
       setMessage({ ok: false, text: error instanceof Error ? error.message : String(error) });
     } finally {
@@ -315,8 +319,15 @@ export function SettingsDialog({ open, onClose }: { open: boolean; onClose: () =
                         hint="主流图像服务会直接拒绝尺度内容。关掉只在你接私有服务时有意义。文字叙事不受这个开关影响。" />
 
                 <button className="btn-ghost w-full" onClick={testImage} disabled={checking}>
-                  {checking ? <Spinner label="测试中…" /> : "测试图像服务"}
+                  {checking ? <Spinner label="生成测试图中…" /> : "测试图像服务"}
                 </button>
+                <p className="mt-1 text-[11px] leading-relaxed text-ink-mute">
+                  会真的向上游要一张图来验证配置，因此会产生一次计费。
+                </p>
+                {preview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={preview} alt="测试生成的图" className="mt-3 w-full rounded-xl border border-paper-edge" />
+                ) : null}
               </>
             ) : null}
           </>

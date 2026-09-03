@@ -291,6 +291,31 @@ class TestImageAPI(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 400)
 
+    def test_probe_needs_no_world(self) -> None:
+        """回归：设置里的「测试图像服务」不能借用假的 world_id。
+
+        之前它往 /api/worlds/probe/images 发请求，被引擎的 ID 校验拦成
+        400「非法的世界 ID」，看起来像是用户填错了配置。
+        """
+        response = self.client.post(
+            "/api/images/probe",
+            json={"credentials": {"provider": "openai", "api_key": "", "base_url": ""}},
+            headers=self.headers,
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        data = response.json()
+        self.assertFalse(data["ok"])
+        self.assertIn("API Key", data["error"])          # 说的是配置问题，不是世界 ID
+
+    def test_fake_world_id_message_is_actionable(self) -> None:
+        response = self.client.post(
+            "/api/worlds/probe/images",
+            json={"kind": "scene", "subject_id": "x"},
+            headers=self.headers,
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("12 位十六进制", response.json()["detail"])
+
     def test_images_isolated_between_users(self) -> None:
         other = self.client.post("/api/session", json={}).json()["user_id"]
         response = self.client.get(
