@@ -18,3 +18,5 @@ web/out/
 web/.vercel/
 web/.env*.local
 node_modules/
+.vercel
+.env*
