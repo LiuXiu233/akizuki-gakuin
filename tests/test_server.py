@@ -336,6 +336,46 @@ class TestToolsAPI(ServerTestCase):
             self.tool(self.user, self.world, "get_player_state")["name"],
         )
 
+    def test_journal_persists_across_reload(self) -> None:
+        """叙事日志必须落盘——之前只存在浏览器内存里，刷新就没了。"""
+        empty = self.client.get(f"/api/worlds/{self.world}/journal", headers=self.auth(self.user)).json()
+        self.assertEqual(empty["entries"], [])
+
+        for turn in range(3):
+            self.client.post(
+                f"/api/worlds/{self.world}/journal",
+                json={
+                    "turn": turn + 1, "time": "08:30", "playerInput": f"第{turn + 1}次输入",
+                    "narration": f"第{turn + 1}回合的正文",
+                    "dialogue": [{"npc_id": "npc_amano_rin", "name": "天野凛", "text": "嗯。"}],
+                    "recommendations": [{"text": "继续聊", "minutes": "约 5 分钟", "category": "social"}],
+                },
+                headers=self.auth(self.user),
+            )
+        entries = self.client.get(f"/api/worlds/{self.world}/journal", headers=self.auth(self.user)).json()["entries"]
+        self.assertEqual(len(entries), 3)
+        self.assertEqual(entries[0]["narration"], "第1回合的正文")
+        self.assertEqual(entries[2]["turn"], 3)
+        self.assertEqual(entries[0]["dialogue"][0]["name"], "天野凛")
+
+    def test_journal_is_per_world(self) -> None:
+        other = self.new_world(self.user, "另一个世界")
+        self.client.post(f"/api/worlds/{self.world}/journal",
+                         json={"turn": 1, "narration": "甲世界"}, headers=self.auth(self.user))
+        entries = self.client.get(f"/api/worlds/{other}/journal", headers=self.auth(self.user)).json()["entries"]
+        self.assertEqual(entries, [], "别的世界不该看到这条记录")
+
+    def test_journal_survives_corrupt_line(self) -> None:
+        self.client.post(f"/api/worlds/{self.world}/journal",
+                         json={"turn": 1, "narration": "好记录"}, headers=self.auth(self.user))
+        path = self.tmp / "users" / self.user / "worlds" / self.world / "journal.jsonl"
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write("{ 这行是坏的\n")
+        self.client.post(f"/api/worlds/{self.world}/journal",
+                         json={"turn": 2, "narration": "后面的记录"}, headers=self.auth(self.user))
+        entries = self.client.get(f"/api/worlds/{self.world}/journal", headers=self.auth(self.user)).json()["entries"]
+        self.assertEqual([e["narration"] for e in entries], ["好记录", "后面的记录"])
+
     def test_import_rejects_garbage(self) -> None:
         response = self.client.post(
             "/api/worlds/import", json={"snapshot": {"nonsense": 1}}, headers=self.auth(self.user)

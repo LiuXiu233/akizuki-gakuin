@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { apiConfig, imageCredentials, useSettings, type LLMOrigin } from "@/lib/store";
 import type { Health, PipelineInfo } from "@/lib/types";
 
+import { SceneGenerator } from "./SceneGenerator";
 import { Field, Modal, Spinner, Tabs, Toggle } from "./ui";
 
 type Tab = "connection" | "llm" | "pipeline" | "image" | "about";
@@ -25,7 +26,9 @@ const ORIGIN_INFO: Record<LLMOrigin, { title: string; detail: string }> = {
   },
 };
 
-export function SettingsDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function SettingsDialog({
+  open, onClose, worldId,
+}: { open: boolean; onClose: () => void; worldId?: string }) {
   const settings = useSettings();
   const [tab, setTab] = useState<Tab>("connection");
   const [health, setHealth] = useState<Health | null>(null);
@@ -321,6 +324,12 @@ export function SettingsDialog({ open, onClose }: { open: boolean; onClose: () =
                 <button className="btn-ghost w-full" onClick={testImage} disabled={checking}>
                   {checking ? <Spinner label="生成测试图中…" /> : "测试图像服务"}
                 </button>
+                {worldId ? (
+                  <div className="mt-5 border-t border-paper-edge pt-4">
+                    <div className="label">预生成场景背景图</div>
+                    <SceneGenerator worldId={worldId} />
+                  </div>
+                ) : null}
                 <p className="mt-1 text-[11px] leading-relaxed text-ink-mute">
                   会真的向上游要一张图来验证配置，因此会产生一次计费。
                 </p>

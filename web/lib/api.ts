@@ -98,6 +98,13 @@ export const api = {
     request<{ snapshot: Record<string, unknown> }>(cfg, `/api/worlds/${worldId}/export`),
   importWorld: (cfg: ApiConfig, name: string, snapshot: Record<string, unknown>) =>
     request<{ world: WorldMeta }>(cfg, "/api/worlds/import", { method: "POST", body: JSON.stringify({ name, snapshot }) }),
+  /** 叙事日志：退出重进后靠它恢复历史记录 */
+  readJournal: (cfg: ApiConfig, worldId: string, limit = 60) =>
+    request<{ entries: Array<Record<string, any>> }>(cfg, `/api/worlds/${worldId}/journal?limit=${limit}`),
+  appendJournal: (cfg: ApiConfig, worldId: string, entry: Record<string, unknown>) =>
+    request<{ ok: boolean }>(cfg, `/api/worlds/${worldId}/journal`, {
+      method: "POST", body: JSON.stringify(entry),
+    }),
   listSnapshots: (cfg: ApiConfig, worldId: string) =>
     request<{ saves: Array<{ slot: string; date: string; time: string; turn: number }> }>(cfg, `/api/worlds/${worldId}/snapshots`),
   createSnapshot: (cfg: ApiConfig, worldId: string, slot: string) =>

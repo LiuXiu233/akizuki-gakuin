@@ -145,7 +145,9 @@ export function useTurnRunner(worldId: string) {
         const entry: LogEntry = {
           ...started,
           turn: result.turn ?? started.turn,
-          narration: result.narration_clean || result.narration,
+          // narration_clean 已经剥掉了推荐区块。它为空说明这一回合模型只给了推荐、
+          // 没写正文——此时宁可留空（由 NPC 台词兜底），也不能把推荐当正文再显示一遍。
+          narration: result.narration_clean ?? stripRecommendations(result.narration ?? ""),
           dialogue: result.dialogue ?? [],
           checkText: result.check_text ?? "",
           growthText: result.growth_text ?? "",
@@ -158,6 +160,15 @@ export function useTurnRunner(worldId: string) {
           errors: [...started.errors, ...(result.stage_errors ?? [])],
         };
         useGame.getState().pushLog(entry);
+        if (settings.llm.origin === "browser") {
+          // 后端模式下服务端已经写过了，浏览器直连模式要自己补一条
+          void api.appendJournal(cfg, worldId, {
+            turn: entry.turn, time: entry.time, playerInput: entry.playerInput,
+            narration: entry.narration, dialogue: entry.dialogue,
+            checkText: entry.checkText, growthText: entry.growthText,
+            recommendations: entry.recommendations, usage: entry.usage,
+          }).catch(() => undefined);
+        }
         useGame.getState().setWorld({
           world: result.world ?? game.world,
           panel: result.panel ?? game.panel,

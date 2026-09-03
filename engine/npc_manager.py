@@ -122,6 +122,14 @@ class NPCManager:
                 "dynamic_interests": runtime.get("dynamic_interests", []),
             }
         )
+        club_id = definition.get("club")
+        merged["class_name"] = {
+            "class_1a": "一年A班", "class_1b": "一年B班", "class_1c": "一年C班",
+            "class_2a": "二年A班", "class_2b": "二年B班", "class_2c": "二年C班",
+            "class_3a": "三年A班", "class_3b": "三年B班", "class_3c": "三年C班",
+        }.get(str(definition.get("class") or ""), "")
+        merged["club_name"] = (self.registry.get("group", club_id) or {}).get("name", "") if club_id else ""
+        merged["location_name"] = (self.registry.get("location", merged.get("location")) or {}).get("name", "")
         if not include_hidden:
             for field in ("secrets", "hidden_personality"):
                 merged.pop(field, None)

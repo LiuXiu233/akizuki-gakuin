@@ -838,6 +838,12 @@ def _knowledge_name(session: GameSession, knowledge_id: str) -> str:
     return entry.get("name", knowledge_id)
 
 
+CLASS_ZH = {
+    "class_1a": "一年A班", "class_1b": "一年B班", "class_1c": "一年C班",
+    "class_2a": "二年A班", "class_2b": "二年B班", "class_2c": "二年C班",
+    "class_3a": "三年A班", "class_3b": "三年B班", "class_3c": "三年C班",
+}
+
 CONDITION_ZH = {
     "tired": "有点累", "exhausted": "精疲力竭", "stressed": "压力有点大",
     "overloaded": "压力过载", "hungry": "稍微有些饿", "sleepy": "困",
@@ -949,7 +955,8 @@ def get_player_sheet() -> dict[str, Any]:
 
     lines = [
         "━━━━━━━━━━━━━━━━━━━━━━━━━━",
-        f"{player.get('name') or '（未命名）'} · {player.get('age')}岁 · {player.get('class', '')}",
+        f"{player.get('name') or '（未命名）'} · {player.get('age')}岁 · "
+        f"{CLASS_ZH.get(str(player.get('class') or ''), player.get('class') or '')}",
         "━━━━━━━━━━━━━━━━━━━━━━━━━━",
         "",
         "【属性】",

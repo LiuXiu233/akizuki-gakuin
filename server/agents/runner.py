@@ -91,7 +91,8 @@ class TurnContext:
             if key not in (result.data.get("__produces__") or []):
                 continue
             if key == "narration":
-                return result.text
+                # 结构化输出的阶段把正文放在 data.narration 里
+                return result.data.get("narration") or result.text
             if key in result.data:
                 return result.data[key]
             payload = {k: v for k, v in result.data.items() if k != "__produces__"}
@@ -358,6 +359,11 @@ class PipelineRunner:
             result.data = parse_json_output(text)
         produces = stage.get("produces") or []
         result.data["__produces__"] = produces
+        # JSON 阶段若没给出 narration，退回整段文本，避免正文凭空消失
+        if "narration" in produces and stage.get("output") == "json" and not result.data.get("narration"):
+            stripped = _strip_recommendation_block(text).strip()
+            if stripped:
+                result.data["narration"] = stripped
         if "recommendations" in produces and not result.data.get("recommendations"):
             result.data["recommendations"] = _parse_recommendations(text)
         if "images" in produces:

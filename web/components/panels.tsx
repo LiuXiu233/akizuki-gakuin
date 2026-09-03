@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { api } from "@/lib/api";
+import { zh } from "@/lib/labels";
 import { apiConfig, useGame, useSettings } from "@/lib/store";
 import type { CharacterState, MetaBundle } from "@/lib/types";
 
@@ -13,15 +14,6 @@ const ATTRIBUTE_ORDER = ["physique", "agility", "intellect", "perception", "char
 const ATTRIBUTE_ZH: Record<string, string> = {
   physique: "体魄", agility: "灵巧", intellect: "智力",
   perception: "感知", charm: "魅力", willpower: "意志", luck: "幸运",
-};
-const MOOD_ZH: Record<string, string> = {
-  normal: "平静", sleepy: "困倦", tired: "疲惫", energetic: "精神很好", inspired: "有灵感",
-  nervous: "紧张", embarrassed: "尴尬", confident: "自信", stressed: "焦躁", hungry: "饿",
-  focused: "专注", sick: "不舒服", excited: "兴奋", relaxed: "放松",
-};
-const CONDITION_ZH: Record<string, string> = {
-  tired: "有点累", exhausted: "精疲力竭", stressed: "压力有点大", overloaded: "压力过载",
-  hungry: "稍微有些饿", sleepy: "困", focused: "注意力集中", inspired: "有灵感",
 };
 
 function label(meta: MetaBundle | null, kind: "skills" | "knowledge", id: string): string {
@@ -45,7 +37,7 @@ export function StatusPanel() {
           <Meter label="压力" value={status.stress} tone={status.stress > 60 ? "sakura" : "amber"} />
           <div className="flex items-center justify-between pt-1 text-xs">
             <span className="text-ink-mute">心情</span>
-            <span>{MOOD_ZH[status.mood] ?? status.mood}</span>
+            <span>{zh.mood(status.mood)}</span>
           </div>
           <div className="flex items-center justify-between text-xs">
             <span className="text-ink-mute">金钱</span>
@@ -55,7 +47,7 @@ export function StatusPanel() {
         {player.conditions.length ? (
           <div className="mt-3 flex flex-wrap gap-1">
             {player.conditions.map((condition) => (
-              <span key={condition} className="chip">{CONDITION_ZH[condition] ?? condition}</span>
+              <span key={condition} className="chip">{zh.condition(condition)}</span>
             ))}
           </div>
         ) : null}
@@ -154,6 +146,7 @@ export function NearbyPanel({ worldId }: { worldId: string }) {
                   <span className="block truncate text-sm">{person.name}</span>
                   <span className="block truncate text-[11px] text-ink-mute">
                     {person.relationship} · {person.activity ?? "在这里"}
+                    {person.mood && person.mood !== "normal" ? ` · ${zh.mood(person.mood)}` : ""}
                   </span>
                 </span>
               </div>
@@ -172,6 +165,7 @@ export function CharacterModal({
   worldId, characterId, onClose,
 }: { worldId: string; characterId: string | null; onClose: () => void }) {
   const settings = useSettings();
+  const meta = useGame((state) => state.meta);
   const [data, setData] = useState<CharacterState | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -196,7 +190,7 @@ export function CharacterModal({
             <Portrait kind="portrait" subjectId={data.id} name={data.name} worldId={worldId}
                       className="aspect-[3/4] w-full" />
             <div className="text-xs text-ink-mute">
-              {data.age} 岁 · {data.class ?? data.role} · {data.tier}
+              {data.age} 岁 · {zh.className(data.class) || zh.role(data.role)} · {zh.tier(data.tier)}
             </div>
             <div className="chip chip-on">{data.relationship_with_player?.label}</div>
             {data.relationship_with_player?.hints?.length ? (
@@ -213,13 +207,15 @@ export function CharacterModal({
             {data.interests?.length ? (
               <Field label="兴趣">{data.interests.join("、")}</Field>
             ) : null}
+            {(data as any).club_name ? <Field label="社团">{(data as any).club_name}</Field> : null}
             <Field label="现在">
               {data.current_activity ?? data.schedule_now?.activity ?? "—"}
+              {data.status?.mood ? `　心情：${zh.mood(data.status.mood)}` : ""}
             </Field>
             {Object.keys(data.skills ?? {}).length ? (
               <Field label="擅长">
                 {Object.entries(data.skills).sort((a, b) => b[1] - a[1]).slice(0, 6)
-                  .map(([id, level]) => `${id} Lv.${level}`).join("　")}
+                  .map(([id, level]) => `${label(meta, "skills", id)} Lv.${level}`).join("　")}
               </Field>
             ) : null}
             <p className="rounded-xl bg-black/[0.03] p-2.5 text-[11px] leading-relaxed text-ink-mute">
@@ -326,7 +322,7 @@ export function MapPanel({ worldId, onMove }: { worldId: string; onMove: (id: st
                     : minutes !== undefined ? <span className="text-[11px] text-ink-mute">{minutes} 分钟</span> : null}
               </div>
               <div className="mt-1 flex flex-wrap gap-1">
-                {location.tags.slice(0, 3).map((tag) => <span key={tag} className="chip">{tag}</span>)}
+                {zh.tags(location.tags).map((tag) => <span key={tag} className="chip">{tag}</span>)}
               </div>
             </button>
           );
@@ -350,6 +346,7 @@ export function SchedulePanel() {
           <Row label="时刻">{world.time}（{world.block ?? "—"}）</Row>
           <Row label="天气">{world.weather_zh}</Row>
           <Row label="学期">{world.term?.name ?? "—"}</Row>
+          <Row label="今天">{zh.dayType(world.day_type)}</Row>
           <Row label="上课时间">{world.is_class_time ? "是" : "否"}</Row>
           <Row label="社团时间">{world.is_club_time ? "是" : "否"}</Row>
         </div>
@@ -359,7 +356,7 @@ export function SchedulePanel() {
         <Section title="今日课表">
           <div className="flex flex-wrap gap-1">
             {world.class_subjects_today.map((subject, index) => (
-              <span key={`${subject}-${index}`} className="chip">{index + 1}. {subject}</span>
+              <span key={`${subject}-${index}`} className="chip">{index + 1}. {zh.subject(subject)}</span>
             ))}
           </div>
         </Section>
@@ -447,8 +444,8 @@ export function DebugPanel() {
     <div className="space-y-4 text-xs">
       <Section title="本次运行">
         <div className="space-y-1">
-          <Row label="流水线">{settings.pipeline}</Row>
-          <Row label="LLM 位置">{settings.llm.origin}</Row>
+          <Row label="流水线">{zh.pipeline(settings.pipeline)}</Row>
+          <Row label="LLM 位置">{zh.llmOrigin(settings.llm.origin)}</Row>
           <Row label="模型">{settings.llm.model || "（用服务器默认）"}</Row>
           <Row label="流式">{settings.stream ? "开" : "关"}</Row>
           {stageProgress ? <Row label="当前阶段">{stageProgress.name}</Row> : null}

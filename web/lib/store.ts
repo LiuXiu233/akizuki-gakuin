@@ -146,6 +146,7 @@ interface GameStore {
 
   setWorld(payload: Partial<GameStore>): void;
   pushLog(entry: LogEntry): void;
+  setLog(entries: LogEntry[]): void;
   setImage(key: string, url: string): void;
   resetRun(): void;
   clear(): void;
@@ -158,6 +159,7 @@ export const useGame = create<GameStore>((set) => ({
 
   setWorld: (payload) => set(payload as any),
   pushLog: (entry) => set((state) => ({ log: [...state.log, entry].slice(-200) })),
+  setLog: (entries) => set({ log: entries.slice(-200) }),
   setImage: (key, url) => set((state) => ({ images: { ...state.images, [key]: url } })),
   resetRun: () => set({ stageProgress: null, liveText: "", liveDialogue: [], toolFeed: [], error: null }),
   clear: () => set({

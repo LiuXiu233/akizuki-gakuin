@@ -69,18 +69,24 @@ async def create_image(
     kind: avatar / portrait / scene / cg
     """
     service = _service(settings, registry, entry)
-    async with entry.lock:
-        try:
-            result = await service.generate(
-                world_id=world_id,
-                kind=payload.kind,
-                subject_id=payload.subject_id,
-                extra=payload.prompt_extra,
-                credentials=payload.credentials,
-                force=payload.force,
+    try:
+        # 只有"读世界拼提示词"这一步需要锁
+        async with entry.lock:
+            prepared = service.prepare(
+                world_id=world_id, kind=payload.kind, subject_id=payload.subject_id,
+                extra=payload.prompt_extra, credentials=payload.credentials, force=payload.force,
             )
-        except ImageError as exc:
-            return {"ok": False, "error": str(exc), "status": exc.status_code}
+        if not prepared.get("ok"):
+            return prepared
+        if prepared.get("done"):
+            return {"ok": True, "cached": True, "image": prepared["image"]}
+
+        # 出图要几十秒，这段时间不能占着世界不放，否则玩家的回合会被卡住
+        raw = await service.fetch(prepared)
+        result = service.store(prepared, raw, world_id)
+    except ImageError as exc:
+        return {"ok": False, "error": str(exc), "status": exc.status_code}
+    async with entry.lock:
         registry.sync_meta(entry)
     return result
 

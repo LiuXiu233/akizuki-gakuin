@@ -20,6 +20,7 @@ from engine import tools as T
 
 from ..agents.pipeline import load_pipeline
 from ..agents.runner import PipelineRunner
+from ..journal import Journal
 from ..config import Settings
 from ..deps import AccessDep, RegistryDep, SettingsDep, WorldDep
 from ..llm import LLMError, resolve_provider
@@ -29,6 +30,29 @@ from ..sessions import SessionRegistry, WorldSession, run_in_session
 log = logging.getLogger("server.routes.turn")
 
 router = APIRouter(tags=["turn"])
+
+
+def _record(entry: WorldSession, registry: SessionRegistry, payload: TurnRequest, turn: dict[str, Any]) -> None:
+    """把这一回合的叙事落盘，退出重进后还能读到。"""
+    world = turn.get("world") or {}
+    Journal(registry.store.worlds_dir(entry.user_id) / entry.world_id).append(
+        {
+            "turn": turn.get("turn"),
+            "date": world.get("date"),
+            "time": world.get("time"),
+            "location": ((world.get("location") or {}).get("name")),
+            "pipeline": turn.get("pipeline"),
+            "playerInput": payload.input,
+            "narration": turn.get("narration_clean") or turn.get("narration"),
+            "dialogue": turn.get("dialogue"),
+            "checkText": turn.get("check_text"),
+            "growthText": turn.get("growth_text"),
+            "recommendations": turn.get("recommendations"),
+            "randomEvent": turn.get("random_event"),
+            "usage": turn.get("usage"),
+            "errors": turn.get("stage_errors"),
+        }
+    )
 
 
 def _build_runner(
@@ -105,6 +129,7 @@ async def run_turn(
         raise HTTPException(status_code=500, detail="流水线没有产出结果")
     if errors:
         result["stage_errors"] = errors
+    _record(entry, registry, payload, result)
     return result
 
 
@@ -127,6 +152,8 @@ async def stream_turn(
         async with entry.lock:
             try:
                 async for event in runner.run(payload.input, stream=True):
+                    if event["type"] == "turn_end":
+                        _record(entry, registry, payload, event.get("turn") or {})
                     yield _sse(event["type"], event)
             except LLMError as exc:
                 yield _sse("error", exc.to_dict())

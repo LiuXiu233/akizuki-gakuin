@@ -7,6 +7,7 @@ import { CharacterCreator } from "@/components/CharacterCreator";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { Card, Empty, Modal, Spinner } from "@/components/ui";
 import { api, ApiError } from "@/lib/api";
+import { zh } from "@/lib/labels";
 import { apiConfig, useGame, useHydrated, useSettings } from "@/lib/store";
 import type { Health, MetaBundle, WorldMeta } from "@/lib/types";
 
@@ -170,8 +171,8 @@ export default function StartPage() {
                       </div>
                       <div className="mt-2 flex flex-wrap gap-1">
                         <span className="chip">第 {world.turn} 回合</span>
-                        <span className="chip">{world.npc_count} 人</span>
-                        <span className="chip">{world.pipeline}</span>
+                        <span className="chip">认识 {world.npc_count} 人</span>
+                        <span className="chip">{zh.pipeline(world.pipeline)}</span>
                         {world.image_count ? <span className="chip">{world.image_count} 张图</span> : null}
                       </div>
                     </button>

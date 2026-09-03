@@ -4,14 +4,14 @@ import { use, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
-  ImmersiveStage, InputBar, NarrativeStream, PanelTabs, Recommendations, SnapshotBar, TopBar,
-  type PanelTab,
+  ImmersiveStage, InputBar, NarrativeStream, OutcomeOverlay, PanelTabs, Recommendations,
+  SnapshotBar, TopBar, type PanelTab,
 } from "@/components/game";
 import { StatusPanel } from "@/components/panels";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { Card, Modal, Section, Spinner } from "@/components/ui";
 import { api, ApiError } from "@/lib/api";
-import { apiConfig, useGame, useHydrated, useSettings } from "@/lib/store";
+import { apiConfig, imageCredentials, useGame, useHydrated, useSettings } from "@/lib/store";
 import { useTurnRunner } from "@/lib/turn";
 
 export default function PlayPage({ params }: { params: Promise<{ worldId: string }> }) {
@@ -34,10 +34,11 @@ export default function PlayPage({ params }: { params: Promise<{ worldId: string
     const current = useSettings.getState();
     const cfg = apiConfig(current);
     try {
-      const [snapshot, meta, images] = await Promise.all([
+      const [snapshot, meta, images, journal] = await Promise.all([
         api.readWorld(cfg, worldId),
         game.meta ? Promise.resolve(game.meta) : api.meta(cfg),
         api.listImages(cfg, worldId).catch(() => ({ images: [] })),
+        api.readJournal(cfg, worldId).catch(() => ({ entries: [] })),
       ]);
       if (!snapshot.player?.name) { router.replace("/"); return; }
       setWorldName(snapshot.meta.name);
@@ -53,6 +54,26 @@ export default function PlayPage({ params }: { params: Promise<{ worldId: string
       for (const image of images.images ?? []) {
         game.setImage(`${image.kind}:${image.subject_id}`, image.url);
       }
+      // 恢复历史叙事——之前只存在内存里，刷新就没了
+      game.setLog(
+        (journal.entries ?? []).map((item) => ({
+          id: String(item.id ?? Math.random()),
+          turn: Number(item.turn ?? 0),
+          time: String(item.time ?? ""),
+          playerInput: String(item.playerInput ?? ""),
+          narration: String(item.narration ?? ""),
+          dialogue: item.dialogue ?? [],
+          checkText: String(item.checkText ?? ""),
+          growthText: String(item.growthText ?? ""),
+          panelText: "",
+          recommendations: item.recommendations ?? [],
+          randomEvent: item.randomEvent ?? null,
+          stages: [],
+          toolLog: [],
+          usage: item.usage ?? null,
+          errors: item.errors ?? [],
+        })),
+      );
       if (snapshot.meta.pipeline && snapshot.meta.pipeline !== current.pipeline) {
         current.set("pipeline", snapshot.meta.pipeline);
       }
@@ -69,6 +90,25 @@ export default function PlayPage({ params }: { params: Promise<{ worldId: string
     void load();
     return () => useGame.getState().clear();
   }, [load, hydrated]);
+
+  // 走到没画过的地方就在后台补一张背景图，不阻塞任何操作
+  const currentLocation = game.world?.location.id;
+  useEffect(() => {
+    const s = useSettings.getState();
+    if (!currentLocation || !s.image.enabled || !s.image.auto) return;
+    if (useGame.getState().images[`scene:${currentLocation}`]) return;
+    let cancelled = false;
+    api.generateImage(apiConfig(s), worldId, {
+      kind: "scene", subject_id: currentLocation, credentials: imageCredentials(s),
+    })
+      .then((result) => {
+        if (!cancelled && result.ok && result.image) {
+          useGame.getState().setImage(`scene:${result.image.subject_id}`, result.image.url);
+        }
+      })
+      .catch(() => undefined);
+    return () => { cancelled = true; };
+  }, [currentLocation, worldId]);
 
   const move = useCallback(async (locationId: string, name: string) => {
     setDrawer(null);
@@ -98,7 +138,8 @@ export default function PlayPage({ params }: { params: Promise<{ worldId: string
     <TopBar worldName={worldName}
             onOpenSettings={() => setSettingsOpen(true)}
             onToggleMode={() => settings.set("uiMode", immersive ? "panel" : "immersive")}
-            onOpenMenu={(value) => { setTab(value); setDrawer(value); }} />
+            onOpenMenu={(value) => { setTab(value); setDrawer(value); }}
+            onOpenLog={() => { setTab("log"); setDrawer("log"); }} />
   );
 
   /* ---------------- 沉浸模式 ---------------- */
@@ -110,11 +151,15 @@ export default function PlayPage({ params }: { params: Promise<{ worldId: string
         <div className="relative z-10 flex h-full flex-col">
           <div className="border-b border-white/10 bg-black/30 backdrop-blur">{topBar}</div>
 
+          {/* 判定与成长走独立浮层，不和正文抢位置 */}
+          <OutcomeOverlay />
+
           <div className="flex-1" />
 
-          <div className="glass-dark mx-3 mb-3 flex max-h-[58%] flex-col rounded-3xl p-4 sm:mx-6 sm:mb-6 sm:p-5">
-            <div className="scroll-thin mb-3 flex-1 overflow-y-auto pr-1">
-              <NarrativeStream dark />
+          {/* 对话框压在下三分之一，别挡住场景与立绘 */}
+          <div className="glass-dark mx-3 mb-3 flex max-h-[38dvh] flex-col rounded-3xl p-3.5 sm:mx-6 sm:mb-5 sm:p-4">
+            <div className="scroll-thin mb-2.5 min-h-[3rem] flex-1 overflow-y-auto pr-1">
+              <NarrativeStream dark only="latest" />
             </div>
             <Recommendations dark onPick={(text) => void run(text)} />
             <InputBar dark onSubmit={(text) => void run(text)} onCancel={cancel} />
@@ -127,7 +172,7 @@ export default function PlayPage({ params }: { params: Promise<{ worldId: string
             <Section title="存档点"><SnapshotBar worldId={worldId} /></Section>
           </div>
         </Modal>
-        <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+        <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} worldId={worldId} />
       </main>
     );
   }
@@ -166,7 +211,7 @@ export default function PlayPage({ params }: { params: Promise<{ worldId: string
       <Modal open={!!drawer} onClose={() => setDrawer(null)} title="角色与世界" wide>
         <PanelTabs worldId={worldId} active={tab} onChange={setTab} onMove={move} />
       </Modal>
-      <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} worldId={worldId} />
     </main>
   );
 }

@@ -21,6 +21,7 @@ from ..schemas import (
     WorldImportRequest,
     WorldPatchRequest,
 )
+from ..journal import Journal
 from ..sessions import SessionError, run_in_session
 
 router = APIRouter(tags=["worlds"])
@@ -228,6 +229,26 @@ async def import_world(
     await run_in_threadpool(_write)
     entry = await registry.acquire(user_id, meta.id)
     return {"ok": True, "world": registry.sync_meta(entry).to_dict()}
+
+
+@router.get("/worlds/{world_id}/journal")
+async def read_journal(
+    world_id: str, _: AccessDep, store: StoreDep, user_id: UserDep, entry: WorldDep, limit: int = 60
+) -> dict[str, Any]:
+    """读取这个世界的叙事日志——退出重进后靠它恢复历史记录。"""
+    journal = Journal(store.worlds_dir(user_id) / world_id)
+    return {"ok": True, "entries": journal.read(limit=max(1, min(200, limit)))}
+
+
+@router.post("/worlds/{world_id}/journal")
+async def append_journal(
+    payload: dict[str, Any], world_id: str, _: AccessDep, store: StoreDep, user_id: UserDep, entry: WorldDep
+) -> dict[str, Any]:
+    """追加一条叙事记录（浏览器直连模式下由前端写入）。"""
+    journal = Journal(store.worlds_dir(user_id) / world_id)
+    record = journal.append(payload or {})
+    journal.compact()
+    return {"ok": True, "entry": record}
 
 
 # ---------------------------------------------------------------------------

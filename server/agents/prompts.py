@@ -138,6 +138,16 @@ STAGE_OUTPUT_HINTS: dict[str, str] = {
   ]
 }
 category 取值：social / romance / hobby / study / explore / rest / club / event""",
+    "scene": """\
+输出严格的 JSON（不要 markdown 代码块）：
+{
+  "narration": "这一回合的场景正文，150~400 字。不要包含推荐行动，不要复述数值。",
+  "recommendations": [
+    {"text": "问凛要不要一起去车站附近吃点东西", "minutes": "约 1~2 小时", "category": "romance"}
+  ]
+}
+narration 必须是真正的场景描写；推荐行动只放在 recommendations 里。
+category 取值：social / romance / hobby / study / explore / rest / club / event""",
     "images": """\
 输出严格的 JSON（不要 markdown 代码块）：
 {

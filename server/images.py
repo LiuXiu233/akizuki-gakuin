@@ -275,6 +275,62 @@ class ImageService:
     # ------------------------------------------------------------------
     # 生成
     # ------------------------------------------------------------------
+    def prepare(
+        self,
+        *,
+        world_id: str,
+        kind: str,
+        subject_id: str,
+        extra: str = "",
+        credentials: Any = None,
+        force: bool = False,
+    ) -> dict[str, Any]:
+        """只做需要读世界数据的部分：查缓存 + 拼提示词。
+
+        单独拆出来是为了**不要在等上游出图的那一分钟里一直锁着世界**——
+        否则玩家的回合会被一张图卡住。
+        """
+        if kind not in KINDS:
+            raise ImageError(f"未知图像类型: {kind}（可用: {', '.join(KINDS)}）", status_code=400)
+        subject_id = (subject_id or "").strip() or "unknown"
+        if not SUBJECT_RE.match(subject_id):
+            raise ImageError("非法的 subject_id", status_code=400)
+        if not self.settings.image_enabled:
+            return {"ok": False, "skipped": "服务器关闭了图像功能"}
+
+        url = f"/api/worlds/{world_id}/images/file/{kind}/{subject_id}.png"
+        if self.path_for(kind, subject_id).exists() and not force:
+            return {
+                "ok": True, "cached": True, "done": True,
+                "image": {"kind": kind, "subject_id": subject_id, "url": url},
+            }
+
+        config = self.resolve(credentials)
+        if not (config["api_key"] or (config["provider"] == "custom" and config["base_url"])):
+            return {"ok": False, "skipped": "没有配置文生图服务"}
+
+        return {
+            "ok": True, "cached": False, "done": False,
+            "kind": kind, "subject_id": subject_id, "url": url,
+            "config": config, "prompt": self.build_prompt(kind, subject_id, extra, config),
+        }
+
+    def store(self, prepared: dict[str, Any], raw: bytes, world_id: str) -> dict[str, Any]:
+        """落盘 + 记账。只碰文件系统，不碰引擎状态。"""
+        kind, subject_id = prepared["kind"], prepared["subject_id"]
+        self.path_for(kind, subject_id).write_bytes(raw)
+        self.write_index(f"{kind}:{subject_id}", {
+            "kind": kind, "subject_id": subject_id, "created_at": time.time(),
+            "prompt": prepared["prompt"], "model": prepared["config"]["model"],
+            "hash": hashlib.sha256(raw).hexdigest()[:16],
+        })
+        log.info("generated image %s:%s for world %s", kind, subject_id, world_id)
+        return {
+            "ok": True, "cached": False,
+            "image": {"kind": kind, "subject_id": subject_id, "url": prepared["url"]},
+            "prompt": prepared["prompt"],
+        }
+
     async def generate(
         self,
         *,
@@ -285,38 +341,15 @@ class ImageService:
         credentials: Any = None,
         force: bool = False,
     ) -> dict[str, Any]:
-        if kind not in KINDS:
-            raise ImageError(f"未知图像类型: {kind}（可用: {', '.join(KINDS)}）", status_code=400)
-        subject_id = (subject_id or "").strip() or "unknown"
-        if not SUBJECT_RE.match(subject_id):
-            raise ImageError("非法的 subject_id", status_code=400)
-        if not self.settings.image_enabled:
-            return {"ok": False, "skipped": "服务器关闭了图像功能"}
-
-        target = self.path_for(kind, subject_id)
-        key = f"{kind}:{subject_id}"
-        url = f"/api/worlds/{world_id}/images/file/{kind}/{subject_id}.png"
-        if target.exists() and not force:
-            return {"ok": True, "cached": True, "image": {"kind": kind, "subject_id": subject_id, "url": url}}
-
-        config = self.resolve(credentials)
-        if not (config["api_key"] or (config["provider"] == "custom" and config["base_url"])):
-            return {"ok": False, "skipped": "没有配置文生图服务"}
-
-        prompt = self.build_prompt(kind, subject_id, extra, config)
-        raw = await self._call_upstream(prompt, config)
-        target.write_bytes(raw)
-        self.write_index(key, {
-            "kind": kind, "subject_id": subject_id, "created_at": time.time(),
-            "prompt": prompt, "model": config["model"],
-            "hash": hashlib.sha256(raw).hexdigest()[:16],
-        })
-        log.info("generated image %s for world %s", key, world_id)
-        return {
-            "ok": True, "cached": False,
-            "image": {"kind": kind, "subject_id": subject_id, "url": url},
-            "prompt": prompt,
-        }
+        """一步到位地生成（测试与脚本用；HTTP 路由走 prepare/fetch/store 三段式）。"""
+        prepared = self.prepare(
+            world_id=world_id, kind=kind, subject_id=subject_id,
+            extra=extra, credentials=credentials, force=force,
+        )
+        if prepared.get("done") or not prepared.get("ok"):
+            return {k: v for k, v in prepared.items() if k not in ("config", "prompt", "done", "kind", "subject_id", "url")}                 if not prepared.get("ok") else {"ok": True, "cached": True, "image": prepared["image"]}
+        raw = await self._call_upstream(prepared["prompt"], prepared["config"])
+        return self.store(prepared, raw, world_id)
 
     async def probe(self, credentials: Any = None, *, prompt: str = "") -> dict[str, Any]:
         """连通性自检：真实向上游要一张图，但不写入任何世界。
@@ -334,18 +367,17 @@ class ImageService:
         )
         raw = await self._call_upstream(test_prompt, config)
         result = {
-            "ok": True,
-            "bytes": len(raw),
-            "provider": config["provider"],
-            "model": config["model"],
-            "size": config["size"],
-            "sfw": config["sfw"],
+            "ok": True, "bytes": len(raw), "provider": config["provider"],
+            "model": config["model"], "size": config["size"], "sfw": config["sfw"],
             "prompt": test_prompt,
         }
-        # 小图直接回一个 data URL，让你在设置里就能看到"确实出图了"
         if len(raw) <= 4 * 1024 * 1024:
             result["preview"] = "data:image/png;base64," + base64.b64encode(raw).decode()
         return result
+
+    async def fetch(self, prepared: dict[str, Any]) -> bytes:
+        """向上游要图。不需要锁，也不碰世界状态。"""
+        return await self._call_upstream(prepared["prompt"], prepared["config"])
 
     async def _call_upstream(self, prompt: str, config: dict[str, Any]) -> bytes:
         if config["provider"] == "custom":

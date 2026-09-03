@@ -42,7 +42,11 @@ stages:
     max_tokens: 2600
     tools: [end_turn, get_action_context, record_recommendations, add_memory]
     produces: [narration, recommendations]
+    output: json
+    output_hint: scene
     prompt: |
       把这一回合写成连贯的场景，把 NPC 的台词自然地编织进去（不要改写台词内容）。
-      写完后调用 end_turn 收尾，再另起一段以「【你可以……】」开头给出 3~5 条推荐行动，
-      每条注明大概耗时。不要泄露隐藏数值，不要暗示成功率。
+      先调用 end_turn 收尾，再根据它返回的 action_context 给出推荐行动。
+
+      **narration 字段不能为空，也不能把推荐塞进去。**
+      正文和推荐是两个字段，各归各的。

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { api } from "@/lib/api";
 import { useAsset } from "@/lib/assets";
+import { zh } from "@/lib/labels";
 import { apiConfig, useGame, useSettings } from "@/lib/store";
 import type { LogEntry } from "@/lib/store";
 
@@ -16,8 +17,11 @@ import { Card, Empty, Modal, Spinner, Tabs } from "./ui";
 /* ------------------------------------------------------------------ 顶栏 */
 
 export function TopBar({
-  worldName, onOpenSettings, onToggleMode, onOpenMenu,
-}: { worldName: string; onOpenSettings: () => void; onToggleMode: () => void; onOpenMenu: (tab: PanelTab) => void }) {
+  worldName, onOpenSettings, onToggleMode, onOpenMenu, onOpenLog,
+}: {
+  worldName: string; onOpenSettings: () => void; onToggleMode: () => void;
+  onOpenMenu: (tab: PanelTab) => void; onOpenLog?: () => void;
+}) {
   const world = useGame((state) => state.world);
   const settings = useSettings();
   const immersive = settings.uiMode === "immersive";
@@ -35,6 +39,9 @@ export function TopBar({
           <span className="hidden max-w-[10rem] truncate sm:inline">{world.location.name}</span>
         </>
       ) : <span className="ml-auto" />}
+      {immersive && onOpenLog ? (
+        <button className="btn-quiet btn-sm text-paper/80 hover:bg-white/10" onClick={onOpenLog}>历史</button>
+      ) : null}
       <button className={immersive ? "btn-quiet btn-sm text-paper/80 hover:bg-white/10" : "btn-quiet btn-sm"}
               onClick={() => onOpenMenu("status")}>面板</button>
       <button className={immersive ? "btn-quiet btn-sm text-paper/80 hover:bg-white/10" : "btn-quiet btn-sm"}
@@ -47,16 +54,18 @@ export function TopBar({
 
 /* ------------------------------------------------------------------ 叙事流 */
 
-export function NarrativeStream({ dark = false }: { dark?: boolean }) {
+export function NarrativeStream({
+  dark = false, only = "history",
+}: { dark?: boolean; only?: "history" | "latest" }) {
   const { log, liveText, liveDialogue, busy, stageProgress, error } = useGame();
-  const settings = useSettings();
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [log.length, liveText, liveDialogue.length, busy]);
 
-  const recent = log.slice(-12);
+  // 沉浸模式只看当前这一回合，历史去「日志」面板翻
+  const recent = only === "latest" ? log.slice(-1) : log.slice(-12);
 
   return (
     <div className={`space-y-6 ${dark ? "text-paper" : ""}`}>
@@ -67,7 +76,9 @@ export function NarrativeStream({ dark = false }: { dark?: boolean }) {
         </p>
       ) : null}
 
-      {recent.map((entry) => <TurnBlock key={entry.id} entry={entry} dark={dark} />)}
+      {recent.map((entry) => (
+        <TurnBlock key={entry.id} entry={entry} dark={dark} compact={only === "latest"} />
+      ))}
 
       {busy ? (
         <div className="animate-fade-up space-y-2">
@@ -97,13 +108,14 @@ export function NarrativeStream({ dark = false }: { dark?: boolean }) {
         </p>
       ) : null}
 
-      {settings.debug && !busy ? null : null}
       <div ref={endRef} />
     </div>
   );
 }
 
-function TurnBlock({ entry, dark }: { entry: LogEntry; dark: boolean }) {
+function TurnBlock({
+  entry, dark, compact = false,
+}: { entry: LogEntry; dark: boolean; compact?: boolean }) {
   return (
     <article className="animate-fade-up space-y-3">
       {entry.playerInput ? (
@@ -122,12 +134,12 @@ function TurnBlock({ entry, dark }: { entry: LogEntry; dark: boolean }) {
         </p>
       ))}
 
-      {entry.checkText ? (
+      {!compact && entry.checkText ? (
         <pre className={`whitespace-pre-wrap rounded-xl p-3 font-sans text-[11px] leading-relaxed ${
           dark ? "bg-white/10 text-paper/85" : "bg-black/[0.04]"}`}>{entry.checkText}</pre>
       ) : null}
 
-      {entry.growthText ? (
+      {!compact && entry.growthText ? (
         <pre className={`whitespace-pre-wrap rounded-xl p-3 font-sans text-[11px] leading-relaxed ${
           dark ? "bg-moss/25 text-paper/90" : "bg-moss/10"}`}>{entry.growthText}</pre>
       ) : null}
@@ -145,7 +157,55 @@ function TurnBlock({ entry, dark }: { entry: LogEntry; dark: boolean }) {
   );
 }
 
+/* ------------------------------------------------------------------ 判定 / 成长浮层 */
+
+/**
+ * 沉浸模式下把【判定】【成长】从正文里抽出来，做成右上角的独立卡片。
+ * 它们是规则结算的结果，和叙事是两回事，叠在一起既挡画面又打断阅读。
+ */
+export function OutcomeOverlay() {
+  const log = useGame((state) => state.log);
+  const busy = useGame((state) => state.busy);
+  const last = log[log.length - 1];
+  const [dismissed, setDismissed] = useState<string | null>(null);
+
+  useEffect(() => { setDismissed(null); }, [last?.id]);
+
+  if (!last || busy) return null;
+  if (dismissed === last.id) return null;
+  if (!last.checkText && !last.growthText && !last.randomEvent) return null;
+
+  return (
+    <div className="pointer-events-auto absolute right-3 top-14 z-20 w-56 sm:right-6 sm:top-16 sm:w-64">
+      <div className="glass-dark animate-fade-up p-3 text-[11px] leading-relaxed">
+        <button onClick={() => setDismissed(last.id)}
+                className="float-right -mr-1 -mt-1 rounded px-1 text-paper/50 hover:text-paper"
+                aria-label="收起">✕</button>
+        {last.checkText ? (
+          <pre className="whitespace-pre-wrap font-sans text-paper/90">{last.checkText}</pre>
+        ) : null}
+        {last.growthText ? (
+          <pre className={`whitespace-pre-wrap font-sans text-moss ${last.checkText ? "mt-2 border-t border-white/10 pt-2" : ""}`}>
+            {last.growthText}
+          </pre>
+        ) : null}
+        {last.randomEvent ? (
+          <p className={`text-paper/60 ${last.checkText || last.growthText ? "mt-2 border-t border-white/10 pt-2" : ""}`}>
+            ◇ {last.randomEvent.name}
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------ 输入与推荐 */
+
+const CATEGORY_TONE: Record<string, string> = {
+  romance: "text-sakura-deep", social: "text-dusk", study: "text-moss",
+  hobby: "text-amber", club: "text-amber", explore: "text-dusk",
+  rest: "text-ink-mute", event: "text-sakura-deep",
+};
 
 export function Recommendations({
   onPick, dark = false,
@@ -157,14 +217,33 @@ export function Recommendations({
   if (!items.length || busy) return null;
 
   return (
-    <div className="mb-2 flex flex-wrap gap-1.5">
+    <div className="mb-2.5 grid gap-1.5 sm:grid-cols-2">
       {items.map((item, index) => (
-        <button key={index} onClick={() => onPick(item.text)}
-                className={`group rounded-xl border px-3 py-1.5 text-left text-xs transition ${
-                  dark ? "border-white/15 bg-white/10 text-paper hover:bg-white/20"
-                       : "border-paper-edge bg-white/70 hover:bg-white"}`}>
-          <span className="opacity-50">{index + 1}.</span> {item.text}
-          {item.minutes ? <span className="ml-1.5 opacity-55">{item.minutes}</span> : null}
+        <button
+          key={index}
+          onClick={() => onPick(item.text)}
+          className={`group flex items-start gap-2 rounded-xl border px-3 py-2 text-left transition ${
+            dark
+              ? "border-white/12 bg-white/[0.07] text-paper hover:border-white/25 hover:bg-white/15"
+              : "border-paper-edge bg-white/70 hover:border-dusk/30 hover:bg-white"
+          }`}
+        >
+          <span className={`mt-0.5 flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-md text-[10px] tabular-nums ${
+            dark ? "bg-white/15 text-paper/80" : "bg-dusk/10 text-dusk"}`}>
+            {index + 1}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] leading-snug">{item.text}</span>
+            {item.minutes || item.category ? (
+              <span className={`mt-0.5 block text-[10px] ${dark ? "text-paper/45" : "text-ink-mute"}`}>
+                {item.minutes}
+                {item.minutes && item.category ? " · " : ""}
+                {item.category ? (
+                  <span className={dark ? "" : CATEGORY_TONE[item.category] ?? ""}>{zh.category(item.category)}</span>
+                ) : null}
+              </span>
+            ) : null}
+          </span>
         </button>
       ))}
     </div>
