@@ -1,6 +1,7 @@
 "use client";
 
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
   return <div className={`card ${className}`}>{children}</div>;
@@ -46,14 +47,22 @@ export function Modal({
   open, onClose, title, children, wide = false,
 }: { open: boolean; onClose: () => void; title: string; children: ReactNode; wide?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") onClose(); };
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
   }, [open, onClose]);
-  if (!open) return null;
-  return (
+  if (!open || !mounted) return null;
+  // 必须挂到 body：任何祖先只要有 backdrop-filter / transform，
+  // 就会成为 fixed 定位的包含块，弹窗会被困在那一栏里。
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-0 backdrop-blur-sm sm:items-center sm:p-6"
          onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
       <div ref={ref}
@@ -64,7 +73,8 @@ export function Modal({
         </header>
         <div className="scroll-thin flex-1 overflow-y-auto px-5 py-4">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

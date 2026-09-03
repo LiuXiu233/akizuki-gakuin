@@ -124,6 +124,23 @@ class ImageTestCase(unittest.IsolatedAsyncioTestCase):
             prompt = self.service.build_prompt(kind, "npc_hoshino_makoto", "", config)
             self.assertIn("18+", prompt)
 
+    async def test_portrait_is_a_sprite_not_a_reference_sheet(self) -> None:
+        """踩过的坑：提示词里带 "character sheet" 会被画成多视图设定集。"""
+        config = self.service.resolve(self.creds())
+        prompt = self.service.build_prompt("portrait", "npc_amano_rin", "", config)
+        self.assertNotIn("character sheet", prompt.lower())
+        self.assertIn("visual novel sprite", prompt.lower())
+        self.assertIn("one character only", prompt.lower())
+        self.assertIn("not a reference sheet", prompt.lower())
+
+    async def test_all_kinds_forbid_text_in_image(self) -> None:
+        config = self.service.resolve(self.creds())
+        for kind, subject in (("avatar", "npc_amano_rin"), ("portrait", "npc_amano_rin"),
+                              ("scene", "loc_rooftop"), ("cg", "x")):
+            prompt = self.service.build_prompt(kind, subject, "", config)
+            self.assertIn("no text", prompt.lower(), f"{kind} 少了禁止文字的约束")
+            self.assertIn("no watermark", prompt.lower())
+
     async def test_uniform_tie_matches_grade(self) -> None:
         """领带颜色按年级区分是世界设定，不能让模型随便挑。"""
         from server.images import uniform_for

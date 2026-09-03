@@ -55,22 +55,34 @@ RISKY_WORDS = (
     "裸", "情色", "性感", "内衣", "泳装",
 )
 
+#: 所有图共同的负面约束。踩过的坑：不写死的话，
+#: "character sheet" 会被画成带文字标注的多视图设定集，完全不能当立绘用。
+NO_TEXT = (
+    "no text, no captions, no labels, no watermark, no signature, no UI elements, "
+    "no speech bubbles, no logos"
+)
+SINGLE_VIEW = "single view, one continuous illustration, not a reference sheet, no multiple panels"
+
 KIND_TEMPLATES = {
     "avatar": (
         "Character portrait, head and shoulders, front facing, calm neutral expression, "
-        "plain soft background. Adult university-preparatory student (18+ years old)."
+        "plain soft background. Adult university-preparatory student (18+ years old). "
+        f"{SINGLE_VIEW}. {NO_TEXT}."
     ),
     "portrait": (
-        "Full character sheet illustration, three-quarter view, standing, natural pose, "
-        "plain background, visible from head to knees. Adult university-preparatory student (18+ years old)."
+        "Single standing character illustration in visual novel sprite style. "
+        "One character only, full body from head to feet, facing the viewer, "
+        "natural relaxed pose, arms at the sides, centered composition, "
+        "plain flat light-grey background. Adult university-preparatory student (18+ years old). "
+        f"{SINGLE_VIEW}. {NO_TEXT}."
     ),
     "scene": (
         "Establishing shot of an empty location, no people in frame, "
-        "cinematic composition, depth of field."
+        f"cinematic composition, depth of field. {SINGLE_VIEW}. {NO_TEXT}."
     ),
     "cg": (
         "Story illustration, cinematic composition, expressive but restrained. "
-        "All depicted characters are adults (18+)."
+        f"All depicted characters are adults (18+). {SINGLE_VIEW}. {NO_TEXT}."
     ),
 }
 
